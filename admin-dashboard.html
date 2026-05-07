@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard — Wireless PA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="admin">
+  <div class="demo-ribbon">DEMO PROTOTYPE</div>
+  <div class="admin-shell">
+    <aside class="admin-side">
+      <div class="flex items-center gap-2 mb-6 px-2">
+        <div class="w-8 h-8 rounded-lg bg-blue-700 text-white flex items-center justify-center text-sm font-bold">PA</div>
+        <div>
+          <div class="font-bold text-white">Admin Console</div>
+          <div class="text-xs text-slate-400">Wireless PA · Vendor</div>
+        </div>
+      </div>
+      <nav>
+        <a href="admin-dashboard.html" class="admin-nav active">📊 Dashboard</a>
+        <a href="admin-projects.html"  class="admin-nav">📁 โครงการ</a>
+        <a href="admin-speakers.html"  class="admin-nav">🔊 จุดประกาศ</a>
+        <a href="admin-accounts.html"  class="admin-nav">👤 ผู้ใช้</a>
+        <a href="status.html"          class="admin-nav">⚙️ สถานะระบบ</a>
+      </nav>
+      <div class="mt-8 pt-4 border-t border-white/10 px-2">
+        <div class="text-xs text-slate-400 mb-1">เข้าสู่ระบบในชื่อ</div>
+        <div class="text-sm font-medium text-white" id="adminName">—</div>
+        <div class="text-xs text-slate-400" id="adminEmail">—</div>
+        <a href="index.html" class="block mt-3 text-xs text-slate-300 hover:text-white">→ ออกจากระบบ</a>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 class="text-2xl font-bold">ภาพรวมระบบ</h1>
+          <p class="text-sm text-slate-400 mt-1">จัดการโครงการ ผู้ใช้ และจุดประกาศของลูกค้าทั้งหมด</p>
+        </div>
+        <a href="admin-projects.html" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">+ เพิ่มโครงการ</a>
+      </div>
+
+      <!-- Stat cards -->
+      <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="statGrid"></section>
+
+      <!-- Two columns: tier breakdown + recent activity -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <section class="admin-card">
+          <h2 class="text-lg font-bold mb-4">รายได้ตาม Package Tier</h2>
+          <div id="tierBreakdown" class="space-y-3"></div>
+        </section>
+
+        <section class="admin-card">
+          <h2 class="text-lg font-bold mb-4">เหตุการณ์ล่าสุด</h2>
+          <ul id="activity" class="space-y-3 text-sm"></ul>
+        </section>
+      </div>
+
+      <!-- Projects quick view -->
+      <section class="admin-card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold">โครงการล่าสุด</h2>
+          <a href="admin-projects.html" class="text-sm text-blue-400 hover:underline">ดูทั้งหมด →</a>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left">
+                <th class="px-3 py-2 font-semibold">โครงการ</th>
+                <th class="px-3 py-2 font-semibold">Tier</th>
+                <th class="px-3 py-2 font-semibold">สถานะ</th>
+                <th class="px-3 py-2 font-semibold">ผู้ใช้</th>
+                <th class="px-3 py-2 font-semibold">จุดประกาศ</th>
+                <th class="px-3 py-2 font-semibold">หมดอายุ</th>
+              </tr>
+            </thead>
+            <tbody id="projectRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/mock.js"></script>
+  <script src="assets/role.js"></script>
+  <script>
+    const me = getCurrentUser() || USERS.find(u => u.role === 'admin');
+    document.getElementById('adminName').textContent = me ? me.name : 'Admin';
+    document.getElementById('adminEmail').textContent = me ? me.email : '—';
+
+    function h(tag, cls, txt) {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      if (txt != null) el.textContent = txt;
+      return el;
+    }
+
+    function statCard(label, value, hint, color) {
+      const card = h('div', 'admin-card');
+      const l = h('div', 'text-xs text-slate-400 uppercase tracking-wider', label);
+      const v = h('div', 'text-3xl font-bold mt-2 text-white', value);
+      v.style.color = color || '#fff';
+      const hi = h('div', 'text-xs text-slate-400 mt-1', hint);
+      card.append(l, v, hi);
+      return card;
+    }
+
+    const totalAccounts = USERS.filter(u => u.role !== 'admin').length;
+    const totalSpeakers = SPEAKERS.length;
+    const onlineSpeakers = SPEAKERS.filter(s => s.online).length;
+    const activeProjects = PROJECTS.filter(p => p.status === 'active').length;
+    const expiring = PROJECTS.filter(p => p.status === 'expiring').length;
+
+    const sg = document.getElementById('statGrid');
+    sg.append(
+      statCard('โครงการที่ใช้งาน', activeProjects + ' / ' + PROJECTS.length, `${expiring} ใกล้หมดอายุ`, '#60a5fa'),
+      statCard('ผู้ใช้ทั้งหมด',     totalAccounts,                              `${USERS.filter(u => u.role === 'headVillage').length} ผู้ใหญ่บ้าน`, '#34d399'),
+      statCard('จุดประกาศ',          totalSpeakers,                              `${onlineSpeakers} ออนไลน์`, '#fbbf24'),
+      statCard('รายได้ประจำเดือน',   '฿69,700',                                  '+12% จากเดือนก่อน', '#a78bfa'),
+    );
+
+    // Tier breakdown
+    const tb = document.getElementById('tierBreakdown');
+    PACKAGE_TIERS.forEach(t => {
+      const count = PROJECTS.filter(p => p.tier === t.id && p.status !== 'expired').length;
+      const total = PROJECTS.filter(p => p.status !== 'expired').length;
+      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      const row = h('div', '');
+      const head = h('div', 'flex items-center justify-between mb-2');
+      const left = h('div', 'flex items-center gap-2');
+      const badge = h('span', `tier-badge ${t.id}`, t.name);
+      left.append(badge);
+      const sub = h('span', 'text-xs text-slate-400', `· ${count} โครงการ`);
+      left.append(sub);
+      head.append(left);
+      const right = h('span', 'text-sm font-mono text-slate-300', t.price);
+      head.append(right);
+      row.append(head);
+      const meter = h('div', 'meter-track');
+      meter.style.background = 'rgba(255,255,255,0.08)';
+      const fill = h('div', 'meter-fill ok');
+      fill.style.width = `${pct}%`;
+      meter.append(fill);
+      row.append(meter);
+      tb.append(row);
+    });
+
+    // Activity feed
+    const acts = [
+      { t: '2026-05-07 14:00', icon: '✨', text: 'โครงการใหม่: เทศบาลตำบลบางสะพาน (Premium)' },
+      { t: '2026-05-06 10:15', icon: '👤', text: 'เพิ่มผู้ใช้ใหม่: ลุงสมศักดิ์ (head village) ในโครงการ p1' },
+      { t: '2026-05-05 16:00', icon: '🔊', text: 'เพิ่มจุดประกาศ 3 จุดในโครงการ p2' },
+      { t: '2026-05-04 09:30', icon: '⚠️', text: 'โครงการ p3 ใกล้หมดอายุ (24 วัน)' },
+      { t: '2026-05-03 12:00', icon: '💰', text: 'ต่อสัญญา p2 อีก 1 ปี' },
+    ];
+    const feed = document.getElementById('activity');
+    acts.forEach(a => {
+      const li = h('li', 'flex items-start gap-3');
+      const ic = h('span', '');
+      ic.style.fontSize = '20px';
+      ic.textContent = a.icon;
+      li.append(ic);
+      const wrap = h('div', 'flex-1 min-w-0');
+      wrap.append(h('div', 'text-slate-200', a.text));
+      wrap.append(h('div', 'text-xs text-slate-500 font-mono', a.t));
+      li.append(wrap);
+      feed.append(li);
+    });
+
+    // Projects table
+    const STATUS_BADGE = {
+      active:   { text: 'ใช้งาน',     bg: 'bg-green-500/15 text-green-400' },
+      expiring: { text: 'ใกล้หมดอายุ', bg: 'bg-amber-500/15 text-amber-400' },
+      expired:  { text: 'หมดอายุ',    bg: 'bg-red-500/15 text-red-400' },
+    };
+    const pr = document.getElementById('projectRows');
+    PROJECTS.forEach(p => {
+      const tier = TIER_LABEL[p.tier];
+      const accounts = USERS.filter(u => u.projectId === p.id).length;
+      const speakers = SPEAKERS.filter(s => s.projectId === p.id).length;
+      const tr = h('tr', 'border-t border-white/5');
+      tr.append(h('td', 'px-3 py-3', null));
+      tr.lastChild.appendChild(h('a', 'text-blue-400 hover:underline font-medium', p.name)).href = `admin-project-detail.html?id=${p.id}`;
+      const tierTd = h('td', 'px-3 py-3');
+      tierTd.appendChild(h('span', `tier-badge ${p.tier}`, tier.name));
+      tr.appendChild(tierTd);
+      const stTd = h('td', 'px-3 py-3');
+      const sb = STATUS_BADGE[p.status] || STATUS_BADGE.active;
+      stTd.appendChild(h('span', `inline-flex px-2 py-0.5 text-xs rounded-full font-medium ${sb.bg}`, sb.text));
+      tr.appendChild(stTd);
+      tr.append(h('td', 'px-3 py-3 font-mono', String(accounts)));
+      tr.append(h('td', 'px-3 py-3 font-mono', String(speakers)));
+      tr.append(h('td', 'px-3 py-3 font-mono text-xs', p.contractEnd));
+      pr.append(tr);
+    });
+  </script>
+</body>
+</html>

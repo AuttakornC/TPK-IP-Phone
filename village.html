@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5"/>
+<title>หน้าหลัก — ผู้ใหญ่บ้าน</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="elder">
+  <div class="demo-ribbon">DEMO PROTOTYPE</div>
+
+  <div class="elder-screen">
+
+    <!-- Greeting -->
+    <section class="bg-white border-2 border-slate-200 rounded-3xl p-5 mb-5">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-3xl flex-shrink-0">👴</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-base text-slate-500">สวัสดีครับ</div>
+          <div class="text-2xl font-bold text-slate-900 truncate" id="userName">—</div>
+          <div class="text-base text-slate-600 truncate" id="projectName">—</div>
+        </div>
+      </div>
+      <div class="mt-3 text-base text-slate-500" id="dateLine">—</div>
+    </section>
+
+    <!-- Big primary action -->
+    <button id="btnAnnounceAll" class="btn-elder-primary mb-3">
+      <span style="font-size:34px">📢</span>
+      <span>ประกาศไปยังทุกจุดในหมู่บ้าน</span>
+    </button>
+
+    <!-- Emergency -->
+    <button id="btnEmergencyHome" class="btn-elder-emergency mb-6">
+      <span style="font-size:34px">🚨</span>
+      <span>แจ้งเหตุฉุกเฉิน</span>
+    </button>
+
+    <!-- Speakers in my village -->
+    <h2 class="mb-3">ลำโพงในหมู่บ้านของคุณ</h2>
+    <div id="speakerList" class="space-y-3 mb-7"></div>
+
+    <!-- Templates -->
+    <h2 class="mb-3">ข้อความสำเร็จรูป</h2>
+    <p class="text-base text-slate-500 mb-3">กดเพื่อประกาศข้อความสำเร็จรูปได้ทันที</p>
+    <div id="templateGrid" class="grid grid-cols-2 gap-3 mb-7"></div>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="elder-bottombar">
+    <a href="village.html" class="active"><span class="ic">🏠</span><span>หน้าหลัก</span></a>
+    <a href="village-history.html"><span class="ic">📜</span><span>ประวัติ</span></a>
+    <a href="index.html"><span class="ic">🚪</span><span>ออก</span></a>
+  </nav>
+
+  <!-- Confirm dialog -->
+  <div id="confirm" class="elder-confirm hidden">
+    <div class="elder-confirm-card">
+      <div id="confirmIcon" class="text-5xl mb-3">📢</div>
+      <h2 id="confirmTitle">ต้องการประกาศใช่ไหม?</h2>
+      <p id="confirmDetail" class="mb-5">เสียงของคุณจะออกลำโพงทันที</p>
+      <div class="space-y-3">
+        <button id="btnConfirmYes" class="btn-elder-primary">
+          <span style="font-size:30px">✓</span>
+          <span>ใช่ เริ่มประกาศ</span>
+        </button>
+        <button id="btnConfirmNo" class="btn-elder-secondary">
+          <span style="font-size:24px">✕</span>
+          <span>ไม่ ยกเลิก</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency type selector -->
+  <div id="emPicker" class="elder-confirm hidden">
+    <div class="elder-confirm-card">
+      <div class="text-5xl mb-3">🚨</div>
+      <h2>เลือกประเภทเหตุฉุกเฉิน</h2>
+      <p class="mb-5">ระบบจะเล่นเสียงเตือนภัยเฉพาะประเภท</p>
+      <div id="emList" class="space-y-3"></div>
+      <button id="btnEmCancel" class="btn-elder-secondary mt-3">
+        <span style="font-size:24px">✕</span>
+        <span>ปิด</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="assets/mock.js"></script>
+  <script src="assets/role.js"></script>
+  <script>
+    // ============= Helpers =============
+    function $(s) { return document.querySelector(s); }
+    function h(tag, cls, txt) {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      if (txt != null) el.textContent = txt;
+      return el;
+    }
+
+    // ============= Identity =============
+    const user = getCurrentUser() || USERS.find(u => u.username === DEMO_USER_BY_ROLE.headVillage);
+    const proj = user ? PROJECTS.find(p => p.id === user.projectId) : null;
+    const mySpeakers = (user && user.assignedSpeakers || []).map(id => SPEAKERS.find(s => s.id === id)).filter(Boolean);
+
+    document.getElementById('userName').textContent = user ? user.name : 'ผู้ใหญ่บ้าน';
+    document.getElementById('projectName').textContent = proj ? proj.name : '—';
+
+    // Date in Thai (Buddhist calendar approximation: +543)
+    const now = new Date();
+    const monthsTH = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const daysTH = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+    const dateStr = `วัน${daysTH[now.getDay()]}ที่ ${now.getDate()} ${monthsTH[now.getMonth()]} ${now.getFullYear()+543}`;
+    document.getElementById('dateLine').textContent = `📅 ${dateStr}`;
+
+    // ============= Render speakers =============
+    const speakerList = document.getElementById('speakerList');
+    if (mySpeakers.length === 0) {
+      const empty = h('div', 'elder-card', 'ยังไม่มีลำโพงที่กำหนดให้คุณ — โปรดติดต่อผู้ดูแลระบบ');
+      speakerList.appendChild(empty);
+    } else {
+      mySpeakers.forEach(s => {
+        const card = document.createElement('div');
+        card.className = `elder-card ${s.online ? 'online' : 'offline'}`;
+
+        const ico = h('div', 'flex-shrink-0', null);
+        ico.style.fontSize = '40px';
+        ico.textContent = s.online ? '🟢' : '⚪';
+        card.appendChild(ico);
+
+        const info = h('div', 'flex-1 min-w-0');
+        const name = h('div', 'font-bold text-slate-900 truncate', s.name);
+        name.style.fontSize = '20px';
+        info.appendChild(name);
+        const status = h('div', null, s.online ? 'ออนไลน์ พร้อมประกาศ' : 'ออฟไลน์ ไม่สามารถประกาศได้');
+        status.style.fontSize = '16px';
+        status.style.color = s.online ? '#15803d' : '#94a3b8';
+        info.appendChild(status);
+        card.appendChild(info);
+
+        const btn = document.createElement('button');
+        btn.className = s.online ? 'bg-blue-600 text-white font-bold rounded-2xl px-5' : 'bg-slate-200 text-slate-400 font-bold rounded-2xl px-5';
+        btn.style.minHeight = '60px';
+        btn.style.fontSize = '18px';
+        btn.disabled = !s.online;
+        btn.textContent = '📢 ประกาศ';
+        btn.addEventListener('click', () => askConfirm({
+          title: `ประกาศไปยัง ${s.name}?`,
+          detail: 'เสียงของคุณจะออกลำโพงจุดนี้ทันที',
+          icon: '📢',
+          target: { kind: 'single', speakers: [s] },
+        }));
+        card.appendChild(btn);
+
+        speakerList.appendChild(card);
+      });
+    }
+
+    // ============= Render templates (4 most useful) =============
+    const tplGrid = document.getElementById('templateGrid');
+    const TPLS_FOR_VILLAGE = TEMPLATES.slice(0, 6);
+    TPLS_FOR_VILLAGE.forEach(t => {
+      const tile = document.createElement('button');
+      tile.className = 'elder-tile';
+      const i = h('div', 'icon', t.icon);
+      const n = h('div', 'name', t.name);
+      tile.appendChild(i);
+      tile.appendChild(n);
+      tile.addEventListener('click', () => askConfirm({
+        title: `เล่นข้อความ "${t.name}"?`,
+        detail: 'ระบบจะเล่นไฟล์เสียงผ่านลำโพงทุกจุดในหมู่บ้านของคุณ',
+        icon: t.icon,
+        target: { kind: 'template', speakers: mySpeakers, template: t },
+      }));
+      tplGrid.appendChild(tile);
+    });
+
+    // ============= Confirm flow =============
+    let pending = null;
+
+    function askConfirm({ title, detail, icon, target }) {
+      pending = target;
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmDetail').textContent = detail;
+      document.getElementById('confirmIcon').textContent = icon || '📢';
+      document.getElementById('confirm').classList.remove('hidden');
+    }
+
+    document.getElementById('btnConfirmNo').addEventListener('click', () => {
+      pending = null;
+      document.getElementById('confirm').classList.add('hidden');
+    });
+
+    document.getElementById('btnConfirmYes').addEventListener('click', () => {
+      if (!pending) return;
+      // Stash target details and navigate to call screen
+      sessionStorage.setItem('villageCall', JSON.stringify({
+        kind: pending.kind,
+        emergencyId: pending.emergency ? pending.emergency.id : null,
+        templateId: pending.template ? pending.template.id : null,
+        speakerIds: (pending.speakers || []).map(s => s.id),
+      }));
+      window.location.href = 'village-call.html';
+    });
+
+    // ============= Buttons =============
+    document.getElementById('btnAnnounceAll').addEventListener('click', () => {
+      if (mySpeakers.length === 0) {
+        askConfirm({
+          title: 'ยังไม่มีลำโพงที่กำหนดให้คุณ',
+          detail: 'กรุณาติดต่อผู้ดูแลระบบ',
+          icon: '⚠️',
+          target: null,
+        });
+        return;
+      }
+      askConfirm({
+        title: 'ประกาศไปยังทุกจุดใช่ไหม?',
+        detail: `เสียงของคุณจะออกลำโพงทั้ง ${mySpeakers.filter(s=>s.online).length} จุดในหมู่บ้านพร้อมกัน`,
+        icon: '📢',
+        target: { kind: 'group', speakers: mySpeakers.filter(s => s.online) },
+      });
+    });
+
+    // Emergency type picker
+    document.getElementById('btnEmergencyHome').addEventListener('click', () => {
+      const list = document.getElementById('emList');
+      list.replaceChildren();
+      const COLORS = { red: '#dc2626', blue: '#2563eb', orange: '#ea580c', amber: '#d97706' };
+      const GLYPH = { fire: '🔥', flood: '🌊', earthquake: '🌐', criminal: '⚠️', general: '🚨' };
+      EMERGENCIES.forEach(em => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-elder-secondary';
+        btn.style.borderColor = COLORS[em.palette] || '#dc2626';
+
+        const ico = document.createElement('span');
+        ico.style.fontSize = '32px';
+        ico.textContent = GLYPH[em.id] || '🚨';
+        btn.appendChild(ico);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'flex-1 text-left';
+        const name = h('div', 'font-bold', em.name);
+        name.style.fontSize = '20px';
+        name.style.color = COLORS[em.palette] || '#dc2626';
+        wrap.appendChild(name);
+        const ext = h('div', null, `เบอร์ ${em.ext}`);
+        ext.style.fontSize = '15px';
+        ext.style.color = '#64748b';
+        wrap.appendChild(ext);
+        btn.appendChild(wrap);
+
+        btn.addEventListener('click', () => {
+          document.getElementById('emPicker').classList.add('hidden');
+          askConfirm({
+            title: `ยืนยันประกาศเหตุ "${em.name}"?`,
+            detail: 'ระบบจะเล่นเสียงเตือนภัยทันทีบนลำโพงทุกจุดในหมู่บ้าน',
+            icon: GLYPH[em.id] || '🚨',
+            target: { kind: 'emergency', speakers: mySpeakers, emergency: em },
+          });
+        });
+        list.appendChild(btn);
+      });
+      document.getElementById('emPicker').classList.remove('hidden');
+    });
+
+    document.getElementById('btnEmCancel').addEventListener('click', () => {
+      document.getElementById('emPicker').classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

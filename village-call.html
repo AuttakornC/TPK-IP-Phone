@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5"/>
+<title>กำลังประกาศ — ผู้ใหญ่บ้าน</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="elder">
+  <div class="demo-ribbon">DEMO PROTOTYPE</div>
+
+  <!-- Full-screen broadcast -->
+  <div id="screen" class="elder-fullscreen">
+    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center" style="padding-bottom: 24px">
+      <div id="status" style="font-size: 22px; opacity: 0.85; margin-bottom: 18px;">กำลังเชื่อมต่อ...</div>
+
+      <div id="targetTitle" style="font-size: 28px; font-weight: 800; line-height: 1.3; margin-bottom: 6px;">—</div>
+      <div id="targetSub"   style="font-size: 18px; opacity: 0.85; margin-bottom: 36px;">—</div>
+
+      <div class="elder-mic" id="mic">📢</div>
+
+      <div id="timer" style="font-size: 56px; font-weight: 800; font-family: monospace; margin-top: 32px; letter-spacing: 0.04em;">0:00</div>
+
+      <div id="ttsLine" class="hidden" style="margin-top: 24px; padding: 14px 18px; background: rgba(255,255,255,0.18); border-radius: 16px; font-size: 17px; max-width: 480px; line-height: 1.5;">—</div>
+    </div>
+
+    <div style="padding: 0 20px 28px;">
+      <button id="btnHangup" class="btn-elder-hangup">
+        <span style="font-size: 38px">✕</span>
+        <span>หยุดประกาศ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Success screen -->
+  <div id="success" class="elder-fullscreen hidden" style="background: linear-gradient(160deg, #166534, #15803d, #16a34a);">
+    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center">
+      <div style="font-size: 110px; margin-bottom: 18px;">✅</div>
+      <div style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">ประกาศสำเร็จ</div>
+      <div id="successDetail" style="font-size: 19px; opacity: 0.95;">—</div>
+    </div>
+    <div style="padding: 0 20px 28px;">
+      <a href="village.html" class="btn-elder-hangup" style="text-decoration: none; color: #15803d;">
+        <span style="font-size: 32px">🏠</span>
+        <span>กลับหน้าหลัก</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="assets/mock.js"></script>
+  <script src="assets/role.js"></script>
+  <script>
+    const data = JSON.parse(sessionStorage.getItem('villageCall') || '{}');
+    if (!data.kind) { window.location.href = 'village.html'; }
+
+    const screen = document.getElementById('screen');
+    const speakers = (data.speakerIds || []).map(id => SPEAKERS.find(s => s.id === id)).filter(Boolean);
+    const emergency = data.emergencyId ? EMERGENCIES.find(e => e.id === data.emergencyId) : null;
+    const template  = data.templateId  ? TEMPLATES.find(t => t.id === data.templateId)   : null;
+
+    // Set screen content based on kind
+    if (data.kind === 'emergency' && emergency) {
+      screen.classList.add('emergency');
+      document.getElementById('targetTitle').textContent = `🚨 ${emergency.name}`;
+      document.getElementById('targetSub').textContent = `เตือนภัยทุกจุด · เบอร์ ${emergency.ext}`;
+      document.getElementById('mic').textContent = '🚨';
+      if (emergency.tts) {
+        const tts = document.getElementById('ttsLine');
+        tts.textContent = `🗣️ "${emergency.tts}"`;
+        tts.classList.remove('hidden');
+      }
+    } else if (data.kind === 'template' && template) {
+      document.getElementById('targetTitle').textContent = template.name;
+      document.getElementById('targetSub').textContent = `เล่นไฟล์เสียง · ${speakers.length} ลำโพง · ${template.duration}`;
+      document.getElementById('mic').textContent = template.icon || '🔈';
+    } else if (data.kind === 'group') {
+      document.getElementById('targetTitle').textContent = `ประกาศไปยัง ${speakers.length} จุด`;
+      document.getElementById('targetSub').textContent = speakers.slice(0, 3).map(s => s.name).join(', ') + (speakers.length > 3 ? '...' : '');
+    } else {
+      // single
+      document.getElementById('targetTitle').textContent = speakers[0] ? speakers[0].name : 'ลำโพง';
+      document.getElementById('targetSub').textContent = speakers[0] ? `${speakers[0].area}` : '—';
+    }
+
+    // Connecting → Speaking
+    let seconds = 0;
+    let timerHandle = null;
+    setTimeout(() => {
+      document.getElementById('status').textContent = data.kind === 'emergency' ? '● กำลังประกาศไซเรน' : '● กำลังพูด...';
+      timerHandle = setInterval(() => {
+        seconds++;
+        const m = Math.floor(seconds / 60);
+        const s = String(seconds % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }, 1500);
+
+    // Hang up → success screen
+    function hangup() {
+      clearInterval(timerHandle);
+      const m = Math.floor(seconds / 60);
+      const s = String(seconds % 60).padStart(2, '0');
+      document.getElementById('successDetail').textContent =
+        speakers.length > 1
+          ? `ประกาศไปยัง ${speakers.length} จุด เป็นเวลา ${m}:${s} นาที`
+          : `ประกาศเป็นเวลา ${m}:${s} นาที`;
+      screen.classList.add('hidden');
+      document.getElementById('success').classList.remove('hidden');
+      sessionStorage.removeItem('villageCall');
+      // Auto-redirect after 4s
+      setTimeout(() => { window.location.href = 'village.html'; }, 4000);
+    }
+
+    document.getElementById('btnHangup').addEventListener('click', hangup);
+  </script>
+</body>
+</html>

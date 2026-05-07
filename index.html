@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>เลือกมุมมอง — Wireless PA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 flex items-center justify-center p-4" data-skip-switcher="1">
+  <div class="demo-ribbon">DEMO PROTOTYPE</div>
+
+  <div class="w-full max-w-3xl">
+    <!-- Logo / brand -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-900 text-white shadow-lg mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900">ระบบประกาศเสียงไร้สาย</h1>
+      <p class="text-sm text-slate-500 mt-1">Wireless PA · เลือกมุมมองเพื่อดูเดโม</p>
+    </div>
+
+    <!-- Role cards -->
+    <div id="roleGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"></div>
+
+    <!-- Real login (fallback) -->
+    <details class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <summary class="px-5 py-3 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50 list-none flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        หรือ login ด้วย email (ระบบจริง)
+      </summary>
+      <div class="p-5 border-t border-slate-100 bg-slate-50">
+        <p class="text-xs text-slate-500 mb-3">ในระบบจริง email จะกำหนดโครงการและบทบาทของผู้ใช้อัตโนมัติ</p>
+        <form class="space-y-3" onsubmit="event.preventDefault(); handleEmailLogin();">
+          <input id="loginEmail" type="email" value="chanakarn.palipol@gmail.com" placeholder="email@example.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+          <input id="loginPwd" type="password" value="••••••••" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+          <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">เข้าสู่ระบบ</button>
+        </form>
+      </div>
+    </details>
+
+    <p class="text-center text-xs text-slate-400 mt-6">
+      © 2026 Wireless PA · Internal Use Only · v2.0 Multi-tenant
+    </p>
+  </div>
+
+  <script src="assets/mock.js"></script>
+  <script src="assets/role.js"></script>
+  <script>
+    const ROLE_PALETTE = {
+      slate: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-300', ring: 'ring-slate-300' },
+      red:   { bg: 'bg-red-50',    text: 'text-red-700',   border: 'border-red-300',   ring: 'ring-red-300'   },
+      blue:  { bg: 'bg-blue-50',   text: 'text-blue-700',  border: 'border-blue-300',  ring: 'ring-blue-300'  },
+      green: { bg: 'bg-green-50',  text: 'text-green-700', border: 'border-green-300', ring: 'ring-green-300' },
+    };
+
+    const ROLE_BLURB = {
+      admin:       'จัดการโครงการ ผู้ใช้ และจุดประกาศทั้งระบบ (ระดับ vendor)',
+      authority:   'ผู้บริหารโครงการ — ใช้ได้ทุกฟังก์ชันในโครงการของตน',
+      officer:     'ประกาศ ตั้งเวลา จัดการ MP3 และดู log ของโครงการ',
+      headVillage: 'ผู้ใหญ่บ้าน — UI ใหญ่อ่านง่าย ใช้บนมือถือ ประกาศได้ทันที',
+    };
+
+    const ROLE_ICON = {
+      admin:       '🛠️',
+      authority:   '👔',
+      officer:     '📞',
+      headVillage: '👴',
+    };
+
+    function makeRoleCard(role) {
+      const username = DEMO_USER_BY_ROLE[role.id];
+      const u = USERS.find(x => x.username === username);
+      const proj = u && u.projectId ? PROJECTS.find(p => p.id === u.projectId) : null;
+      const pal = ROLE_PALETTE[role.color] || ROLE_PALETTE.slate;
+
+      const card = document.createElement('button');
+      card.className = `text-left bg-white border-2 ${pal.border} rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition flex flex-col gap-3`;
+      card.addEventListener('click', () => loginAsRole(role.id));
+
+      const head = document.createElement('div');
+      head.className = 'flex items-start justify-between gap-3';
+      const left = document.createElement('div');
+      left.className = 'flex items-center gap-3';
+      const ico = document.createElement('div');
+      ico.className = `w-12 h-12 rounded-xl ${pal.bg} flex items-center justify-center text-2xl flex-shrink-0`;
+      ico.textContent = ROLE_ICON[role.id] || '👤';
+      left.appendChild(ico);
+      const titleWrap = document.createElement('div');
+      const title = document.createElement('div');
+      title.className = `font-bold text-lg ${pal.text}`;
+      title.textContent = role.name;
+      titleWrap.appendChild(title);
+      const sub = document.createElement('div');
+      sub.className = 'text-xs text-slate-500';
+      sub.textContent = role.short;
+      titleWrap.appendChild(sub);
+      left.appendChild(titleWrap);
+      head.appendChild(left);
+      card.appendChild(head);
+
+      const blurb = document.createElement('p');
+      blurb.className = 'text-sm text-slate-600 leading-relaxed';
+      blurb.textContent = ROLE_BLURB[role.id] || role.desc;
+      card.appendChild(blurb);
+
+      const meta = document.createElement('div');
+      meta.className = 'flex items-center gap-2 text-xs pt-2 border-t border-slate-100';
+      const userLine = document.createElement('div');
+      userLine.className = 'flex-1 min-w-0';
+      const userName = document.createElement('div');
+      userName.className = 'font-semibold text-slate-700 truncate';
+      userName.textContent = u ? u.name : '—';
+      userLine.appendChild(userName);
+      const userProj = document.createElement('div');
+      userProj.className = 'text-slate-500 truncate';
+      userProj.textContent = proj ? proj.name : (role.id === 'admin' ? 'ผู้ดูแลระบบ (vendor)' : '—');
+      userLine.appendChild(userProj);
+      meta.appendChild(userLine);
+      const arrow = document.createElement('span');
+      arrow.className = `${pal.text} font-bold text-lg`;
+      arrow.textContent = '→';
+      meta.appendChild(arrow);
+      card.appendChild(meta);
+
+      return card;
+    }
+
+    const grid = document.getElementById('roleGrid');
+    ROLES.forEach(r => grid.appendChild(makeRoleCard(r)));
+
+    function handleEmailLogin() {
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const u = USERS.find(x => x.email.toLowerCase() === email);
+      if (!u) {
+        alert('ไม่พบ email นี้ในระบบ — ลอง chanakarn.palipol@gmail.com (admin) หรือ mayor@bangsapan.go.th (authority)');
+        return;
+      }
+      loginAsUser(u.username);
+    }
+  </script>
+</body>
+</html>

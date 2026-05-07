@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>โครงการ — Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="admin">
+  <div class="demo-ribbon">DEMO PROTOTYPE</div>
+  <div class="admin-shell">
+    <aside class="admin-side">
+      <div class="flex items-center gap-2 mb-6 px-2">
+        <div class="w-8 h-8 rounded-lg bg-blue-700 text-white flex items-center justify-center text-sm font-bold">PA</div>
+        <div>
+          <div class="font-bold text-white">Admin Console</div>
+          <div class="text-xs text-slate-400">Wireless PA · Vendor</div>
+        </div>
+      </div>
+      <nav>
+        <a href="admin-dashboard.html" class="admin-nav">📊 Dashboard</a>
+        <a href="admin-projects.html"  class="admin-nav active">📁 โครงการ</a>
+        <a href="admin-speakers.html"  class="admin-nav">🔊 จุดประกาศ</a>
+        <a href="admin-accounts.html"  class="admin-nav">👤 ผู้ใช้</a>
+        <a href="status.html"          class="admin-nav">⚙️ สถานะระบบ</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 class="text-2xl font-bold">โครงการทั้งหมด</h1>
+          <p class="text-sm text-slate-400 mt-1">จัดการ tenant — สร้าง/แก้ไข/ระงับโครงการของลูกค้า</p>
+        </div>
+        <button id="btnNew" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">+ เพิ่มโครงการ</button>
+      </div>
+
+      <!-- Filter -->
+      <div class="admin-card mb-4 flex items-center gap-3 flex-wrap">
+        <input id="search" type="text" placeholder="ค้นหาชื่อโครงการ..." class="px-3 py-2 rounded-lg text-sm w-72" />
+        <select id="filterStatus" class="px-3 py-2 rounded-lg text-sm">
+          <option value="">ทุกสถานะ</option>
+          <option value="active">ใช้งาน</option>
+          <option value="expiring">ใกล้หมดอายุ</option>
+          <option value="expired">หมดอายุ</option>
+        </select>
+        <select id="filterTier" class="px-3 py-2 rounded-lg text-sm">
+          <option value="">ทุก tier</option>
+          <option value="basic">Basic</option>
+          <option value="standard">Standard</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
+
+      <!-- Project cards grid -->
+      <section id="projectGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></section>
+    </main>
+  </div>
+
+  <!-- Create project modal -->
+  <div id="modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white text-slate-800 max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold">เพิ่มโครงการใหม่</h3>
+            <p class="text-sm text-slate-500">กำหนดข้อมูลพื้นฐาน · สามารถ assign ผู้ใช้และจุดประกาศหลังบันทึก</p>
+          </div>
+          <button id="btnClose" class="text-slate-400 hover:text-slate-700 p-1">✕</button>
+        </div>
+        <form class="space-y-3" onsubmit="event.preventDefault(); document.getElementById('modal').classList.add('hidden'); alert('🎭 (เดโม) บันทึกแล้ว — โครงการจะถูกสร้างจริงตอน implement')">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อโครงการ</label>
+            <input type="text" placeholder="เทศบาล... / อบต. ..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" required />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">เริ่มสัญญา</label>
+              <input type="date" value="2026-05-08" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">สิ้นสุดสัญญา</label>
+              <input type="date" value="2027-05-07" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-2">เลือก Package</label>
+            <div id="tierPicker" class="grid grid-cols-3 gap-2"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">ผู้ติดต่อ</label>
+              <input type="text" placeholder="ชื่อผู้ติดต่อ" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">โทรศัพท์</label>
+              <input type="tel" placeholder="032-555-1234" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" id="btnCancel" class="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg font-medium hover:bg-slate-50">ยกเลิก</button>
+            <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-bold">สร้างโครงการ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/mock.js"></script>
+  <script src="assets/role.js"></script>
+  <script>
+    function h(tag, cls, txt) {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      if (txt != null) el.textContent = txt;
+      return el;
+    }
+
+    const STATUS_INFO = {
+      active:   { text: 'ใช้งาน',     class: 'bg-green-500/15 text-green-400' },
+      expiring: { text: 'ใกล้หมดอายุ', class: 'bg-amber-500/15 text-amber-400' },
+      expired:  { text: 'หมดอายุ',    class: 'bg-red-500/15 text-red-400' },
+    };
+
+    function projectCard(p) {
+      const tier = TIER_LABEL[p.tier];
+      const accounts = USERS.filter(u => u.projectId === p.id).length;
+      const speakers = SPEAKERS.filter(s => s.projectId === p.id).length;
+      const status = STATUS_INFO[p.status] || STATUS_INFO.active;
+
+      const card = h('a', 'admin-card hover:border-blue-500 transition block');
+      card.style.textDecoration = 'none';
+      card.href = `admin-project-detail.html?id=${p.id}`;
+
+      const head = h('div', 'flex items-start justify-between gap-2 mb-3');
+      const left = h('div', 'flex-1 min-w-0');
+      const name = h('div', 'font-bold text-white truncate', p.name);
+      name.style.fontSize = '17px';
+      left.appendChild(name);
+      const id = h('div', 'text-xs text-slate-500 font-mono', `id: ${p.id}`);
+      left.appendChild(id);
+      head.appendChild(left);
+      head.appendChild(h('span', `tier-badge ${p.tier}`, tier.name));
+      card.appendChild(head);
+
+      // Stats
+      const stats = h('div', 'grid grid-cols-2 gap-2 mb-3');
+      [
+        ['ผู้ใช้',   accounts, `เพดาน ${tier.maxHeadVillage} head village`],
+        ['จุดประกาศ', speakers, `เพดาน ${tier.maxSpeakers} จุด`],
+      ].forEach(([k, v, hint]) => {
+        const s = h('div', 'bg-slate-900 rounded-lg p-2');
+        s.appendChild(h('div', 'text-xs text-slate-500', k));
+        s.appendChild(h('div', 'text-lg font-bold text-white', String(v)));
+        s.appendChild(h('div', 'text-[10px] text-slate-500', hint));
+        stats.appendChild(s);
+      });
+      card.appendChild(stats);
+
+      // Footer
+      const foot = h('div', 'flex items-center justify-between text-xs');
+      foot.appendChild(h('span', `inline-flex px-2 py-0.5 rounded-full font-medium ${status.class}`, status.text));
+      foot.appendChild(h('span', 'text-slate-500 font-mono', `${p.contractStart} → ${p.contractEnd}`));
+      card.appendChild(foot);
+
+      return card;
+    }
+
+    function render() {
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const fs = document.getElementById('filterStatus').value;
+      const ft = document.getElementById('filterTier').value;
+      const grid = document.getElementById('projectGrid');
+      grid.replaceChildren();
+      PROJECTS.filter(p => (!q || p.name.toLowerCase().includes(q)) && (!fs || p.status === fs) && (!ft || p.tier === ft))
+        .forEach(p => grid.appendChild(projectCard(p)));
+    }
+
+    document.getElementById('search').addEventListener('input', render);
+    document.getElementById('filterStatus').addEventListener('change', render);
+    document.getElementById('filterTier').addEventListener('change', render);
+    render();
+
+    // Modal
+    const modal = document.getElementById('modal');
+    document.getElementById('btnNew').addEventListener('click', () => {
+      // Build tier picker
+      const picker = document.getElementById('tierPicker');
+      picker.replaceChildren();
+      PACKAGE_TIERS.forEach((t, i) => {
+        const lbl = h('label', `cursor-pointer rounded-xl border-2 ${i === 1 ? 'border-blue-500 bg-blue-50' : 'border-slate-200'} p-3 text-center`);
+        const r = document.createElement('input');
+        r.type = 'radio'; r.name = 'tier'; r.value = t.id; r.className = 'sr-only'; if (i === 1) r.checked = true;
+        lbl.appendChild(r);
+        lbl.appendChild(h('div', 'font-bold text-slate-900', t.name));
+        lbl.appendChild(h('div', 'text-xs text-slate-500 mt-1', t.price));
+        lbl.appendChild(h('div', 'text-[10px] text-slate-500 mt-1', `${t.maxSpeakers} จุด · ${t.maxHeadVillage} ผู้ใหญ่บ้าน`));
+        picker.appendChild(lbl);
+      });
+      modal.classList.remove('hidden');
+    });
+    document.getElementById('btnClose').addEventListener('click', () => modal.classList.add('hidden'));
+    document.getElementById('btnCancel').addEventListener('click', () => modal.classList.add('hidden'));
+  </script>
+</body>
+</html>
