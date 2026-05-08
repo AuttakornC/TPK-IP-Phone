@@ -2,31 +2,17 @@
 // Throwaway data for client demo. No real speakers, users, or logs.
 
 export type RoleId = 'admin' | 'authority' | 'officer' | 'headVillage';
-export type TierId = 'basic' | 'standard' | 'premium';
 export type ProjectStatus = 'active' | 'expiring' | 'expired';
 export type LogType = 'emergency' | 'group' | 'single' | 'scheduled' | 'mp3';
 
 export interface Project {
   id: string;
   name: string;
-  tier: TierId;
   contractStart: string;
   contractEnd: string;
   status: ProjectStatus;
   contact: string;
   phone: string;
-}
-
-export interface PackageTier {
-  id: TierId;
-  name: string;
-  price: string;
-  maxSpeakers: number;
-  maxHeadVillage: number;
-  mp3Storage: string;
-  recordingDays: number;
-  color: string;
-  features: string[];
 }
 
 export interface Speaker {
@@ -121,23 +107,11 @@ export interface Schedule {
 
 // ============= PROJECTS =============
 export const PROJECTS: Project[] = [
-  { id: 'p1', name: 'เทศบาลตำบลบางสะพาน', tier: 'premium', contractStart: '2026-01-01', contractEnd: '2026-12-31', status: 'active', contact: 'นายสมพงษ์ จันทร์ประดิษฐ์', phone: '032-555-1234' },
-  { id: 'p2', name: 'อบต.ห้วยกระเจา', tier: 'standard', contractStart: '2026-03-15', contractEnd: '2027-03-14', status: 'active', contact: 'นางสุดา รักไทย', phone: '034-666-5678' },
-  { id: 'p3', name: 'เทศบาลเมืองฉะเชิงเทรา', tier: 'basic', contractStart: '2025-06-01', contractEnd: '2026-05-31', status: 'expiring', contact: 'นายกฤษณะ พงษ์ไทย', phone: '038-777-9012' },
-  { id: 'p4', name: 'อบต.ดอนแก้ว (เก่า)', tier: 'standard', contractStart: '2024-09-01', contractEnd: '2025-08-31', status: 'expired', contact: 'นายเอกชัย แสงสว่าง', phone: '053-888-3456' },
+  { id: 'p1', name: 'เทศบาลตำบลบางสะพาน', contractStart: '2026-01-01', contractEnd: '2026-12-31', status: 'active', contact: 'นายสมพงษ์ จันทร์ประดิษฐ์', phone: '032-555-1234' },
+  { id: 'p2', name: 'อบต.ห้วยกระเจา', contractStart: '2026-03-15', contractEnd: '2027-03-14', status: 'active', contact: 'นางสุดา รักไทย', phone: '034-666-5678' },
+  { id: 'p3', name: 'เทศบาลเมืองฉะเชิงเทรา', contractStart: '2025-06-01', contractEnd: '2026-05-31', status: 'expiring', contact: 'นายกฤษณะ พงษ์ไทย', phone: '038-777-9012' },
+  { id: 'p4', name: 'อบต.ดอนแก้ว (เก่า)', contractStart: '2024-09-01', contractEnd: '2025-08-31', status: 'expired', contact: 'นายเอกชัย แสงสว่าง', phone: '053-888-3456' },
 ];
-
-// ============= PACKAGE TIERS =============
-export const PACKAGE_TIERS: PackageTier[] = [
-  { id: 'basic', name: 'Basic', price: '฿9,900/เดือน', maxSpeakers: 10, maxHeadVillage: 1, mp3Storage: '5 GB', recordingDays: 30, color: 'slate',
-    features: ['ประกาศพื้นฐาน', 'ตั้งเวลา', 'log 30 วัน'] },
-  { id: 'standard', name: 'Standard', price: '฿19,900/เดือน', maxSpeakers: 25, maxHeadVillage: 3, mp3Storage: '20 GB', recordingDays: 90, color: 'blue',
-    features: ['ทุกอย่างใน Basic', 'TTS ภาษาไทย', 'รายงานรายเดือน', 'log 90 วัน'] },
-  { id: 'premium', name: 'Premium', price: '฿39,900/เดือน', maxSpeakers: 100, maxHeadVillage: 10, mp3Storage: '100 GB', recordingDays: 180, color: 'amber',
-    features: ['ทุกอย่างใน Standard', 'API access', 'ทีมซัพพอร์ตเฉพาะ', 'log 180 วัน', 'รายงานเชิงลึกหลายโซน'] },
-];
-
-export const TIER_LABEL: Record<TierId, PackageTier> = Object.fromEntries(PACKAGE_TIERS.map(t => [t.id, t])) as Record<TierId, PackageTier>;
 
 // ============= SPEAKERS =============
 export const SPEAKERS: Speaker[] = [

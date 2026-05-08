@@ -285,9 +285,3 @@ html, body { font-family: 'Sarabun', system-ui, -apple-system, 'Segoe UI', sans-
   .admin-body .admin-shell { grid-template-columns: 1fr; }
   .admin-body aside.admin-side { display: none; }
 }
-
-/* Tier badges */
-.tier-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.04em; }
-.tier-badge.basic    { background: #f1f5f9; color: #475569; }
-.tier-badge.standard { background: #dbeafe; color: #1e40af; }
-.tier-badge.premium  { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }

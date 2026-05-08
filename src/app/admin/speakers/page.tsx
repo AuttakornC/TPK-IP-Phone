@@ -4,7 +4,6 @@ import { useState } from 'react';
 import AdminShell from '@/components/AdminShell';
 import Modal from '@/components/ui/Modal';
 import OnlinePill from '@/components/ui/OnlinePill';
-import TierBadge from '@/components/ui/TierBadge';
 import { PROJECTS, SPEAKERS, USERS, ZONE_LABEL } from '@/lib/mock';
 
 export default function AdminSpeakersPage() {
@@ -78,10 +77,7 @@ export default function AdminSpeakersPage() {
                 <tr key={s.id} className="border-t border-white/5 hover:bg-white/5">
                   <td className="px-3 py-3 font-medium text-white">{s.name}</td>
                   <td className="px-3 py-3">
-                    <span className="inline-flex items-center gap-2">
-                      {proj && <TierBadge tier={proj.tier} />}
-                      <span className="text-slate-300 text-xs">{proj?.name}</span>
-                    </span>
+                    <span className="text-slate-300 text-xs">{proj?.name}</span>
                   </td>
                   <td className="px-3 py-3 font-mono text-slate-300">{s.ext}</td>
                   <td className="px-3 py-3 text-slate-300">{ZONE_LABEL[s.zone]} · {s.area}</td>

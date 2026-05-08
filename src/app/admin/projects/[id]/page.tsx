@@ -7,8 +7,7 @@ import Avatar from '@/components/ui/Avatar';
 import OnlinePill from '@/components/ui/OnlinePill';
 import StatCard from '@/components/ui/StatCard';
 import StatusPill from '@/components/ui/StatusPill';
-import TierBadge from '@/components/ui/TierBadge';
-import { PROJECTS, ROLE_LABEL, SPEAKERS, TIER_LABEL, USERS } from '@/lib/mock';
+import { PROJECTS, ROLE_LABEL, SPEAKERS, USERS } from '@/lib/mock';
 
 const ROLE_BADGE: Record<string, string> = {
   authority: 'bg-red-500/15 text-red-400',
@@ -22,17 +21,15 @@ export default function AdminProjectDetailPage({ params }: { params: Promise<{ i
   const { id } = use(params);
   const [tab, setTab] = useState<Tab>('accounts');
   const project = PROJECTS.find(p => p.id === id) || PROJECTS[0];
-  const tier = TIER_LABEL[project.tier];
 
   const accountsInProj = USERS.filter(u => u.projectId === project.id);
   const speakersInProj = SPEAKERS.filter(s => s.projectId === project.id);
   const headVillages = accountsInProj.filter(u => u.role === 'headVillage').length;
 
   const infoCards = [
-    { label: 'ผู้ใช้', value: `${accountsInProj.length}`, hint: `${headVillages} ผู้ใหญ่บ้าน · เพดาน ${tier.maxHeadVillage}` },
-    { label: 'จุดประกาศ', value: `${speakersInProj.length} / ${tier.maxSpeakers}`, hint: `${speakersInProj.filter(s => s.online).length} ออนไลน์` },
-    { label: 'Storage MP3', value: `2.1 GB`, hint: `จาก ${tier.mp3Storage}` },
-    { label: 'ราคา/เดือน', value: tier.price, hint: 'ชำระอัตโนมัติทุกเดือน' },
+    { label: 'ผู้ใช้', value: `${accountsInProj.length}`, hint: `${headVillages} ผู้ใหญ่บ้าน` },
+    { label: 'จุดประกาศ', value: `${speakersInProj.length}`, hint: `${speakersInProj.filter(s => s.online).length} ออนไลน์` },
+    { label: 'Storage MP3', value: '2.1 GB', hint: 'ใช้งานล่าสุด' },
   ];
 
   return (
@@ -43,7 +40,6 @@ export default function AdminProjectDetailPage({ params }: { params: Promise<{ i
         <div>
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold">{project.name}</h1>
-            <TierBadge tier={project.tier} />
             <StatusPill status={project.status} />
           </div>
           <div className="text-sm text-slate-400 mt-1">id: {project.id} · ติดต่อ: {project.contact} ({project.phone}) · สัญญา {project.contractStart} → {project.contractEnd}</div>
@@ -54,7 +50,7 @@ export default function AdminProjectDetailPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <section className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
         {infoCards.map(c => (
           <StatCard key={c.label} variant="admin" label={c.label} value={c.value} hint={c.hint} />
         ))}
@@ -146,8 +142,8 @@ export default function AdminProjectDetailPage({ params }: { params: Promise<{ i
           </div>
           <div className="admin-card">
             <div className="text-xs text-slate-400 uppercase tracking-wider">พื้นที่ใช้งาน</div>
-            <div className="text-3xl font-bold text-white mt-2">2.1 / 100 GB</div>
-            <div className="text-xs text-slate-500 mt-1">2.1% ของ Premium quota</div>
+            <div className="text-3xl font-bold text-white mt-2">2.1 GB</div>
+            <div className="text-xs text-slate-500 mt-1">MP3 + บันทึกการประกาศ</div>
           </div>
         </section>
       )}
