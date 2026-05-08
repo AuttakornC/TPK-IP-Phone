@@ -1,0 +1,252 @@
+// Wireless PA — multi-tenant SaaS schema
+// learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum Role {
+  AUTHORITY
+  OFFICER
+  HEAD_VILLAGE
+
+  @@map("role")
+}
+
+enum ProjectStatus {
+  ACTIVE
+  EXPIRING
+  EXPIRED
+
+  @@map("project_status")
+}
+
+enum LogType {
+  EMERGENCY
+  GROUP
+  SINGLE
+  SCHEDULED
+  MP3
+
+  @@map("log_type")
+}
+
+// ============================================================
+// Tenant root
+// ============================================================
+
+model Project {
+  id            String        @id @default(cuid())
+  name          String
+  contractStart DateTime      @map("contract_start") @db.Date
+  contractEnd   DateTime      @map("contract_end") @db.Date
+  status        ProjectStatus @default(ACTIVE)
+  contactName   String        @map("contact_name")
+  contactPhone  String        @map("contact_phone")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  users     User[]
+  speakers  Speaker[]
+  zones     Zone[]
+  logs      LogEntry[]
+  mp3Files  Mp3File[]
+  schedules Schedule[]
+
+  @@index([status])
+  @@map("projects")
+}
+
+// ============================================================
+// Identity
+// ============================================================
+
+// Vendor-side operator. Separate auth surface from project users (see CLAUDE.md
+// "admin namespace at /admin"); not scoped to any tenant.
+model Admin {
+  id           String    @id @default(cuid())
+  name         String
+  username     String    @unique
+  passwordHash String?   @map("password_hash")
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("admins")
+}
+
+// Project-scoped user — exactly one project per user (no shared accounts).
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  username     String    @unique
+  passwordHash String?   @map("password_hash")
+  role         Role
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime? @map("last_login_at")
+  projectId    String    @map("project_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  project          Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedSpeakers SpeakerAssignment[]
+  logs             LogEntry[]
+
+  @@index([projectId])
+  @@index([role])
+  @@map("users")
+}
+
+// Head-village ↔ speaker assignments (many-to-many).
+model SpeakerAssignment {
+  userId    String   @map("user_id")
+  speakerId String   @map("speaker_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  speaker Speaker @relation(fields: [speakerId], references: [id], onDelete: Cascade)
+
+  @@id([userId, speakerId])
+  @@index([speakerId])
+  @@map("speaker_assignments")
+}
+
+// ============================================================
+// Broadcast targets
+// ============================================================
+
+model Zone {
+  id        String @id @default(cuid())
+  projectId String @map("project_id")
+  code      String
+  name      String
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  speakers Speaker[]
+
+  @@unique([projectId, code])
+  @@map("zones")
+}
+
+model Speaker {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  name      String
+  ext       String
+  zoneId    String?  @map("zone_id")
+  area      String
+  online    Boolean  @default(false)
+  volume    Int      @default(80)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  project    Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  zone       Zone?               @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  assignedTo SpeakerAssignment[]
+
+  @@unique([projectId, ext])
+  @@index([projectId])
+  @@index([zoneId])
+  @@map("speakers")
+}
+
+// ============================================================
+// Content + scheduling
+// ============================================================
+
+model Mp3File {
+  id          String   @id @default(cuid())
+  projectId   String   @map("project_id")
+  name        String
+  sizeBytes   BigInt   @map("size_bytes")
+  durationSec Int      @map("duration_sec")
+  storagePath String   @map("storage_path")
+  uploadedAt  DateTime @default(now()) @map("uploaded_at")
+
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  schedules Schedule[]
+
+  @@index([projectId])
+  @@map("mp3_files")
+}
+
+model Schedule {
+  id           String   @id @default(cuid())
+  projectId    String   @map("project_id")
+  name         String
+  cron         String
+  target       String
+  mp3FileId    String?  @map("mp3_file_id")
+  enabled      Boolean  @default(true)
+  skipHolidays Boolean  @default(false) @map("skip_holidays")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  mp3File Mp3File? @relation(fields: [mp3FileId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@map("schedules")
+}
+
+// ============================================================
+// Audit log
+// ============================================================
+
+model LogEntry {
+  id              String   @id @default(cuid())
+  projectId       String   @map("project_id")
+  userId          String?  @map("user_id")
+  // Denormalized user label so history survives user deletion / "system" entries.
+  userDisplayName String   @map("user_display_name")
+  target          String
+  durationSec     Int      @map("duration_sec")
+  type            LogType
+  recordingPath   String?  @map("recording_path")
+  occurredAt      DateTime @default(now()) @map("occurred_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, occurredAt])
+  @@index([userId])
+  @@index([type])
+  @@map("log_entries")
+}
+
+// ============================================================
+// Global presets (shared across projects)
+// ============================================================
+
+model EmergencyPreset {
+  id        String @id @default(cuid())
+  code      String @unique
+  name      String
+  ext       String
+  tonePath  String @map("tone_path")
+  palette   String
+  ttsScript String @map("tts_script")
+
+  @@map("emergency_presets")
+}
+
+model Template {
+  id          String @id @default(cuid())
+  code        String @unique
+  name        String
+  icon        String
+  filePath    String @map("file_path")
+  durationSec Int    @map("duration_sec")
+
+  @@map("templates")
+}
