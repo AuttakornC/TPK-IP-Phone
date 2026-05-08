@@ -1,0 +1,575 @@
+{
+  "common": {
+    "appName": "ระบบประกาศเสียงไร้สาย",
+    "appNameLatin": "Wireless PA",
+    "demoRibbon": "DEMO PROTOTYPE",
+    "logout": "ออกจากระบบ",
+    "logoutShort": "ออก",
+    "cancel": "ยกเลิก",
+    "save": "บันทึก",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "search": "ค้นหา...",
+    "all": "ทั้งหมด",
+    "dash": "—",
+    "online": "ออนไลน์",
+    "offline": "ออฟไลน์",
+    "active": "ใช้งาน",
+    "suspended": "ระงับ",
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "exportCsv": "ส่งออก CSV",
+    "selectAll": "เลือกทั้งหมด",
+    "clear": "ล้าง",
+    "connected": "เชื่อมต่อแล้ว",
+    "people": "{count} คน",
+    "minutes": "นาที",
+    "hours": "ชั่วโมง",
+    "days": "วัน",
+    "from": "ตั้งแต่",
+    "to": "ถึง",
+    "viewAll": "ดูทั้งหมด →",
+    "refresh": "↻ รีเฟรช",
+    "language": "ภาษา"
+  },
+  "languages": {
+    "th": "ไทย",
+    "en": "English"
+  },
+  "roleSelector": {
+    "title": "ระบบประกาศเสียงไร้สาย",
+    "subtitle": "Wireless PA · เลือกมุมมองเพื่อดูเดโม",
+    "loginExpand": "หรือ login ด้วย email (ระบบจริง)",
+    "loginHint": "ในระบบจริง email จะกำหนดโครงการและบทบาทของผู้ใช้อัตโนมัติ",
+    "loginButton": "เข้าสู่ระบบ",
+    "footer": "© 2026 Wireless PA · Internal Use Only · v2.0 Multi-tenant",
+    "vendorLabel": "ผู้ดูแลระบบ (vendor)",
+    "loginError": "ไม่พบ email นี้ในระบบ — ลอง chanakarn.palipol@gmail.com (admin) หรือ mayor@bangsapan.go.th (authority)",
+    "blurb": {
+      "admin": "จัดการโครงการ ผู้ใช้ และจุดประกาศทั้งระบบ (ระดับ vendor)",
+      "authority": "ผู้บริหารโครงการ — ใช้ได้ทุกฟังก์ชันในโครงการของตน",
+      "officer": "ประกาศ ตั้งเวลา จัดการ MP3 และดู log ของโครงการ",
+      "headVillage": "ผู้ใหญ่บ้าน — UI ใหญ่อ่านง่าย ใช้บนมือถือ ประกาศได้ทันที"
+    }
+  },
+  "header": {
+    "projectLabel": "โครงการ: {name}",
+    "nav": {
+      "control": "แผงควบคุม",
+      "mp3": "ไฟล์เสียง",
+      "scheduler": "ตั้งเวลา",
+      "log": "บันทึก",
+      "status": "สถานะระบบ",
+      "users": "ผู้ใช้"
+    }
+  },
+  "adminShell": {
+    "consoleTitle": "Admin Console",
+    "consoleSub": "Wireless PA · Vendor",
+    "loggedInAs": "เข้าสู่ระบบในชื่อ",
+    "logoutLink": "→ ออกจากระบบ",
+    "nav": {
+      "dashboard": "📊 Dashboard",
+      "projects": "📁 โครงการ",
+      "speakers": "🔊 จุดประกาศ",
+      "accounts": "👤 ผู้ใช้",
+      "status": "⚙️ สถานะระบบ"
+    }
+  },
+  "adminDashboard": {
+    "title": "ภาพรวมระบบ",
+    "subtitle": "จัดการโครงการ ผู้ใช้ และจุดประกาศของลูกค้าทั้งหมด",
+    "addProject": "+ เพิ่มโครงการ",
+    "stats": {
+      "activeProjects": "โครงการที่ใช้งาน",
+      "expiringHint": "{count} ใกล้หมดอายุ",
+      "totalAccounts": "ผู้ใช้ทั้งหมด",
+      "headVillagesHint": "{count} ผู้ใหญ่บ้าน",
+      "speakers": "จุดประกาศ",
+      "onlineHint": "{count} ออนไลน์"
+    },
+    "recentEvents": "เหตุการณ์ล่าสุด",
+    "recentProjects": "โครงการล่าสุด",
+    "tableHeader": {
+      "project": "โครงการ",
+      "status": "สถานะ",
+      "users": "ผู้ใช้",
+      "speakers": "จุดประกาศ",
+      "expires": "หมดอายุ"
+    },
+    "activity": {
+      "newProject": "โครงการใหม่: เทศบาลตำบลบางสะพาน",
+      "newUser": "เพิ่มผู้ใช้ใหม่: ลุงสมศักดิ์ (head village) ในโครงการ p1",
+      "newSpeakers": "เพิ่มจุดประกาศ 3 จุดในโครงการ p2",
+      "expiring": "โครงการ p3 ใกล้หมดอายุ (24 วัน)",
+      "renewed": "ต่อสัญญา p2 อีก 1 ปี"
+    }
+  },
+  "adminProjects": {
+    "title": "โครงการทั้งหมด",
+    "subtitle": "จัดการ tenant — สร้าง/แก้ไข/ระงับโครงการของลูกค้า",
+    "addProject": "+ เพิ่มโครงการ",
+    "searchPlaceholder": "ค้นหาชื่อโครงการ...",
+    "allStatuses": "ทุกสถานะ",
+    "stats": {
+      "users": "ผู้ใช้",
+      "speakers": "จุดประกาศ"
+    },
+    "modal": {
+      "title": "เพิ่มโครงการใหม่",
+      "subtitle": "กำหนดข้อมูลพื้นฐาน · สามารถ assign ผู้ใช้และจุดประกาศหลังบันทึก",
+      "name": "ชื่อโครงการ",
+      "namePlaceholder": "เทศบาล... / อบต. ...",
+      "contractStart": "เริ่มสัญญา",
+      "contractEnd": "สิ้นสุดสัญญา",
+      "contact": "ผู้ติดต่อ",
+      "contactPlaceholder": "ชื่อผู้ติดต่อ",
+      "phone": "โทรศัพท์",
+      "submit": "สร้างโครงการ",
+      "demoSavedAlert": "🎭 (เดโม) บันทึกแล้ว — โครงการจะถูกสร้างจริงตอน implement"
+    }
+  },
+  "adminProjectDetail": {
+    "back": "← กลับไปยังรายการโครงการ",
+    "edit": "แก้ไข",
+    "suspend": "ระงับ",
+    "infoLine": "id: {id} · ติดต่อ: {contact} ({phone}) · สัญญา {start} → {end}",
+    "stats": {
+      "users": "ผู้ใช้",
+      "headVillages": "{count} ผู้ใหญ่บ้าน",
+      "speakers": "จุดประกาศ",
+      "online": "{count} ออนไลน์",
+      "storage": "Storage MP3",
+      "lastUsed": "ใช้งานล่าสุด"
+    },
+    "tabs": {
+      "accounts": "ผู้ใช้",
+      "speakers": "จุดประกาศ",
+      "usage": "การใช้งาน"
+    },
+    "accountsTab": {
+      "title": "ผู้ใช้ในโครงการ",
+      "addUser": "+ เพิ่มผู้ใช้",
+      "empty": "ยังไม่มีผู้ใช้ในโครงการนี้",
+      "responsibleFor": "รับผิดชอบ {count} จุดประกาศ"
+    },
+    "speakersTab": {
+      "title": "จุดประกาศของโครงการ",
+      "addSpeaker": "+ เพิ่มจุดประกาศ",
+      "notAssigned": "ยังไม่ได้ assign ให้ผู้ใหญ่บ้าน",
+      "assignedTo": "→ {names}"
+    },
+    "usageTab": {
+      "monthlyAnnouncements": "ประกาศเดือนนี้",
+      "monthlyHint": "ครั้ง · +18% จากเดือนก่อน",
+      "totalTime": "เวลาประกาศรวม",
+      "averageHint": "เฉลี่ย 1:27 ต่อครั้ง",
+      "spaceUsed": "พื้นที่ใช้งาน",
+      "spaceHint": "MP3 + บันทึกการประกาศ"
+    }
+  },
+  "adminSpeakers": {
+    "title": "จุดประกาศทั้งหมด",
+    "subtitle": "สร้าง/แก้ไขจุดประกาศ และ assign ให้ผู้ใหญ่บ้านในแต่ละโครงการ",
+    "addSpeaker": "+ เพิ่มจุดประกาศ",
+    "searchPlaceholder": "ค้นหา...",
+    "allProjects": "ทุกโครงการ",
+    "allStatuses": "ทุกสถานะ",
+    "allAssigned": "การ assign ทั้งหมด",
+    "assigned": "ถูก assign แล้ว",
+    "unassigned": "ยังไม่ได้ assign",
+    "table": {
+      "name": "ชื่อจุด",
+      "project": "โครงการ",
+      "ext": "Ext.",
+      "zoneArea": "โซน · พื้นที่",
+      "status": "สถานะ",
+      "assignedTo": "Assigned to",
+      "actions": "ดำเนินการ",
+      "empty": "ไม่พบจุดประกาศ",
+      "assignBtn": "+ assign"
+    },
+    "modal": {
+      "title": "เพิ่มจุดประกาศใหม่",
+      "subtitle": "ผูกกับโครงการ และเลือก assign ผู้ใหญ่บ้านได้ทันที",
+      "name": "ชื่อจุด",
+      "namePlaceholder": "เช่น ศาลาประชาคม",
+      "extension": "Extension",
+      "zone": "โซน",
+      "project": "โครงการ",
+      "assignTo": "Assign ให้ผู้ใหญ่บ้าน (ไม่บังคับ)",
+      "noAssign": "— ไม่ assign —",
+      "submit": "สร้างจุดประกาศ",
+      "demoSavedAlert": "🎭 (เดโม) บันทึกแล้ว"
+    }
+  },
+  "adminAccounts": {
+    "title": "ผู้ใช้ทั้งหมด",
+    "subtitle": "จัดการผู้ใช้ทุกโครงการ · กำหนดบทบาทและ assign จุดประกาศ",
+    "addUser": "+ เพิ่มผู้ใช้",
+    "searchPlaceholder": "ค้นหา...",
+    "allProjects": "ทุกโครงการ",
+    "allRoles": "ทุก role",
+    "table": {
+      "user": "ผู้ใช้",
+      "role": "บทบาท",
+      "project": "โครงการ",
+      "responsibleFor": "จุดที่รับผิดชอบ",
+      "lastSeen": "เข้าใช้ล่าสุด",
+      "actions": "ดำเนินการ",
+      "empty": "ไม่พบผู้ใช้",
+      "vendor": "— vendor —",
+      "speakerCount": "{count} จุด"
+    }
+  },
+  "controlPanel": {
+    "calling": "กำลังโทร...",
+    "broadcastingSiren": "● กำลังประกาศไซเรน",
+    "broadcasting": "● กำลังประกาศ",
+    "ttsDefault": "ทดสอบระบบ Text-to-Speech",
+    "noSelection": "ยังไม่ได้เลือกจุดใด",
+    "extraSpots": " และอีก {count} จุด",
+    "noSpeakersFound": "ไม่พบจุดประกาศตามเงื่อนไข"
+  },
+  "emergency": {
+    "title": "เตือนภัยพิบัติ",
+    "subtitle": "เลือกประเภทภัย — ระบบเล่นไซเรนเฉพาะประเภท + อ่านสคริปต์อพยพอัตโนมัติ",
+    "extLabel": "Ext. {ext}",
+    "confirmTitle": "ยืนยันการประกาศ {name}?",
+    "confirmSub": "เสียงไซเรนจะดังออกลำโพงทุกจุด · Ext. {ext}",
+    "warning": "⚠️ การกระทำนี้จะถูกบันทึกไว้ในระบบ พร้อมชื่อผู้ใช้และเวลา",
+    "confirmBtn": "ยืนยัน — ประกาศ",
+    "names": {
+      "fire": "ไฟไหม้",
+      "flood": "น้ำท่วม",
+      "earthquake": "แผ่นดินไหว",
+      "criminal": "ภัยจากคนร้าย",
+      "general": "เตือนภัยทั่วไป"
+    },
+    "tts": {
+      "fire": "เกิดเหตุเพลิงไหม้ ขอให้ประชาชนรีบอพยพออกจากพื้นที่ตามเส้นทางที่ปลอดภัย",
+      "flood": "แจ้งเตือนระดับน้ำสูงขึ้นรวดเร็ว ขอให้ประชาชนเคลื่อนย้ายไปยังที่สูง",
+      "earthquake": "เกิดเหตุแผ่นดินไหว ขอให้ออกจากอาคารไปยังพื้นที่โล่งโดยด่วน",
+      "criminal": "ขอให้ประชาชนกลับเข้าบ้าน ปิดประตูหน้าต่าง และหลีกเลี่ยงการออกนอกบ้าน",
+      "general": ""
+    }
+  },
+  "templates": {
+    "title": "ข้อความสำเร็จรูป",
+    "subtitle": "กดเพื่อเล่นข้อความที่บันทึกไว้ล่วงหน้า · หรือพิมพ์ข้อความให้ระบบอ่าน (TTS)",
+    "ttsButton": "พิมพ์ข้อความ TTS",
+    "names": {
+      "t1": "เชิญร่วมประชุม",
+      "t2": "แจ้งดับน้ำประปา",
+      "t3": "แจ้งดับไฟฟ้า",
+      "t4": "เชิญรับวัคซีน",
+      "t5": "พ่นยุง / กำจัดยุงลาย",
+      "t6": "ตามหาบุคคล/ของหาย",
+      "t7": "ฝนฟ้าคะนอง — ระวัง",
+      "t8": "งานบุญประจำปี"
+    }
+  },
+  "zones": {
+    "title": "จุดประกาศ",
+    "summary": "{filtered} จุดในมุมมองนี้ · {online}/{total} จุดออนไลน์",
+    "searchPlaceholder": "ค้นหาจุดประกาศ...",
+    "labels": {
+      "all": "ทุกโซน",
+      "central": "โซนกลาง",
+      "north": "โซนเหนือ",
+      "south": "โซนใต้",
+      "east": "โซนตะวันออก",
+      "west": "โซนตะวันตก"
+    }
+  },
+  "tts": {
+    "title": "ประกาศข้อความ (Text-to-Speech)",
+    "subtitle": "พิมพ์ข้อความ ระบบจะอ่านเสียงไทยผ่านลำโพง",
+    "placeholder": "เช่น: ขอเชิญประชาชนหมู่ 3 มารับเอกสารบัตรสวัสดิการแห่งรัฐ ที่ที่ทำการเทศบาล วันพฤหัสบดีนี้ เวลา 09:00 น.",
+    "voice": "เสียง:",
+    "voiceFemaleNormal": "หญิงไทย — ปกติ",
+    "voiceMaleNormal": "ชายไทย — ปกติ",
+    "voiceFemaleFormal": "หญิงไทย — ทางการ",
+    "speed": "ความเร็ว:",
+    "speedNormal": "ปกติ",
+    "speedSlow": "ช้า",
+    "speedFast": "เร็ว",
+    "repeatTwice": "เล่นซ้ำ 2 รอบ",
+    "preview": "ฟังตัวอย่าง",
+    "broadcast": "ประกาศผ่านลำโพง"
+  },
+  "speakerCard": {
+    "extLine": "Ext. {ext} · {area} · {zone}",
+    "callBtn": "📞 โทร"
+  },
+  "groupCall": {
+    "title": "ประกาศพร้อมกัน",
+    "subtitle": "เลือกหลายจุดจาก list ด้านซ้าย แล้วกดประกาศ",
+    "selected": "จุดที่เลือก",
+    "broadcast": "ประกาศพร้อมกัน",
+    "zoneShortcuts": "ปุ่มลัดเลือกตามโซน:"
+  },
+  "callOverlay": {
+    "groupTarget": "ประกาศพร้อมกัน {count} จุด",
+    "emergencyTarget": "{glyph} {name}",
+    "emergencySubtarget": "Ext. {ext} · ทุกจุด {count} ลำโพง",
+    "emergencyTtsLine": "กำลังอ่านสคริปต์: \"{tts}\"",
+    "templateSubtarget": "เล่น \"{file}\" · ทุกจุดออนไลน์ · {duration}",
+    "ttsTarget": "🗣️ ประกาศข้อความ TTS",
+    "ttsSubtarget": "ทุกจุดออนไลน์ · {count} ลำโพง",
+    "muteOn": "เปิดไมค์",
+    "muteOff": "ปิดไมค์",
+    "volume": "ระดับเสียง",
+    "hangup": "วางสาย"
+  },
+  "mp3Page": {
+    "title": "ไฟล์เสียง MP3",
+    "subtitle": "อัปโหลดไฟล์เสียง เพื่อเปิดผ่านลำโพง หรือใช้ตั้งเวลาประกาศอัตโนมัติ",
+    "dropzoneTitle": "ลากไฟล์ MP3 มาวาง หรือคลิกเพื่อเลือก",
+    "dropzoneSub": "รองรับ .mp3 ขนาดไม่เกิน 10 MB ต่อไฟล์",
+    "selectFile": "เลือกไฟล์",
+    "uploaded": "ไฟล์ที่อัปโหลดแล้ว",
+    "fileCount": "{count} ไฟล์",
+    "uploadedAt": "อัปโหลด {date}",
+    "play": "▶ ฟัง",
+    "playOnSpeaker": "📡 เล่นผ่านลำโพง"
+  },
+  "scheduler": {
+    "title": "ตั้งเวลาประกาศอัตโนมัติ",
+    "subtitle": "กำหนดเวลาเล่นไฟล์ MP3 ผ่านลำโพงตามจุดที่ต้องการ",
+    "addSchedule": "+ เพิ่มกำหนดการ",
+    "next": "กำหนดการถัดไป",
+    "nextItem": "ประจำวันเที่ยง — 12:00 น.",
+    "nextDetail": "เล่น {file} ผ่านทุกจุด · อีก 4 ชั่วโมง 23 นาที",
+    "nextFile": "ประจำวัน-เที่ยง.mp3",
+    "skip": "ข้ามรอบนี้",
+    "all": "รายการกำหนดการทั้งหมด",
+    "skipHolidays": "ข้ามวันหยุด",
+    "lineDetail": "{when} · {target} · เล่น \"{file}\""
+  },
+  "logPage": {
+    "title": "บันทึกการประกาศ",
+    "subtitle": "ประวัติการประกาศย้อนหลัง 90 วัน · บันทึกผู้ใช้ ปลายทาง และระยะเวลาทุกครั้ง",
+    "stats": {
+      "today": "วันนี้",
+      "week": "7 วันล่าสุด",
+      "emergencyMonth": "เตือนภัย (เดือนนี้)",
+      "totalDuration": "ระยะเวลารวม",
+      "totalDurationValue": "1ชม. 25น."
+    },
+    "filters": {
+      "user": "ผู้ใช้",
+      "type": "ประเภท",
+      "userOptions": {
+        "all": "ทั้งหมด",
+        "mayor": "นายก อบต.",
+        "officerSomchai": "ปลัด สมชาย",
+        "officerSomying": "จนท. สมหญิง",
+        "system": "ระบบอัตโนมัติ"
+      }
+    },
+    "table": {
+      "time": "เวลา",
+      "user": "ผู้ใช้",
+      "target": "ปลายทาง",
+      "duration": "ระยะเวลา",
+      "type": "ประเภท",
+      "recording": "เสียงบันทึก",
+      "play": "▶ ฟัง"
+    },
+    "showing": "แสดง {shown} จาก {total} รายการ"
+  },
+  "logTypes": {
+    "emergency": "เตือนภัย",
+    "group": "ประกาศกลุ่ม",
+    "single": "จุดเดียว",
+    "scheduled": "ตั้งเวลา",
+    "mp3": "MP3"
+  },
+  "statusPage": {
+    "title": "สถานะระบบ",
+    "subtitle": "ตรวจสุขภาพระบบทั้งหมด · รีเฟรชอัตโนมัติทุก 30 วินาที",
+    "asteriskCard": "Asterisk PBX",
+    "asteriskValue": "ปกติ",
+    "uptimeHint": "Uptime {uptime}",
+    "speakersOnline": "ลำโพงออนไลน์",
+    "lastCheck": "ตรวจล่าสุด {time}",
+    "storage": "พื้นที่จัดเก็บ",
+    "storageHint": "จาก {total} {unit}",
+    "lastBackup": "Backup ล่าสุด",
+    "backupSuccess": "สำเร็จ",
+    "servicesTitle": "สถานะบริการ",
+    "speakerHealthTitle": "สุขภาพลำโพง (ตรวจล่าสุด {time})",
+    "speakerHealthCount": "{online} / {total} ออนไลน์",
+    "speakerExt": "Ext. {ext} · {zone}",
+    "storageBackupTitle": "พื้นที่จัดเก็บ & สำรองข้อมูล",
+    "diskSpace": "พื้นที่ดิสก์",
+    "diskUsage": "{used} / {total} {unit} ({pct}%)",
+    "logRetention": "เก็บ Log",
+    "recordingRetention": "เก็บไฟล์เสียงบันทึก",
+    "retentionDays": "{days} วัน",
+    "lastBackupRow": "Backup ล่าสุด",
+    "lastBackupValue": "{time} ({size})",
+    "nextBackup": "Backup ครั้งถัดไป",
+    "recentEvents": "เหตุการณ์ล่าสุด",
+    "sslTitle": "SSL Certificate",
+    "sslExpires": "หมดอายุ {date}",
+    "sslDaysLeft": "เหลือ {days} วัน",
+    "networkTitle": "เครือข่าย",
+    "packetLoss": "Packet loss: {pct}%",
+    "wssOnline": "WSS Online",
+    "asteriskVersionTitle": "Asterisk Version",
+    "webAppVersion": "Web App: {version}",
+    "latest": "เป็นเวอร์ชันล่าสุด",
+    "serviceNames": {
+      "asterisk": "Asterisk PBX",
+      "webApp": "Web Application",
+      "database": "Database (Postgres)",
+      "nginx": "Nginx Reverse Proxy"
+    },
+    "badges": {
+      "ok": "ปกติ",
+      "warn": "ระวัง",
+      "err": "ผิดปกติ"
+    },
+    "uptimeNginx": "14 วัน 3 ชม."
+  },
+  "systemUptime": {
+    "asterisk": "14 วัน 3 ชม.",
+    "webApp": "2 วัน 8 ชม."
+  },
+  "speakers": {
+    "lastCheckHint": "2 นาทีที่แล้ว"
+  },
+  "recentIssues": {
+    "i1": "วัดเหนือ (p1) ไม่ตอบสนอง > 5 นาที",
+    "i2": "หอนาฬิกา (p1) กลับมา online",
+    "i3": "หอนาฬิกา (p1) offline",
+    "i4": "Backup สำเร็จ (4.1 GB)",
+    "i5": "อัปเดตระบบ Web App เป็น 1.0.0-beta"
+  },
+  "usersPage": {
+    "title": "ผู้ใช้และสิทธิ์การใช้งาน",
+    "subtitle": "จัดการผู้ใช้และกำหนดบทบาท · เฉพาะนายก/ผู้บริหารเข้าหน้านี้ได้",
+    "addUser": "+ เพิ่มผู้ใช้",
+    "rolesTitle": "บทบาท (Roles)",
+    "permissionTitle": "ตารางสิทธิ์",
+    "permissionSubtitle": "สิ่งที่แต่ละบทบาททำได้ในระบบ",
+    "permission": "สิทธิ์",
+    "allUsers": "ผู้ใช้ทั้งหมด",
+    "table": {
+      "name": "ชื่อ",
+      "role": "บทบาท",
+      "email": "อีเมล",
+      "lastSeen": "เข้าใช้ล่าสุด",
+      "status": "สถานะ",
+      "actions": "ดำเนินการ"
+    }
+  },
+  "roles": {
+    "admin": {
+      "name": "ผู้ดูแลระบบ",
+      "short": "Admin",
+      "desc": "จัดการโครงการ ผู้ใช้ และจุดประกาศทั้งหมด · ระดับ vendor"
+    },
+    "authority": {
+      "name": "ผู้บริหาร",
+      "short": "Authority",
+      "desc": "ผู้บริหารโครงการ — ใช้ได้ทุกฟังก์ชันในโครงการของตน"
+    },
+    "officer": {
+      "name": "เจ้าหน้าที่",
+      "short": "Officer",
+      "desc": "ประกาศ ตั้งเวลา จัดการ MP3 · ดู log ของโครงการ"
+    },
+    "headVillage": {
+      "name": "ผู้ใหญ่บ้าน",
+      "short": "Head Village",
+      "desc": "ประกาศไปยังลำโพงในหมู่บ้านที่รับผิดชอบ · ใช้บนมือถือ"
+    }
+  },
+  "permissions": {
+    "broadcastSingle": "ประกาศจุดเดียว",
+    "broadcastGroup": "ประกาศกลุ่ม / หลายจุด",
+    "emergencyAlert": "เตือนภัยพิบัติ",
+    "templateOrTts": "ใช้ template / TTS",
+    "uploadMp3": "อัปโหลด MP3",
+    "scheduleAnnouncement": "ตั้งเวลาประกาศ",
+    "viewProjectLog": "ดู log ของโครงการ",
+    "viewOwnLog": "ดู log ของตัวเอง",
+    "manageUsers": "จัดการผู้ใช้ในโครงการ",
+    "manageProjects": "จัดการโครงการทั้งหมด",
+    "manageSpeakers": "สร้าง/แก้ไขจุดประกาศ",
+    "assignSpeakers": "Assign จุดให้ผู้ใหญ่บ้าน"
+  },
+  "projectStatus": {
+    "active": "ใช้งาน",
+    "expiring": "ใกล้หมดอายุ",
+    "expired": "หมดอายุ"
+  },
+  "village": {
+    "greeting": "สวัสดีครับ",
+    "fallbackName": "ผู้ใหญ่บ้าน",
+    "dateFormat": "วัน{weekday}ที่ {day} {month} {year}",
+    "weekdays": ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"],
+    "months": ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"],
+    "broadcastAll": "ประกาศไปยังทุกจุดในหมู่บ้าน",
+    "emergency": "แจ้งเหตุฉุกเฉิน",
+    "mySpeakers": "ลำโพงในหมู่บ้านของคุณ",
+    "noSpeakers": "ยังไม่มีลำโพงที่กำหนดให้คุณ — โปรดติดต่อผู้ดูแลระบบ",
+    "speakerOnline": "ออนไลน์ พร้อมประกาศ",
+    "speakerOffline": "ออฟไลน์ ไม่สามารถประกาศได้",
+    "speakerBroadcast": "📢 ประกาศ",
+    "templateTitle": "ข้อความสำเร็จรูป",
+    "templateSubtitle": "กดเพื่อประกาศข้อความสำเร็จรูปได้ทันที",
+    "navHome": "หน้าหลัก",
+    "navHistory": "ประวัติ",
+    "navExit": "ออก",
+    "confirm": {
+      "noSpeakerTitle": "ยังไม่มีลำโพงที่กำหนดให้คุณ",
+      "noSpeakerDetail": "กรุณาติดต่อผู้ดูแลระบบ",
+      "allTitle": "ประกาศไปยังทุกจุดใช่ไหม?",
+      "allDetail": "เสียงของคุณจะออกลำโพงทั้ง {count} จุดในหมู่บ้านพร้อมกัน",
+      "singleTitle": "ประกาศไปยัง {name}?",
+      "singleDetail": "เสียงของคุณจะออกลำโพงจุดนี้ทันที",
+      "templateTitle": "เล่นข้อความ \"{name}\"?",
+      "templateDetail": "ระบบจะเล่นไฟล์เสียงผ่านลำโพงทุกจุดในหมู่บ้านของคุณ",
+      "emergencyTitle": "ยืนยันประกาศเหตุ \"{name}\"?",
+      "emergencyDetail": "ระบบจะเล่นเสียงเตือนภัยทันทีบนลำโพงทุกจุดในหมู่บ้าน",
+      "yes": "ใช่ เริ่มประกาศ",
+      "no": "ไม่ ยกเลิก"
+    },
+    "emergencyPicker": {
+      "title": "เลือกประเภทเหตุฉุกเฉิน",
+      "subtitle": "ระบบจะเล่นเสียงเตือนภัยเฉพาะประเภท",
+      "ext": "เบอร์ {ext}",
+      "close": "ปิด"
+    },
+    "call": {
+      "connecting": "กำลังเชื่อมต่อ...",
+      "speakingSiren": "● กำลังประกาศไซเรน",
+      "speaking": "● กำลังพูด...",
+      "successTitle": "ประกาศสำเร็จ",
+      "successMulti": "ประกาศไปยัง {count} จุด เป็นเวลา {min}:{sec} นาที",
+      "successSingle": "ประกาศเป็นเวลา {min}:{sec} นาที",
+      "backHome": "กลับหน้าหลัก",
+      "stop": "หยุดประกาศ",
+      "emergencyTitle": "🚨 {name}",
+      "emergencySub": "เตือนภัยทุกจุด · เบอร์ {ext}",
+      "templateSub": "เล่นไฟล์เสียง · {count} ลำโพง · {duration}",
+      "groupTitle": "ประกาศไปยัง {count} จุด",
+      "fallbackTarget": "ลำโพง"
+    },
+    "history": {
+      "title": "ประวัติการประกาศของฉัน",
+      "subtitle": "รายการที่คุณประกาศย้อนหลัง 30 วัน",
+      "empty": "ยังไม่มีประวัติการประกาศ",
+      "lineSub": "{time} · เป็นเวลา {duration} นาที",
+      "playRecording": "ฟังเสียงที่บันทึกไว้"
+    }
+  },
+  "metadata": {
+    "title": "Wireless PA",
+    "description": "ระบบประกาศเสียงไร้สาย — Wireless PA Control Panel"
+  }
+}

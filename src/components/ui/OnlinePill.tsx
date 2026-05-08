@@ -1,3 +1,7 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 type Variant = 'admin' | 'light';
 
 interface Props {
@@ -6,11 +10,13 @@ interface Props {
 }
 
 export default function OnlinePill({ online, variant = 'admin' }: Props) {
+  const t = useTranslations('common');
+  const label = online ? t('online') : t('offline');
   if (variant === 'light') {
     return (
       <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${online ? 'text-green-700' : 'text-slate-400'}`}>
         <span className={`w-2 h-2 rounded-full ${online ? 'bg-green-500' : 'bg-slate-300'}`} />
-        {online ? 'ออนไลน์' : 'ออฟไลน์'}
+        {label}
       </span>
     );
   }
@@ -21,7 +27,7 @@ export default function OnlinePill({ online, variant = 'admin' }: Props) {
         online ? 'bg-green-500/15 text-green-400' : 'bg-slate-500/15 text-slate-400'
       }`}
     >
-      {online ? '● ออนไลน์' : '○ ออฟไลน์'}
+      {online ? '●' : '○'} {label}
     </span>
   );
 }

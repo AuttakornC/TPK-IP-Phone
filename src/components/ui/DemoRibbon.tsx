@@ -1,3 +1,8 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 export default function DemoRibbon() {
-  return <div className="demo-ribbon">DEMO PROTOTYPE</div>;
+  const t = useTranslations('common');
+  return <div className="demo-ribbon">{t('demoRibbon')}</div>;
 }

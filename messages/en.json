@@ -1,0 +1,575 @@
+{
+  "common": {
+    "appName": "Wireless PA",
+    "appNameLatin": "Wireless PA",
+    "demoRibbon": "DEMO PROTOTYPE",
+    "logout": "Sign out",
+    "logoutShort": "Exit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search...",
+    "all": "All",
+    "dash": "—",
+    "online": "Online",
+    "offline": "Offline",
+    "active": "Active",
+    "suspended": "Suspended",
+    "previous": "Previous",
+    "next": "Next",
+    "exportCsv": "Export CSV",
+    "selectAll": "Select all",
+    "clear": "Clear",
+    "connected": "Connected",
+    "people": "{count} people",
+    "minutes": "min",
+    "hours": "h",
+    "days": "days",
+    "from": "From",
+    "to": "To",
+    "viewAll": "View all →",
+    "refresh": "↻ Refresh",
+    "language": "Language"
+  },
+  "languages": {
+    "th": "ไทย",
+    "en": "English"
+  },
+  "roleSelector": {
+    "title": "Wireless PA",
+    "subtitle": "Wireless PA · Pick a role to view the demo",
+    "loginExpand": "Or sign in with email (production)",
+    "loginHint": "In production, the email determines the project and role automatically.",
+    "loginButton": "Sign in",
+    "footer": "© 2026 Wireless PA · Internal Use Only · v2.0 Multi-tenant",
+    "vendorLabel": "Administrator (vendor)",
+    "loginError": "Email not found — try chanakarn.palipol@gmail.com (admin) or mayor@bangsapan.go.th (authority)",
+    "blurb": {
+      "admin": "Manage projects, users, and speakers across the system (vendor level)",
+      "authority": "Project authority — full access to every function within their project",
+      "officer": "Broadcast, schedule, manage MP3, and view project logs",
+      "headVillage": "Head village — large readable UI for mobile, broadcasts instantly"
+    }
+  },
+  "header": {
+    "projectLabel": "Project: {name}",
+    "nav": {
+      "control": "Control",
+      "mp3": "Audio files",
+      "scheduler": "Scheduler",
+      "log": "Log",
+      "status": "Status",
+      "users": "Users"
+    }
+  },
+  "adminShell": {
+    "consoleTitle": "Admin Console",
+    "consoleSub": "Wireless PA · Vendor",
+    "loggedInAs": "Signed in as",
+    "logoutLink": "→ Sign out",
+    "nav": {
+      "dashboard": "📊 Dashboard",
+      "projects": "📁 Projects",
+      "speakers": "🔊 Speakers",
+      "accounts": "👤 Users",
+      "status": "⚙️ System status"
+    }
+  },
+  "adminDashboard": {
+    "title": "System overview",
+    "subtitle": "Manage projects, users, and speakers for all customers",
+    "addProject": "+ Add project",
+    "stats": {
+      "activeProjects": "Active projects",
+      "expiringHint": "{count} expiring",
+      "totalAccounts": "Total users",
+      "headVillagesHint": "{count} head villages",
+      "speakers": "Speakers",
+      "onlineHint": "{count} online"
+    },
+    "recentEvents": "Recent events",
+    "recentProjects": "Recent projects",
+    "tableHeader": {
+      "project": "Project",
+      "status": "Status",
+      "users": "Users",
+      "speakers": "Speakers",
+      "expires": "Expires"
+    },
+    "activity": {
+      "newProject": "New project: Bang Saphan Municipality",
+      "newUser": "New user added: Lung Somsak (head village) in project p1",
+      "newSpeakers": "Added 3 new speakers in project p2",
+      "expiring": "Project p3 expiring in 24 days",
+      "renewed": "Project p2 renewed for 1 year"
+    }
+  },
+  "adminProjects": {
+    "title": "All projects",
+    "subtitle": "Manage tenants — create, edit, or suspend customer projects",
+    "addProject": "+ Add project",
+    "searchPlaceholder": "Search project name...",
+    "allStatuses": "All statuses",
+    "stats": {
+      "users": "Users",
+      "speakers": "Speakers"
+    },
+    "modal": {
+      "title": "New project",
+      "subtitle": "Set the basics — assign users and speakers after saving",
+      "name": "Project name",
+      "namePlaceholder": "Municipality / SAO ...",
+      "contractStart": "Contract start",
+      "contractEnd": "Contract end",
+      "contact": "Contact",
+      "contactPlaceholder": "Contact name",
+      "phone": "Phone",
+      "submit": "Create project",
+      "demoSavedAlert": "🎭 (Demo) Saved — projects will be created for real once implemented"
+    }
+  },
+  "adminProjectDetail": {
+    "back": "← Back to projects",
+    "edit": "Edit",
+    "suspend": "Suspend",
+    "infoLine": "id: {id} · contact: {contact} ({phone}) · contract {start} → {end}",
+    "stats": {
+      "users": "Users",
+      "headVillages": "{count} head villages",
+      "speakers": "Speakers",
+      "online": "{count} online",
+      "storage": "MP3 storage",
+      "lastUsed": "Recently used"
+    },
+    "tabs": {
+      "accounts": "Users",
+      "speakers": "Speakers",
+      "usage": "Usage"
+    },
+    "accountsTab": {
+      "title": "Project users",
+      "addUser": "+ Add user",
+      "empty": "No users in this project yet",
+      "responsibleFor": "Responsible for {count} speakers"
+    },
+    "speakersTab": {
+      "title": "Project speakers",
+      "addSpeaker": "+ Add speaker",
+      "notAssigned": "Not yet assigned to a head village",
+      "assignedTo": "→ {names}"
+    },
+    "usageTab": {
+      "monthlyAnnouncements": "Announcements this month",
+      "monthlyHint": "calls · +18% vs last month",
+      "totalTime": "Total airtime",
+      "averageHint": "avg. 1:27 per call",
+      "spaceUsed": "Storage used",
+      "spaceHint": "MP3 + recordings"
+    }
+  },
+  "adminSpeakers": {
+    "title": "All speakers",
+    "subtitle": "Create or edit speakers and assign them to head villages per project",
+    "addSpeaker": "+ Add speaker",
+    "searchPlaceholder": "Search...",
+    "allProjects": "All projects",
+    "allStatuses": "All statuses",
+    "allAssigned": "All assignments",
+    "assigned": "Assigned",
+    "unassigned": "Unassigned",
+    "table": {
+      "name": "Name",
+      "project": "Project",
+      "ext": "Ext.",
+      "zoneArea": "Zone · Area",
+      "status": "Status",
+      "assignedTo": "Assigned to",
+      "actions": "Actions",
+      "empty": "No speakers found",
+      "assignBtn": "+ assign"
+    },
+    "modal": {
+      "title": "New speaker",
+      "subtitle": "Bind to a project and optionally assign a head village",
+      "name": "Name",
+      "namePlaceholder": "e.g. Community Hall",
+      "extension": "Extension",
+      "zone": "Zone",
+      "project": "Project",
+      "assignTo": "Assign to head village (optional)",
+      "noAssign": "— Not assigned —",
+      "submit": "Create speaker",
+      "demoSavedAlert": "🎭 (Demo) Saved"
+    }
+  },
+  "adminAccounts": {
+    "title": "All users",
+    "subtitle": "Manage users across projects · set roles and assign speakers",
+    "addUser": "+ Add user",
+    "searchPlaceholder": "Search...",
+    "allProjects": "All projects",
+    "allRoles": "All roles",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "project": "Project",
+      "responsibleFor": "Speakers",
+      "lastSeen": "Last seen",
+      "actions": "Actions",
+      "empty": "No users found",
+      "vendor": "— vendor —",
+      "speakerCount": "{count} speakers"
+    }
+  },
+  "controlPanel": {
+    "calling": "Calling...",
+    "broadcastingSiren": "● Sounding siren",
+    "broadcasting": "● Broadcasting",
+    "ttsDefault": "Text-to-speech test",
+    "noSelection": "No speakers selected",
+    "extraSpots": " and {count} more",
+    "noSpeakersFound": "No speakers match the filters"
+  },
+  "emergency": {
+    "title": "Emergency alert",
+    "subtitle": "Pick a disaster type — siren plays automatically with the matching evacuation script",
+    "extLabel": "Ext. {ext}",
+    "confirmTitle": "Confirm {name} alert?",
+    "confirmSub": "The siren will play across every speaker · Ext. {ext}",
+    "warning": "⚠️ This action will be logged with your username and timestamp",
+    "confirmBtn": "Confirm — broadcast",
+    "names": {
+      "fire": "Fire",
+      "flood": "Flood",
+      "earthquake": "Earthquake",
+      "criminal": "Criminal threat",
+      "general": "General alert"
+    },
+    "tts": {
+      "fire": "A fire has broken out. Please evacuate the area immediately along the safe routes.",
+      "flood": "Flood warning — water is rising rapidly. Please move to higher ground.",
+      "earthquake": "An earthquake has occurred. Please leave buildings and move to open areas immediately.",
+      "criminal": "Please return home, lock doors and windows, and avoid going outside.",
+      "general": ""
+    }
+  },
+  "templates": {
+    "title": "Pre-recorded announcements",
+    "subtitle": "Tap to play a pre-recorded clip · or type a message for the system to read (TTS)",
+    "ttsButton": "Type a TTS message",
+    "names": {
+      "t1": "Meeting invitation",
+      "t2": "Water outage notice",
+      "t3": "Power outage notice",
+      "t4": "Vaccination invitation",
+      "t5": "Mosquito spraying",
+      "t6": "Lost person / item search",
+      "t7": "Storm warning",
+      "t8": "Annual festival"
+    }
+  },
+  "zones": {
+    "title": "Speakers",
+    "summary": "{filtered} in view · {online}/{total} online",
+    "searchPlaceholder": "Search speakers...",
+    "labels": {
+      "all": "All zones",
+      "central": "Central",
+      "north": "North",
+      "south": "South",
+      "east": "East",
+      "west": "West"
+    }
+  },
+  "tts": {
+    "title": "Text-to-Speech announcement",
+    "subtitle": "Type a message — the system will speak it through the speakers",
+    "placeholder": "e.g. Residents of Mu 3, please collect your welfare cards at the municipal office this Thursday at 09:00.",
+    "voice": "Voice:",
+    "voiceFemaleNormal": "Thai female — normal",
+    "voiceMaleNormal": "Thai male — normal",
+    "voiceFemaleFormal": "Thai female — formal",
+    "speed": "Speed:",
+    "speedNormal": "Normal",
+    "speedSlow": "Slow",
+    "speedFast": "Fast",
+    "repeatTwice": "Repeat 2 times",
+    "preview": "Preview",
+    "broadcast": "Broadcast"
+  },
+  "speakerCard": {
+    "extLine": "Ext. {ext} · {area} · {zone}",
+    "callBtn": "📞 Call"
+  },
+  "groupCall": {
+    "title": "Group broadcast",
+    "subtitle": "Pick multiple speakers from the list, then broadcast",
+    "selected": "Selected",
+    "broadcast": "Broadcast",
+    "zoneShortcuts": "Zone shortcuts:"
+  },
+  "callOverlay": {
+    "groupTarget": "Broadcasting to {count} speakers",
+    "emergencyTarget": "{glyph} {name}",
+    "emergencySubtarget": "Ext. {ext} · all {count} speakers",
+    "emergencyTtsLine": "Reading script: \"{tts}\"",
+    "templateSubtarget": "Playing \"{file}\" · all online speakers · {duration}",
+    "ttsTarget": "🗣️ TTS announcement",
+    "ttsSubtarget": "All online speakers · {count} units",
+    "muteOn": "Unmute",
+    "muteOff": "Mute",
+    "volume": "Volume",
+    "hangup": "Hang up"
+  },
+  "mp3Page": {
+    "title": "MP3 audio files",
+    "subtitle": "Upload audio files to play through speakers or schedule automatic announcements",
+    "dropzoneTitle": "Drag MP3 files here, or click to choose",
+    "dropzoneSub": "Supports .mp3 up to 10 MB per file",
+    "selectFile": "Choose file",
+    "uploaded": "Uploaded files",
+    "fileCount": "{count} files",
+    "uploadedAt": "Uploaded {date}",
+    "play": "▶ Play",
+    "playOnSpeaker": "📡 Play on speaker"
+  },
+  "scheduler": {
+    "title": "Scheduled announcements",
+    "subtitle": "Schedule MP3 playback through speakers at specific points",
+    "addSchedule": "+ Add schedule",
+    "next": "Next scheduled",
+    "nextItem": "Daily noon — 12:00",
+    "nextDetail": "Plays {file} on every speaker · in 4 h 23 min",
+    "nextFile": "daily-noon.mp3",
+    "skip": "Skip this one",
+    "all": "All schedules",
+    "skipHolidays": "Skip holidays",
+    "lineDetail": "{when} · {target} · plays \"{file}\""
+  },
+  "logPage": {
+    "title": "Announcement log",
+    "subtitle": "Last 90 days · captures user, target, and duration for every broadcast",
+    "stats": {
+      "today": "Today",
+      "week": "Last 7 days",
+      "emergencyMonth": "Emergencies (this month)",
+      "totalDuration": "Total airtime",
+      "totalDurationValue": "1h 25m"
+    },
+    "filters": {
+      "user": "User",
+      "type": "Type",
+      "userOptions": {
+        "all": "All",
+        "mayor": "Mayor",
+        "officerSomchai": "Clerk Somchai",
+        "officerSomying": "Officer Somying",
+        "system": "System (auto)"
+      }
+    },
+    "table": {
+      "time": "Time",
+      "user": "User",
+      "target": "Target",
+      "duration": "Duration",
+      "type": "Type",
+      "recording": "Recording",
+      "play": "▶ Play"
+    },
+    "showing": "Showing {shown} of {total}"
+  },
+  "logTypes": {
+    "emergency": "Emergency",
+    "group": "Group",
+    "single": "Single",
+    "scheduled": "Scheduled",
+    "mp3": "MP3"
+  },
+  "statusPage": {
+    "title": "System status",
+    "subtitle": "Full system health · auto-refresh every 30 seconds",
+    "asteriskCard": "Asterisk PBX",
+    "asteriskValue": "OK",
+    "uptimeHint": "Uptime {uptime}",
+    "speakersOnline": "Speakers online",
+    "lastCheck": "Checked {time}",
+    "storage": "Storage",
+    "storageHint": "of {total} {unit}",
+    "lastBackup": "Last backup",
+    "backupSuccess": "OK",
+    "servicesTitle": "Services",
+    "speakerHealthTitle": "Speaker health (checked {time})",
+    "speakerHealthCount": "{online} / {total} online",
+    "speakerExt": "Ext. {ext} · {zone}",
+    "storageBackupTitle": "Storage & backup",
+    "diskSpace": "Disk space",
+    "diskUsage": "{used} / {total} {unit} ({pct}%)",
+    "logRetention": "Log retention",
+    "recordingRetention": "Recording retention",
+    "retentionDays": "{days} days",
+    "lastBackupRow": "Last backup",
+    "lastBackupValue": "{time} ({size})",
+    "nextBackup": "Next backup",
+    "recentEvents": "Recent events",
+    "sslTitle": "SSL Certificate",
+    "sslExpires": "Expires {date}",
+    "sslDaysLeft": "{days} days left",
+    "networkTitle": "Network",
+    "packetLoss": "Packet loss: {pct}%",
+    "wssOnline": "WSS Online",
+    "asteriskVersionTitle": "Asterisk Version",
+    "webAppVersion": "Web App: {version}",
+    "latest": "Up to date",
+    "serviceNames": {
+      "asterisk": "Asterisk PBX",
+      "webApp": "Web Application",
+      "database": "Database (Postgres)",
+      "nginx": "Nginx Reverse Proxy"
+    },
+    "badges": {
+      "ok": "OK",
+      "warn": "Warning",
+      "err": "Error"
+    },
+    "uptimeNginx": "14 d 3 h"
+  },
+  "systemUptime": {
+    "asterisk": "14 d 3 h",
+    "webApp": "2 d 8 h"
+  },
+  "speakers": {
+    "lastCheckHint": "2 minutes ago"
+  },
+  "recentIssues": {
+    "i1": "Wat Nuea (p1) unresponsive > 5 minutes",
+    "i2": "Clock tower (p1) back online",
+    "i3": "Clock tower (p1) offline",
+    "i4": "Backup completed (4.1 GB)",
+    "i5": "Web App updated to 1.0.0-beta"
+  },
+  "usersPage": {
+    "title": "Users & permissions",
+    "subtitle": "Manage users and assign roles · only authority can access this page",
+    "addUser": "+ Add user",
+    "rolesTitle": "Roles",
+    "permissionTitle": "Permission matrix",
+    "permissionSubtitle": "What each role can do",
+    "permission": "Permission",
+    "allUsers": "All users",
+    "table": {
+      "name": "Name",
+      "role": "Role",
+      "email": "Email",
+      "lastSeen": "Last seen",
+      "status": "Status",
+      "actions": "Actions"
+    }
+  },
+  "roles": {
+    "admin": {
+      "name": "Administrator",
+      "short": "Admin",
+      "desc": "Manage projects, users, and speakers · vendor level"
+    },
+    "authority": {
+      "name": "Authority",
+      "short": "Authority",
+      "desc": "Project authority — full access to every function within their project"
+    },
+    "officer": {
+      "name": "Officer",
+      "short": "Officer",
+      "desc": "Broadcast, schedule, manage MP3 · view project logs"
+    },
+    "headVillage": {
+      "name": "Head Village",
+      "short": "Head Village",
+      "desc": "Broadcast to assigned village speakers · mobile-friendly"
+    }
+  },
+  "permissions": {
+    "broadcastSingle": "Single broadcast",
+    "broadcastGroup": "Group / multi broadcast",
+    "emergencyAlert": "Emergency alert",
+    "templateOrTts": "Template / TTS",
+    "uploadMp3": "Upload MP3",
+    "scheduleAnnouncement": "Schedule announcement",
+    "viewProjectLog": "View project log",
+    "viewOwnLog": "View own log",
+    "manageUsers": "Manage project users",
+    "manageProjects": "Manage all projects",
+    "manageSpeakers": "Create/edit speakers",
+    "assignSpeakers": "Assign speakers to head village"
+  },
+  "projectStatus": {
+    "active": "Active",
+    "expiring": "Expiring soon",
+    "expired": "Expired"
+  },
+  "village": {
+    "greeting": "Hello",
+    "fallbackName": "Head Village",
+    "dateFormat": "{weekday}, {day} {month} {year}",
+    "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "broadcastAll": "Broadcast to all village speakers",
+    "emergency": "Emergency alert",
+    "mySpeakers": "Your village speakers",
+    "noSpeakers": "No speakers assigned to you yet — please contact the administrator",
+    "speakerOnline": "Online — ready to broadcast",
+    "speakerOffline": "Offline — cannot broadcast",
+    "speakerBroadcast": "📢 Broadcast",
+    "templateTitle": "Pre-recorded announcements",
+    "templateSubtitle": "Tap to play a pre-recorded message instantly",
+    "navHome": "Home",
+    "navHistory": "History",
+    "navExit": "Exit",
+    "confirm": {
+      "noSpeakerTitle": "No speakers assigned to you",
+      "noSpeakerDetail": "Please contact the administrator",
+      "allTitle": "Broadcast to all speakers?",
+      "allDetail": "Your voice will play on all {count} village speakers at once",
+      "singleTitle": "Broadcast to {name}?",
+      "singleDetail": "Your voice will play on this speaker immediately",
+      "templateTitle": "Play \"{name}\"?",
+      "templateDetail": "The system will play the audio file on every village speaker",
+      "emergencyTitle": "Confirm \"{name}\" alert?",
+      "emergencyDetail": "The system will play the alert on every village speaker immediately",
+      "yes": "Yes, start broadcasting",
+      "no": "No, cancel"
+    },
+    "emergencyPicker": {
+      "title": "Pick the emergency type",
+      "subtitle": "The system will play the matching alert tone",
+      "ext": "Ext. {ext}",
+      "close": "Close"
+    },
+    "call": {
+      "connecting": "Connecting...",
+      "speakingSiren": "● Sounding siren",
+      "speaking": "● Speaking...",
+      "successTitle": "Broadcast complete",
+      "successMulti": "Broadcast to {count} speakers for {min}:{sec}",
+      "successSingle": "Broadcast for {min}:{sec}",
+      "backHome": "Back to home",
+      "stop": "Stop broadcast",
+      "emergencyTitle": "🚨 {name}",
+      "emergencySub": "Alert all speakers · Ext. {ext}",
+      "templateSub": "Audio file · {count} speakers · {duration}",
+      "groupTitle": "Broadcasting to {count} speakers",
+      "fallbackTarget": "Speaker"
+    },
+    "history": {
+      "title": "My broadcast history",
+      "subtitle": "Your broadcasts in the last 30 days",
+      "empty": "No broadcasts yet",
+      "lineSub": "{time} · {duration}",
+      "playRecording": "Play recording"
+    }
+  },
+  "metadata": {
+    "title": "Wireless PA",
+    "description": "Wireless PA Control Panel"
+  }
+}

@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { EMERGENCIES, type Emergency } from '@/lib/mock';
 import { EMERGENCY_GLYPHS, EMERGENCY_PALETTE } from './types';
 
@@ -6,14 +9,15 @@ interface Props {
 }
 
 export default function EmergencyGrid({ onPick }: Props) {
+  const t = useTranslations('emergency');
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
         <div>
           <h2 className="font-bold text-slate-900 flex items-center gap-2">
-            <span className="text-red-600">🚨</span> เตือนภัยพิบัติ
+            <span className="text-red-600">🚨</span> {t('title')}
           </h2>
-          <p className="text-xs text-slate-500">เลือกประเภทภัย — ระบบเล่นไซเรนเฉพาะประเภท + อ่านสคริปต์อพยพอัตโนมัติ</p>
+          <p className="text-xs text-slate-500">{t('subtitle')}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -28,8 +32,8 @@ export default function EmergencyGrid({ onPick }: Props) {
               <div className={`w-12 h-12 rounded-xl ${p.iconBg} text-white flex items-center justify-center text-2xl mb-2 shadow`}>
                 {EMERGENCY_GLYPHS[em.id] || '🚨'}
               </div>
-              <div className={`font-bold ${p.text}`}>{em.name}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Ext. {em.ext}</div>
+              <div className={`font-bold ${p.text}`}>{t(`names.${em.id}`)}</div>
+              <div className="text-xs text-slate-500 mt-0.5">{t('extLabel', { ext: em.ext })}</div>
             </button>
           );
         })}

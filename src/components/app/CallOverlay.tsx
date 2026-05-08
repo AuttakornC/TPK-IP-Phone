@@ -1,10 +1,14 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Modal from '@/components/ui/Modal';
 import type { CallState } from './types';
 import { EMERGENCY_GLYPHS } from './types';
 
 function CallHeader({ call, status, seconds, micPct }: { call: CallState; status: string; seconds: number; micPct: number }) {
+  const t = useTranslations('callOverlay');
+  const tEm = useTranslations('emergency.names');
+  const tTpl = useTranslations('templates.names');
   let target = '—';
   let subtarget = '—';
   let ttsLine: string | null = null;
@@ -15,21 +19,21 @@ function CallHeader({ call, status, seconds, micPct }: { call: CallState; status
     target = s.name;
     subtarget = `Ext. ${s.ext} · ${s.area}`;
   } else if (call.kind === 'group') {
-    target = `ประกาศพร้อมกัน ${call.speakers.length} จุด`;
+    target = t('groupTarget', { count: call.speakers.length });
     subtarget = call.speakers.slice(0, 3).map(s => s.name).join(', ') + (call.speakers.length > 3 ? '...' : '');
   } else if (call.kind === 'emergency' && call.emergency) {
     bg = 'bg-gradient-to-br from-red-700 to-red-900';
-    target = `${EMERGENCY_GLYPHS[call.emergency.id] || '🚨'} ${call.emergency.name}`;
-    subtarget = `Ext. ${call.emergency.ext} · ทุกจุด ${call.speakers.length} ลำโพง`;
-    if (call.emergency.tts) ttsLine = `กำลังอ่านสคริปต์: "${call.emergency.tts}"`;
+    target = t('emergencyTarget', { glyph: EMERGENCY_GLYPHS[call.emergency.id] || '🚨', name: tEm(call.emergency.id) });
+    subtarget = t('emergencySubtarget', { ext: call.emergency.ext, count: call.speakers.length });
+    if (call.emergency.tts) ttsLine = t('emergencyTtsLine', { tts: call.emergency.tts });
   } else if (call.kind === 'template' && call.template) {
     bg = 'bg-gradient-to-br from-indigo-800 to-blue-700';
-    target = call.template.name;
-    subtarget = `เล่น "${call.template.file}" · ทุกจุดออนไลน์ · ${call.template.duration}`;
+    target = tTpl(call.template.id);
+    subtarget = t('templateSubtarget', { file: call.template.file, duration: call.template.duration });
   } else if (call.kind === 'tts') {
     bg = 'bg-gradient-to-br from-indigo-800 to-purple-700';
-    target = '🗣️ ประกาศข้อความ TTS';
-    subtarget = `ทุกจุดออนไลน์ · ${call.speakers.length} ลำโพง`;
+    target = t('ttsTarget');
+    subtarget = t('ttsSubtarget', { count: call.speakers.length });
     if (call.tts) ttsLine = `"${call.tts}"`;
   }
 
@@ -70,6 +74,7 @@ interface Props {
 }
 
 export default function CallOverlay({ call, status, seconds, micPct, muted, onToggleMute, onEnd }: Props) {
+  const t = useTranslations('callOverlay');
   if (!call) return null;
   return (
     <Modal open size="sm" align="bottom">
@@ -80,15 +85,15 @@ export default function CallOverlay({ call, status, seconds, micPct, muted, onTo
           className={`flex flex-col items-center gap-1 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 ${muted ? 'bg-slate-100' : ''}`}
         >
           <span className="text-xl">🎤</span>
-          <span className="text-xs font-medium">{muted ? 'เปิดไมค์' : 'ปิดไมค์'}</span>
+          <span className="text-xs font-medium">{muted ? t('muteOn') : t('muteOff')}</span>
         </button>
         <button className="flex flex-col items-center gap-1 py-3 rounded-xl border border-slate-200 hover:bg-slate-50">
           <span className="text-xl">🔊</span>
-          <span className="text-xs font-medium">ระดับเสียง</span>
+          <span className="text-xs font-medium">{t('volume')}</span>
         </button>
         <button onClick={onEnd} className="flex flex-col items-center gap-1 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white">
           <span className="text-xl">📵</span>
-          <span className="text-xs font-medium">วางสาย</span>
+          <span className="text-xs font-medium">{t('hangup')}</span>
         </button>
       </div>
     </Modal>
