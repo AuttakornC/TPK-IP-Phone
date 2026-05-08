@@ -53,7 +53,6 @@ export interface User {
   role: RoleId;
   projectId: string | null;
   username: string;
-  email: string;
   active: boolean;
   last: string;
   assignedSpeakers: string[];
@@ -183,19 +182,19 @@ export const TEMPLATES: Template[] = [
 
 // ============= USERS =============
 export const USERS: User[] = [
-  { name: 'นายชนะกานต์ ปาลิพล', role: 'admin', projectId: null, username: 'admin', email: 'chanakarn.palipol@gmail.com', active: true, last: '2026-05-07 15:00', assignedSpeakers: [] },
+  { name: 'นายชนะกานต์ ปาลิพล', role: 'admin', projectId: null, username: 'admin', active: true, last: '2026-05-07 15:00', assignedSpeakers: [] },
 
-  { name: 'นายสมพงษ์ จันทร์ประดิษฐ์', role: 'authority', projectId: 'p1', username: 'somphong', email: 'mayor@bangsapan.go.th', active: true, last: '2026-05-07 14:30', assignedSpeakers: [] },
-  { name: 'นายสมชาย วงศ์สวัสดิ์', role: 'officer', projectId: 'p1', username: 'somchai', email: 'officer@bangsapan.go.th', active: true, last: '2026-05-07 13:15', assignedSpeakers: [] },
-  { name: 'ลุงมานิตย์ มั่นใจ', role: 'headVillage', projectId: 'p1', username: 'manit', email: 'phuyaiban-m2@bangsapan.go.th', active: true, last: '2026-05-07 09:45', assignedSpeakers: ['sp04','sp05','sp06'] },
-  { name: 'ลุงสมศักดิ์ รักดี', role: 'headVillage', projectId: 'p1', username: 'somsak', email: 'phuyaiban-m4@bangsapan.go.th', active: true, last: '2026-05-06 11:20', assignedSpeakers: ['sp07','sp08','sp09','sp10'] },
+  { name: 'นายสมพงษ์ จันทร์ประดิษฐ์', role: 'authority', projectId: 'p1', username: 'somphong', active: true, last: '2026-05-07 14:30', assignedSpeakers: [] },
+  { name: 'นายสมชาย วงศ์สวัสดิ์', role: 'officer', projectId: 'p1', username: 'somchai', active: true, last: '2026-05-07 13:15', assignedSpeakers: [] },
+  { name: 'ลุงมานิตย์ มั่นใจ', role: 'headVillage', projectId: 'p1', username: 'manit', active: true, last: '2026-05-07 09:45', assignedSpeakers: ['sp04','sp05','sp06'] },
+  { name: 'ลุงสมศักดิ์ รักดี', role: 'headVillage', projectId: 'p1', username: 'somsak', active: true, last: '2026-05-06 11:20', assignedSpeakers: ['sp07','sp08','sp09','sp10'] },
 
-  { name: 'นางสุดา รักไทย', role: 'authority', projectId: 'p2', username: 'suda', email: 'leader@huaikrachao.go.th', active: true, last: '2026-05-07 10:00', assignedSpeakers: [] },
-  { name: 'นายปกครอง สุขใจ', role: 'officer', projectId: 'p2', username: 'pokkrong', email: 'officer@huaikrachao.go.th', active: true, last: '2026-05-06 14:30', assignedSpeakers: [] },
-  { name: 'ลุงเสถียร ดีงาม', role: 'headVillage', projectId: 'p2', username: 'sathian', email: 'phuyaiban@huaikrachao.go.th', active: true, last: '2026-05-07 08:30', assignedSpeakers: ['sp19','sp20'] },
+  { name: 'นางสุดา รักไทย', role: 'authority', projectId: 'p2', username: 'suda', active: true, last: '2026-05-07 10:00', assignedSpeakers: [] },
+  { name: 'นายปกครอง สุขใจ', role: 'officer', projectId: 'p2', username: 'pokkrong', active: true, last: '2026-05-06 14:30', assignedSpeakers: [] },
+  { name: 'ลุงเสถียร ดีงาม', role: 'headVillage', projectId: 'p2', username: 'sathian', active: true, last: '2026-05-07 08:30', assignedSpeakers: ['sp19','sp20'] },
 
-  { name: 'นายกฤษณะ พงษ์ไทย', role: 'authority', projectId: 'p3', username: 'kritsana', email: 'mayor@chachoengsao.go.th', active: true, last: '2026-05-05 11:00', assignedSpeakers: [] },
-  { name: 'นางสาวพิมพ์ แสนดี', role: 'officer', projectId: 'p3', username: 'pim', email: 'officer@chachoengsao.go.th', active: true, last: '2026-05-04 09:30', assignedSpeakers: [] },
+  { name: 'นายกฤษณะ พงษ์ไทย', role: 'authority', projectId: 'p3', username: 'kritsana', active: true, last: '2026-05-05 11:00', assignedSpeakers: [] },
+  { name: 'นางสาวพิมพ์ แสนดี', role: 'officer', projectId: 'p3', username: 'pim', active: true, last: '2026-05-04 09:30', assignedSpeakers: [] },
 ];
 
 export const DEMO_USER_BY_ROLE: Record<RoleId, string> = {

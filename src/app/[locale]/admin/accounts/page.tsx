@@ -26,7 +26,7 @@ export default function AdminAccountsPage() {
   const list = USERS.filter(u => u.role !== 'admin').filter(u => {
     if (filterProject && u.projectId !== filterProject) return false;
     if (filterRole && u.role !== filterRole) return false;
-    if (search && !(u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()))) return false;
+    if (search && !(u.name.toLowerCase().includes(search.toLowerCase()) || u.username.toLowerCase().includes(search.toLowerCase()))) return false;
     return true;
   });
 
@@ -78,7 +78,7 @@ export default function AdminAccountsPage() {
                       <Avatar name={u.name} tone="slate" />
                       <div className="min-w-0">
                         <div className="font-medium text-white truncate">{u.name}</div>
-                        <div className="text-xs text-slate-500 truncate">{u.email}</div>
+                        <div className="text-xs text-slate-500 truncate">@{u.username}</div>
                       </div>
                     </div>
                   </td>

@@ -139,7 +139,6 @@ export default function UsersPage() {
                 <tr className="text-left text-slate-600">
                   <th className="px-5 py-3 font-semibold">{t('table.name')}</th>
                   <th className="px-5 py-3 font-semibold">{t('table.role')}</th>
-                  <th className="px-5 py-3 font-semibold">{t('table.email')}</th>
                   <th className="px-5 py-3 font-semibold">{t('table.lastSeen')}</th>
                   <th className="px-5 py-3 font-semibold">{t('table.status')}</th>
                   <th className="px-5 py-3 font-semibold w-1">{t('table.actions')}</th>
@@ -159,7 +158,6 @@ export default function UsersPage() {
                         </div>
                       </td>
                       <td className="px-5 py-3">{roleBadge(u.role)}</td>
-                      <td className="px-5 py-3 text-slate-600">{u.email}</td>
                       <td className="px-5 py-3 font-mono text-xs text-slate-600">{u.last}</td>
                       <td className="px-5 py-3">
                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-full ring-1 ${u.active ? 'bg-green-100 text-green-700 ring-green-200' : 'bg-slate-100 text-slate-500 ring-slate-200'}`}>

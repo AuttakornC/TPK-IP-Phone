@@ -52,6 +52,36 @@
       "headVillage": "Head village — large readable UI for mobile, broadcasts instantly"
     }
   },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Wireless PA · For project users",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "demoHint": "Demo: use password demo1234 — e.g. somphong, somchai, manit",
+    "footer": "© 2026 Wireless PA · Internal Use Only · v2.0 Multi-tenant",
+    "errors": {
+      "invalid": "Invalid username or password",
+      "adminBlocked": "Administrator accounts cannot sign in from this page",
+      "inactive": "This account is suspended. Please contact the administrator."
+    }
+  },
+  "adminLogin": {
+    "title": "Admin Console",
+    "subtitle": "Wireless PA · Vendor administrators only",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "demoHint": "Demo: use password demo1234 — username admin",
+    "footer": "© 2026 Wireless PA · Internal Use Only · v2.0 Multi-tenant",
+    "errors": {
+      "invalid": "Invalid username or password",
+      "notAdmin": "This is not an administrator account — please use the user sign-in page",
+      "inactive": "This account is suspended."
+    }
+  },
   "header": {
     "projectLabel": "Project: {name}",
     "nav": {
@@ -460,7 +490,6 @@
     "table": {
       "name": "Name",
       "role": "Role",
-      "email": "Email",
       "lastSeen": "Last seen",
       "status": "Status",
       "actions": "Actions"

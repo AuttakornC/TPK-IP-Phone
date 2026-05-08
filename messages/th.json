@@ -52,6 +52,36 @@
       "headVillage": "ผู้ใหญ่บ้าน — UI ใหญ่อ่านง่าย ใช้บนมือถือ ประกาศได้ทันที"
     }
   },
+  "login": {
+    "title": "เข้าสู่ระบบ",
+    "subtitle": "Wireless PA · สำหรับผู้ใช้งานในโครงการ",
+    "username": "ชื่อผู้ใช้",
+    "password": "รหัสผ่าน",
+    "submit": "เข้าสู่ระบบ",
+    "submitting": "กำลังเข้าสู่ระบบ...",
+    "demoHint": "เดโม: ใช้รหัสผ่าน demo1234 — เช่น somphong, somchai, manit",
+    "footer": "© 2026 Wireless PA · Internal Use Only · v2.0 Multi-tenant",
+    "errors": {
+      "invalid": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+      "adminBlocked": "บัญชีผู้ดูแลระบบไม่สามารถเข้าสู่ระบบจากหน้านี้ได้",
+      "inactive": "บัญชีนี้ถูกระงับ กรุณาติดต่อผู้ดูแลระบบ"
+    }
+  },
+  "adminLogin": {
+    "title": "Admin Console",
+    "subtitle": "Wireless PA · เฉพาะผู้ดูแลระบบ (vendor)",
+    "username": "ชื่อผู้ใช้",
+    "password": "รหัสผ่าน",
+    "submit": "เข้าสู่ระบบ",
+    "submitting": "กำลังเข้าสู่ระบบ...",
+    "demoHint": "เดโม: ใช้รหัสผ่าน demo1234 — ชื่อผู้ใช้ admin",
+    "footer": "© 2026 Wireless PA · Internal Use Only · v2.0 Multi-tenant",
+    "errors": {
+      "invalid": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+      "notAdmin": "บัญชีนี้ไม่ใช่ผู้ดูแลระบบ — กรุณาเข้าสู่ระบบจากหน้าผู้ใช้งาน",
+      "inactive": "บัญชีนี้ถูกระงับ"
+    }
+  },
   "header": {
     "projectLabel": "โครงการ: {name}",
     "nav": {
@@ -460,7 +490,6 @@
     "table": {
       "name": "ชื่อ",
       "role": "บทบาท",
-      "email": "อีเมล",
       "lastSeen": "เข้าใช้ล่าสุด",
       "status": "สถานะ",
       "actions": "ดำเนินการ"

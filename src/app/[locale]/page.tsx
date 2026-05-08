@@ -1,91 +1,61 @@
 'use client';
 
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { DEMO_USER_BY_ROLE, PROJECTS, ROLES, USERS, type Role } from '@/lib/mock';
-import { loginAsRole, loginAsUser } from '@/lib/role';
+import { landingForRole } from '@/lib/role';
+import type { RoleId } from '@/lib/mock';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
-const ROLE_PALETTE: Record<string, { bg: string; text: string; border: string }> = {
-  slate: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-300' },
-  red: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-300' },
-  blue: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-300' },
-  green: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-300' },
-};
-
-const ROLE_ICON: Record<string, string> = {
-  admin: '🛠️',
-  authority: '👔',
-  officer: '📞',
-  headVillage: '👴',
-};
-
-function RoleCard({ role, onClick }: { role: Role; onClick: () => void }) {
-  const t = useTranslations('roleSelector');
-  const tRoles = useTranslations('roles');
-  const username = DEMO_USER_BY_ROLE[role.id];
-  const u = USERS.find(x => x.username === username);
-  const proj = u && u.projectId ? PROJECTS.find(p => p.id === u.projectId) : null;
-  const pal = ROLE_PALETTE[role.color] || ROLE_PALETTE.slate;
-
-  return (
-    <button
-      onClick={onClick}
-      className={`text-left bg-white border-2 ${pal.border} rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition flex flex-col gap-3`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl ${pal.bg} flex items-center justify-center text-2xl flex-shrink-0`}>
-            {ROLE_ICON[role.id] || '👤'}
-          </div>
-          <div>
-            <div className={`font-bold text-lg ${pal.text}`}>{tRoles(`${role.id}.name`)}</div>
-            <div className="text-xs text-slate-500">{tRoles(`${role.id}.short`)}</div>
-          </div>
-        </div>
-      </div>
-      <p className="text-sm text-slate-600 leading-relaxed">{t(`blurb.${role.id}`)}</p>
-      <div className="flex items-center gap-2 text-xs pt-2 border-t border-slate-100">
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold text-slate-700 truncate">{u ? u.name : '—'}</div>
-          <div className="text-slate-500 truncate">{proj ? proj.name : role.id === 'admin' ? t('vendorLabel') : '—'}</div>
-        </div>
-        <span className={`${pal.text} font-bold text-lg`}>→</span>
-      </div>
-    </button>
-  );
-}
-
-export default function RoleSelectorPage() {
+export default function LoginPage() {
+  const t = useTranslations('login');
   const router = useRouter();
-  const t = useTranslations('roleSelector');
 
-  function pickRole(roleId: Role['id']) {
-    const dest = loginAsRole(roleId);
-    router.push(dest);
-  }
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
-    const u = USERS.find(x => x.email.toLowerCase() === email);
-    if (!u) {
-      alert(t('loginError'));
+    setError(null);
+    setSubmitting(true);
+
+    const res = await signIn('credentials', {
+      username: username.trim(),
+      password,
+      redirect: false,
+    });
+
+    setSubmitting(false);
+
+    if (!res || res.error) {
+      const code = res?.error ?? 'invalid_credentials';
+      const map: Record<string, string> = {
+        admin_blocked: t('errors.adminBlocked'),
+        account_inactive: t('errors.inactive'),
+        invalid_credentials: t('errors.invalid'),
+      };
+      setError(map[code] ?? t('errors.invalid'));
       return;
     }
-    const dest = loginAsUser(u.username);
-    if (dest) router.push(dest);
+
+    const session = await fetch('/api/auth/session').then(r => r.json());
+    const role = session?.user?.role as RoleId | undefined;
+    router.push(role ? landingForRole(role) : '/');
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 flex items-center justify-center p-4">
       <DemoRibbon />
 
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-md">
         <div className="flex justify-end mb-2">
           <LanguageSwitcher />
         </div>
+
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-900 text-white shadow-lg mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -96,28 +66,54 @@ export default function RoleSelectorPage() {
           <p className="text-sm text-slate-500 mt-1">{t('subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {ROLES.map(r => (
-            <RoleCard key={r.id} role={r} onClick={() => pickRole(r.id)} />
-          ))}
-        </div>
-
-        <details className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-          <summary className="px-5 py-3 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50 list-none flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-            {t('loginExpand')}
-          </summary>
-          <div className="p-5 border-t border-slate-100 bg-slate-50">
-            <p className="text-xs text-slate-500 mb-3">{t('loginHint')}</p>
-            <form className="space-y-3" onSubmit={handleEmailLogin}>
-              <input name="email" type="email" defaultValue="chanakarn.palipol@gmail.com" placeholder="email@example.com" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              <input name="password" type="password" defaultValue="••••••••" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              <button type="submit" className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">{t('loginButton')}</button>
-            </form>
+        <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-1">{t('username')}</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="somphong"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-        </details>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">{t('password')}</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {error && (
+            <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2" role="alert">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-blue-900 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm"
+          >
+            {submitting ? t('submitting') : t('submit')}
+          </button>
+
+          <p className="text-xs text-slate-500 text-center pt-2 border-t border-slate-100">
+            {t('demoHint')}
+          </p>
+        </form>
 
         <p className="text-center text-xs text-slate-400 mt-6">{t('footer')}</p>
       </div>

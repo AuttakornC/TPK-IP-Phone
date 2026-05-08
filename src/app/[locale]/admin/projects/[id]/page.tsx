@@ -86,7 +86,7 @@ export default function AdminProjectDetailPage({ params }: { params: Promise<{ i
                   <Avatar name={u.name} tone="slate" size="md" />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-white">{u.name}</div>
-                    <div className="text-xs text-slate-400">{u.email} · @{u.username}</div>
+                    <div className="text-xs text-slate-400">@{u.username}</div>
                     {u.role === 'headVillage' && (
                       <div className="text-xs text-blue-400 mt-1">{t('accountsTab.responsibleFor', { count: (u.assignedSpeakers || []).length })}</div>
                     )}

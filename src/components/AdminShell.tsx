@@ -54,7 +54,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             <div>
               <div className="text-xs text-slate-400 mb-1">{t('loggedInAs')}</div>
               <div className="text-sm font-medium text-white">{me ? me.name : tCommon('dash')}</div>
-              <div className="text-xs text-slate-400">{me ? me.email : tCommon('dash')}</div>
+              <div className="text-xs text-slate-400">{me ? `@${me.username}` : tCommon('dash')}</div>
               <Link href="/" className="block mt-3 text-xs text-slate-300 hover:text-white">{t('logoutLink')}</Link>
             </div>
           </div>
