@@ -8,27 +8,20 @@ export type LogType = 'emergency' | 'group' | 'single' | 'scheduled' | 'mp3';
 export interface Project {
   id: string;
   name: string;
-  contractStart: string;
-  contractEnd: string;
   status: ProjectStatus;
-  contact: string;
-  phone: string;
 }
+
+export type SpeakerStatus = 'idle' | 'busy';
 
 export interface Speaker {
   id: string;
   name: string;
   ext: string;
-  zone: string;
   area: string;
   online: boolean;
+  status: SpeakerStatus;
   volume: number;
   projectId: string;
-}
-
-export interface Zone {
-  id: string;
-  name: string;
 }
 
 export interface Emergency {
@@ -106,58 +99,47 @@ export interface Schedule {
 
 // ============= PROJECTS =============
 export const PROJECTS: Project[] = [
-  { id: 'p1', name: 'เทศบาลตำบลบางสะพาน', contractStart: '2026-01-01', contractEnd: '2026-12-31', status: 'active', contact: 'นายสมพงษ์ จันทร์ประดิษฐ์', phone: '032-555-1234' },
-  { id: 'p2', name: 'อบต.ห้วยกระเจา', contractStart: '2026-03-15', contractEnd: '2027-03-14', status: 'active', contact: 'นางสุดา รักไทย', phone: '034-666-5678' },
-  { id: 'p3', name: 'เทศบาลเมืองฉะเชิงเทรา', contractStart: '2025-06-01', contractEnd: '2026-05-31', status: 'expiring', contact: 'นายกฤษณะ พงษ์ไทย', phone: '038-777-9012' },
-  { id: 'p4', name: 'อบต.ดอนแก้ว (เก่า)', contractStart: '2024-09-01', contractEnd: '2025-08-31', status: 'expired', contact: 'นายเอกชัย แสงสว่าง', phone: '053-888-3456' },
+  { id: 'p1', name: 'เทศบาลตำบลบางสะพาน', status: 'active' },
+  { id: 'p2', name: 'อบต.ห้วยกระเจา', status: 'active' },
+  { id: 'p3', name: 'เทศบาลเมืองฉะเชิงเทรา', status: 'expiring' },
+  { id: 'p4', name: 'อบต.ดอนแก้ว (เก่า)', status: 'expired' },
 ];
 
 // ============= SPEAKERS =============
 export const SPEAKERS: Speaker[] = [
   // Project p1
-  { id: 'sp01', name: 'ศาลาประชาคม', ext: '1001', zone: 'central', area: 'หมู่ 1', online: true, volume: 80, projectId: 'p1' },
-  { id: 'sp02', name: 'ที่ทำการเทศบาล', ext: '1002', zone: 'central', area: 'หมู่ 1', online: true, volume: 75, projectId: 'p1' },
-  { id: 'sp03', name: 'ตลาดสดเทศบาล', ext: '1003', zone: 'central', area: 'หมู่ 1', online: true, volume: 90, projectId: 'p1' },
-  { id: 'sp04', name: 'โรงเรียนเทศบาล 1', ext: '2001', zone: 'north', area: 'หมู่ 2', online: true, volume: 70, projectId: 'p1' },
-  { id: 'sp05', name: 'วัดเหนือ', ext: '2002', zone: 'north', area: 'หมู่ 2', online: false, volume: 60, projectId: 'p1' },
-  { id: 'sp06', name: 'รพ.สต. หมู่ 3', ext: '2003', zone: 'north', area: 'หมู่ 3', online: true, volume: 75, projectId: 'p1' },
-  { id: 'sp07', name: 'สวนสาธารณะ', ext: '3001', zone: 'south', area: 'หมู่ 4', online: true, volume: 80, projectId: 'p1' },
-  { id: 'sp08', name: 'สนามกีฬาเทศบาล', ext: '3002', zone: 'south', area: 'หมู่ 4', online: true, volume: 85, projectId: 'p1' },
-  { id: 'sp09', name: 'แยกไฟแดง', ext: '3003', zone: 'south', area: 'หมู่ 5', online: true, volume: 95, projectId: 'p1' },
-  { id: 'sp10', name: 'วัดใต้', ext: '3004', zone: 'south', area: 'หมู่ 5', online: true, volume: 60, projectId: 'p1' },
-  { id: 'sp11', name: 'โรงเรียนเทศบาล 2', ext: '4001', zone: 'east', area: 'หมู่ 6', online: true, volume: 75, projectId: 'p1' },
-  { id: 'sp12', name: 'หอนาฬิกาประจำตำบล', ext: '4002', zone: 'east', area: 'หมู่ 6', online: false, volume: 80, projectId: 'p1' },
-  { id: 'sp13', name: 'ตลาดนัดวันพุธ', ext: '5001', zone: 'west', area: 'หมู่ 7', online: true, volume: 90, projectId: 'p1' },
-  { id: 'sp14', name: 'ทางเข้าหมู่บ้าน', ext: '5002', zone: 'west', area: 'หมู่ 8', online: true, volume: 80, projectId: 'p1' },
+  { id: 'sp01', name: 'ศาลาประชาคม', ext: '1001', area: 'หมู่ 1', online: true, status: 'idle', volume: 80, projectId: 'p1' },
+  { id: 'sp02', name: 'ที่ทำการเทศบาล', ext: '1002', area: 'หมู่ 1', online: true, status: 'idle', volume: 75, projectId: 'p1' },
+  { id: 'sp03', name: 'ตลาดสดเทศบาล', ext: '1003', area: 'หมู่ 1', online: true, status: 'idle', volume: 90, projectId: 'p1' },
+  { id: 'sp04', name: 'โรงเรียนเทศบาล 1', ext: '2001', area: 'หมู่ 2', online: true, status: 'idle', volume: 70, projectId: 'p1' },
+  { id: 'sp05', name: 'วัดเหนือ', ext: '2002', area: 'หมู่ 2', online: false, status: 'idle', volume: 60, projectId: 'p1' },
+  { id: 'sp06', name: 'รพ.สต. หมู่ 3', ext: '2003', area: 'หมู่ 3', online: true, status: 'idle', volume: 75, projectId: 'p1' },
+  { id: 'sp07', name: 'สวนสาธารณะ', ext: '3001', area: 'หมู่ 4', online: true, status: 'idle', volume: 80, projectId: 'p1' },
+  { id: 'sp08', name: 'สนามกีฬาเทศบาล', ext: '3002', area: 'หมู่ 4', online: true, status: 'idle', volume: 85, projectId: 'p1' },
+  { id: 'sp09', name: 'แยกไฟแดง', ext: '3003', area: 'หมู่ 5', online: true, status: 'idle', volume: 95, projectId: 'p1' },
+  { id: 'sp10', name: 'วัดใต้', ext: '3004', area: 'หมู่ 5', online: true, status: 'idle', volume: 60, projectId: 'p1' },
+  { id: 'sp11', name: 'โรงเรียนเทศบาล 2', ext: '4001', area: 'หมู่ 6', online: true, status: 'idle', volume: 75, projectId: 'p1' },
+  { id: 'sp12', name: 'หอนาฬิกาประจำตำบล', ext: '4002', area: 'หมู่ 6', online: false, status: 'idle', volume: 80, projectId: 'p1' },
+  { id: 'sp13', name: 'ตลาดนัดวันพุธ', ext: '5001', area: 'หมู่ 7', online: true, status: 'idle', volume: 90, projectId: 'p1' },
+  { id: 'sp14', name: 'ทางเข้าหมู่บ้าน', ext: '5002', area: 'หมู่ 8', online: true, status: 'idle', volume: 80, projectId: 'p1' },
 
   // Project p2
-  { id: 'sp15', name: 'ที่ทำการ อบต.', ext: '1101', zone: 'central', area: 'หมู่ 1', online: true, volume: 80, projectId: 'p2' },
-  { id: 'sp16', name: 'วัดห้วยกระเจา', ext: '1102', zone: 'central', area: 'หมู่ 1', online: true, volume: 75, projectId: 'p2' },
-  { id: 'sp17', name: 'โรงเรียนห้วยกระเจา', ext: '1103', zone: 'central', area: 'หมู่ 2', online: true, volume: 70, projectId: 'p2' },
-  { id: 'sp18', name: 'รพ.สต. ห้วยกระเจา', ext: '1104', zone: 'central', area: 'หมู่ 2', online: true, volume: 80, projectId: 'p2' },
-  { id: 'sp19', name: 'ลานเอนกประสงค์', ext: '1105', zone: 'north', area: 'หมู่ 3', online: true, volume: 85, projectId: 'p2' },
-  { id: 'sp20', name: 'ทางเข้าตำบล', ext: '1106', zone: 'north', area: 'หมู่ 3', online: true, volume: 90, projectId: 'p2' },
-  { id: 'sp21', name: 'ตลาดเช้า', ext: '1107', zone: 'south', area: 'หมู่ 4', online: false, volume: 75, projectId: 'p2' },
-  { id: 'sp22', name: 'ศูนย์เด็กเล็ก', ext: '1108', zone: 'south', area: 'หมู่ 4', online: true, volume: 65, projectId: 'p2' },
+  { id: 'sp15', name: 'ที่ทำการ อบต.', ext: '1101', area: 'หมู่ 1', online: true, status: 'idle', volume: 80, projectId: 'p2' },
+  { id: 'sp16', name: 'วัดห้วยกระเจา', ext: '1102', area: 'หมู่ 1', online: true, status: 'idle', volume: 75, projectId: 'p2' },
+  { id: 'sp17', name: 'โรงเรียนห้วยกระเจา', ext: '1103', area: 'หมู่ 2', online: true, status: 'idle', volume: 70, projectId: 'p2' },
+  { id: 'sp18', name: 'รพ.สต. ห้วยกระเจา', ext: '1104', area: 'หมู่ 2', online: true, status: 'idle', volume: 80, projectId: 'p2' },
+  { id: 'sp19', name: 'ลานเอนกประสงค์', ext: '1105', area: 'หมู่ 3', online: true, status: 'idle', volume: 85, projectId: 'p2' },
+  { id: 'sp20', name: 'ทางเข้าตำบล', ext: '1106', area: 'หมู่ 3', online: true, status: 'idle', volume: 90, projectId: 'p2' },
+  { id: 'sp21', name: 'ตลาดเช้า', ext: '1107', area: 'หมู่ 4', online: false, status: 'idle', volume: 75, projectId: 'p2' },
+  { id: 'sp22', name: 'ศูนย์เด็กเล็ก', ext: '1108', area: 'หมู่ 4', online: true, status: 'idle', volume: 65, projectId: 'p2' },
 
   // Project p3
-  { id: 'sp23', name: 'หน้าศาลากลาง', ext: '2101', zone: 'central', area: 'เขต 1', online: true, volume: 80, projectId: 'p3' },
-  { id: 'sp24', name: 'ตลาดเทศบาล', ext: '2102', zone: 'central', area: 'เขต 1', online: true, volume: 90, projectId: 'p3' },
-  { id: 'sp25', name: 'วงเวียนกลางเมือง', ext: '2103', zone: 'central', area: 'เขต 2', online: true, volume: 95, projectId: 'p3' },
-  { id: 'sp26', name: 'สนามหลวง', ext: '2104', zone: 'central', area: 'เขต 2', online: false, volume: 80, projectId: 'p3' },
-  { id: 'sp27', name: 'หน้าโรงพยาบาลศูนย์', ext: '2105', zone: 'central', area: 'เขต 3', online: true, volume: 85, projectId: 'p3' },
+  { id: 'sp23', name: 'หน้าศาลากลาง', ext: '2101', area: 'เขต 1', online: true, status: 'idle', volume: 80, projectId: 'p3' },
+  { id: 'sp24', name: 'ตลาดเทศบาล', ext: '2102', area: 'เขต 1', online: true, status: 'idle', volume: 90, projectId: 'p3' },
+  { id: 'sp25', name: 'วงเวียนกลางเมือง', ext: '2103', area: 'เขต 2', online: true, status: 'idle', volume: 95, projectId: 'p3' },
+  { id: 'sp26', name: 'สนามหลวง', ext: '2104', area: 'เขต 2', online: false, status: 'idle', volume: 80, projectId: 'p3' },
+  { id: 'sp27', name: 'หน้าโรงพยาบาลศูนย์', ext: '2105', area: 'เขต 3', online: true, status: 'idle', volume: 85, projectId: 'p3' },
 ];
-
-export const ZONES: Zone[] = [
-  { id: 'all', name: 'ทุกโซน' },
-  { id: 'central', name: 'โซนกลาง' },
-  { id: 'north', name: 'โซนเหนือ' },
-  { id: 'south', name: 'โซนใต้' },
-  { id: 'east', name: 'โซนตะวันออก' },
-  { id: 'west', name: 'โซนตะวันตก' },
-];
-
-export const ZONE_LABEL: Record<string, string> = Object.fromEntries(ZONES.map(z => [z.id, z.name]));
 
 // ============= EMERGENCIES =============
 export const EMERGENCIES: Emergency[] = [
