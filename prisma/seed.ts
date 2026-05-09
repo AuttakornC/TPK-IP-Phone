@@ -86,7 +86,7 @@ async function main() {
       ext: e.ext,
       tonePath: e.tone,
       palette: e.palette,
-      ttsScript: e.tts,
+      ttsScript: '',
     })),
   });
   await prisma.template.createMany({

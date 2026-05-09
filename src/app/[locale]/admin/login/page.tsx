@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { setDemoUser } from '@/lib/role';
 
 export default function AdminLoginPage() {
   const t = useTranslations('adminLogin');
@@ -40,6 +41,7 @@ export default function AdminLoginPage() {
       return;
     }
 
+    setDemoUser('admin', username.trim());
     router.push('/admin/dashboard');
   }
 

@@ -13,7 +13,7 @@ const NAV: { href: string; key: 'dashboard' | 'projects' | 'speakers' | 'account
   { href: '/admin/projects', key: 'projects', match: '/admin/projects' },
   { href: '/admin/speakers', key: 'speakers', match: '/admin/speakers' },
   { href: '/admin/accounts', key: 'accounts', match: '/admin/accounts' },
-  { href: '/status', key: 'status', match: '/status' },
+  { href: '/admin/status', key: 'status', match: '/admin/status' },
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {

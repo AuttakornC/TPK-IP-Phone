@@ -37,7 +37,6 @@ export interface Emergency {
   ext: string;
   tone: string;
   palette: string;
-  tts: string;
 }
 
 export interface Template {
@@ -161,11 +160,11 @@ export const ZONE_LABEL: Record<string, string> = Object.fromEntries(ZONES.map(z
 
 // ============= EMERGENCIES =============
 export const EMERGENCIES: Emergency[] = [
-  { id: 'fire', name: 'ไฟไหม้', ext: '001', tone: 'siren-fire.mp3', palette: 'red', tts: 'เกิดเหตุเพลิงไหม้ ขอให้ประชาชนรีบอพยพออกจากพื้นที่ตามเส้นทางที่ปลอดภัย' },
-  { id: 'flood', name: 'น้ำท่วม', ext: '002', tone: 'siren-flood.mp3', palette: 'blue', tts: 'แจ้งเตือนระดับน้ำสูงขึ้นรวดเร็ว ขอให้ประชาชนเคลื่อนย้ายไปยังที่สูง' },
-  { id: 'earthquake', name: 'แผ่นดินไหว', ext: '003', tone: 'siren-earthquake.mp3', palette: 'orange', tts: 'เกิดเหตุแผ่นดินไหว ขอให้ออกจากอาคารไปยังพื้นที่โล่งโดยด่วน' },
-  { id: 'criminal', name: 'ภัยจากคนร้าย', ext: '004', tone: 'siren-criminal.mp3', palette: 'amber', tts: 'ขอให้ประชาชนกลับเข้าบ้าน ปิดประตูหน้าต่าง และหลีกเลี่ยงการออกนอกบ้าน' },
-  { id: 'general', name: 'เตือนภัยทั่วไป', ext: '000', tone: 'siren-general.mp3', palette: 'red', tts: '' },
+  { id: 'fire', name: 'ไฟไหม้', ext: '001', tone: 'siren-fire.mp3', palette: 'red' },
+  { id: 'flood', name: 'น้ำท่วม', ext: '002', tone: 'siren-flood.mp3', palette: 'blue' },
+  { id: 'earthquake', name: 'แผ่นดินไหว', ext: '003', tone: 'siren-earthquake.mp3', palette: 'orange' },
+  { id: 'criminal', name: 'ภัยจากคนร้าย', ext: '004', tone: 'siren-criminal.mp3', palette: 'amber' },
+  { id: 'general', name: 'เตือนภัยทั่วไป', ext: '000', tone: 'siren-general.mp3', palette: 'red' },
 ];
 
 // ============= TEMPLATES =============
@@ -218,12 +217,12 @@ export const PERMISSION_MATRIX: PermissionRow[] = [
   { perm: 'ประกาศจุดเดียว', admin: false, authority: true, officer: true, headVillage: true },
   { perm: 'ประกาศกลุ่ม / หลายจุด', admin: false, authority: true, officer: true, headVillage: true },
   { perm: 'เตือนภัยพิบัติ', admin: false, authority: true, officer: true, headVillage: true },
-  { perm: 'ใช้ template / TTS', admin: false, authority: true, officer: true, headVillage: true },
+  { perm: 'ใช้ template', admin: false, authority: true, officer: true, headVillage: true },
   { perm: 'อัปโหลด MP3', admin: false, authority: true, officer: true, headVillage: false },
   { perm: 'ตั้งเวลาประกาศ', admin: false, authority: true, officer: true, headVillage: false },
   { perm: 'ดู log ของโครงการ', admin: true, authority: true, officer: true, headVillage: false },
   { perm: 'ดู log ของตัวเอง', admin: true, authority: true, officer: true, headVillage: true },
-  { perm: 'จัดการผู้ใช้ในโครงการ', admin: true, authority: true, officer: false, headVillage: false },
+  { perm: 'จัดการผู้ใช้ในโครงการ', admin: true, authority: false, officer: false, headVillage: false },
   { perm: 'จัดการโครงการทั้งหมด', admin: true, authority: false, officer: false, headVillage: false },
   { perm: 'สร้าง/แก้ไขจุดประกาศ', admin: true, authority: false, officer: false, headVillage: false },
   { perm: 'Assign จุดให้ผู้ใหญ่บ้าน', admin: true, authority: false, officer: false, headVillage: false },

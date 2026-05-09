@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { useRouter } from '@/i18n/navigation';
 import AppHeader from '@/components/AppHeader';
 import Avatar from '@/components/ui/Avatar';
 import DemoRibbon from '@/components/ui/DemoRibbon';
@@ -20,7 +21,7 @@ const PERMISSION_KEYS = [
   'broadcastSingle',
   'broadcastGroup',
   'emergencyAlert',
-  'templateOrTts',
+  'template',
   'uploadMp3',
   'scheduleAnnouncement',
   'viewProjectLog',
@@ -48,13 +49,20 @@ export default function UsersPage() {
   const tRoles = useTranslations('roles');
   const tCommon = useTranslations('common');
   const tPerms = useTranslations('permissions');
+  const router = useRouter();
   const [me, setMe] = useState<User | null>(null);
 
-  useEffect(() => { setMe(getCurrentUser()); }, []);
+  useEffect(() => {
+    const u = getCurrentUser();
+    setMe(u);
+    if (u && u.role !== 'admin') {
+      router.replace(u.role === 'headVillage' ? '/village' : '/app');
+    }
+  }, [router]);
 
-  const visible = me && me.role === 'admin'
-    ? USERS.filter(u => u.role !== 'admin')
-    : USERS.filter(u => u.projectId === (me ? me.projectId : null));
+  if (!me || me.role !== 'admin') return null;
+
+  const visible = USERS.filter(u => u.role !== 'admin');
 
   function roleBadge(roleId: RoleId) {
     const r = ROLE_LABEL[roleId];

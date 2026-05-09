@@ -43,3 +43,7 @@ next-env.d.ts
 /src/generated/prisma
 
 !.env.example
+
+# Claude Code session state — keep skills checked in but ignore harness lock files
+.claude/*
+!.claude/skills/
