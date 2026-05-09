@@ -443,7 +443,7 @@
     "servicesTitle": "สถานะบริการ",
     "speakerHealthTitle": "สุขภาพลำโพง (ตรวจล่าสุด {time})",
     "speakerHealthCount": "{online} / {total} ออนไลน์",
-    "speakerExt": "Ext. {ext} · {zone}",
+    "speakerExt": "Ext. {ext} · {area}",
     "storageBackupTitle": "พื้นที่จัดเก็บ & สำรองข้อมูล",
     "diskSpace": "พื้นที่ดิสก์",
     "diskUsage": "{used} / {total} {unit} ({pct}%)",
