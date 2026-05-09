@@ -10,7 +10,6 @@ import { PROJECTS, SPEAKERS, USERS } from '@/lib/mock';
 export default function AdminSpeakersPage() {
   const t = useTranslations('adminSpeakers');
   const tCommon = useTranslations('common');
-  const tZones = useTranslations('zones.labels');
   const [search, setSearch] = useState('');
   const [filterProject, setFilterProject] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -63,7 +62,7 @@ export default function AdminSpeakersPage() {
               <th className="px-3 py-2 font-semibold">{t('table.name')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.project')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.ext')}</th>
-              <th className="px-3 py-2 font-semibold">{t('table.zoneArea')}</th>
+              <th className="px-3 py-2 font-semibold">{t('table.area')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.status')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.assignedTo')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.actions')}</th>
@@ -84,7 +83,7 @@ export default function AdminSpeakersPage() {
                     <span className="text-slate-300 text-xs">{proj?.name}</span>
                   </td>
                   <td className="px-3 py-3 font-mono text-slate-300">{s.ext}</td>
-                  <td className="px-3 py-3 text-slate-300">{tZones(s.zone)} · {s.area}</td>
+                  <td className="px-3 py-3 text-slate-300">{s.area}</td>
                   <td className="px-3 py-3">
                     <OnlinePill online={s.online} />
                   </td>
@@ -135,14 +134,8 @@ export default function AdminSpeakersPage() {
                 <input type="text" placeholder="1001" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" required />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.zone')}</label>
-                <select className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
-                  <option>{tZones('central')}</option>
-                  <option>{tZones('north')}</option>
-                  <option>{tZones('south')}</option>
-                  <option>{tZones('east')}</option>
-                  <option>{tZones('west')}</option>
-                </select>
+                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.area')}</label>
+                <input type="text" placeholder={t('modal.areaPlaceholder')} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
               </div>
             </div>
             <div>

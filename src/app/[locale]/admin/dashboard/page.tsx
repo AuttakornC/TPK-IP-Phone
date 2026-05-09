@@ -75,7 +75,6 @@ export default function AdminDashboardPage() {
                 <th className="px-3 py-2 font-semibold">{t('tableHeader.status')}</th>
                 <th className="px-3 py-2 font-semibold">{t('tableHeader.users')}</th>
                 <th className="px-3 py-2 font-semibold">{t('tableHeader.speakers')}</th>
-                <th className="px-3 py-2 font-semibold">{t('tableHeader.expires')}</th>
               </tr>
             </thead>
             <tbody>
@@ -90,7 +89,6 @@ export default function AdminDashboardPage() {
                     <td className="px-3 py-3"><StatusPill status={p.status} /></td>
                     <td className="px-3 py-3 font-mono">{accounts}</td>
                     <td className="px-3 py-3 font-mono">{speakers}</td>
-                    <td className="px-3 py-3 font-mono text-xs">{p.contractEnd}</td>
                   </tr>
                 );
               })}

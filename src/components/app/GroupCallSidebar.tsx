@@ -1,18 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ZONES } from '@/lib/mock';
 
 interface Props {
   selectedCount: number;
   selectedNames: string;
   onCall: () => void;
-  onSelectZone: (zoneId: string) => void;
 }
 
-export default function GroupCallSidebar({ selectedCount, selectedNames, onCall, onSelectZone }: Props) {
+export default function GroupCallSidebar({ selectedCount, selectedNames, onCall }: Props) {
   const t = useTranslations('groupCall');
-  const tZones = useTranslations('zones.labels');
   return (
     <aside className="lg:sticky lg:top-24 self-start">
       <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
@@ -33,25 +30,10 @@ export default function GroupCallSidebar({ selectedCount, selectedNames, onCall,
         <button
           onClick={onCall}
           disabled={selectedCount === 0}
-          className="w-full bg-blue-900 hover:bg-blue-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl mb-2 flex items-center justify-center gap-2 transition"
+          className="w-full bg-blue-900 hover:bg-blue-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition"
         >
           {t('broadcast')}
         </button>
-
-        <div className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3 mt-2">
-          <div className="font-semibold text-slate-700 mb-1">{t('zoneShortcuts')}</div>
-          <div className="flex flex-wrap gap-1.5">
-            {ZONES.filter(z => z.id !== 'all').map(z => (
-              <button
-                key={z.id}
-                onClick={() => onSelectZone(z.id)}
-                className="px-2 py-1 text-xs rounded-md bg-slate-100 hover:bg-blue-100 hover:text-blue-700"
-              >
-                {tZones(z.id)}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </aside>
   );

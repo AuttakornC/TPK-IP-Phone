@@ -40,24 +40,27 @@ enum LogType {
   @@map("log_type")
 }
 
+// Call state for a speaker — used to prevent overlapping broadcasts.
+enum SpeakerStatus {
+  IDLE
+  BUSY
+
+  @@map("speaker_status")
+}
+
 // ============================================================
 // Tenant root
 // ============================================================
 
 model Project {
-  id            String        @id @default(cuid())
-  name          String
-  contractStart DateTime      @map("contract_start") @db.Date
-  contractEnd   DateTime      @map("contract_end") @db.Date
-  status        ProjectStatus @default(ACTIVE)
-  contactName   String        @map("contact_name")
-  contactPhone  String        @map("contact_phone")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  id        String        @id @default(cuid())
+  name      String
+  status    ProjectStatus @default(ACTIVE)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
 
   users     User[]
   speakers  Speaker[]
-  zones     Zone[]
   logs      LogEntry[]
   mp3Files  Mp3File[]
   schedules Schedule[]
@@ -125,38 +128,23 @@ model SpeakerAssignment {
 // Broadcast targets
 // ============================================================
 
-model Zone {
-  id        String @id @default(cuid())
-  projectId String @map("project_id")
-  code      String
-  name      String
-
-  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  speakers Speaker[]
-
-  @@unique([projectId, code])
-  @@map("zones")
-}
-
 model Speaker {
-  id        String   @id @default(cuid())
-  projectId String   @map("project_id")
+  id        String        @id @default(cuid())
+  projectId String        @map("project_id")
   name      String
   ext       String
-  zoneId    String?  @map("zone_id")
   area      String
-  online    Boolean  @default(false)
-  volume    Int      @default(80)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  online    Boolean       @default(false)
+  status    SpeakerStatus @default(IDLE)
+  volume    Int           @default(80)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
 
   project    Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  zone       Zone?               @relation(fields: [zoneId], references: [id], onDelete: SetNull)
   assignedTo SpeakerAssignment[]
 
   @@unique([projectId, ext])
   @@index([projectId])
-  @@index([zoneId])
   @@map("speakers")
 }
 

@@ -11,7 +11,6 @@ import {
   SPEAKERS,
   TEMPLATES,
   USERS,
-  ZONES,
   type LogType,
   type ProjectStatus,
   type RoleId,
@@ -71,7 +70,6 @@ async function main() {
   await prisma.mp3File.deleteMany();
   await prisma.speakerAssignment.deleteMany();
   await prisma.speaker.deleteMany();
-  await prisma.zone.deleteMany();
   await prisma.user.deleteMany();
   await prisma.admin.deleteMany();
   await prisma.project.deleteMany();
@@ -106,11 +104,7 @@ async function main() {
       data: {
         id: p.id,
         name: p.name,
-        contractStart: new Date(p.contractStart),
-        contractEnd: new Date(p.contractEnd),
         status: PROJECT_STATUS_MAP[p.status],
-        contactName: p.contact,
-        contactPhone: p.phone,
       },
     });
   }
@@ -151,22 +145,6 @@ async function main() {
   }
   console.log(`  ✓ 1 admin + ${projectUsers.length} users`);
 
-  // ----- Zones (per project, derived from speakers) -----
-  // Mock zones are project-agnostic; create one Zone row per (project, zone code).
-  const zoneIdByKey = new Map<string, string>(); // key = `${projectId}:${code}`
-  for (const project of PROJECTS) {
-    const codesUsed = new Set(SPEAKERS.filter(s => s.projectId === project.id).map(s => s.zone));
-    for (const code of codesUsed) {
-      const meta = ZONES.find(z => z.id === code);
-      if (!meta) continue;
-      const z = await prisma.zone.create({
-        data: { projectId: project.id, code, name: meta.name },
-      });
-      zoneIdByKey.set(`${project.id}:${code}`, z.id);
-    }
-  }
-  console.log(`  ✓ ${zoneIdByKey.size} zones`);
-
   // ----- Speakers -----
   for (const s of SPEAKERS) {
     await prisma.speaker.create({
@@ -175,9 +153,9 @@ async function main() {
         projectId: s.projectId,
         name: s.name,
         ext: s.ext,
-        zoneId: zoneIdByKey.get(`${s.projectId}:${s.zone}`) ?? null,
         area: s.area,
         online: s.online,
+        status: s.status === 'busy' ? 'BUSY' : 'IDLE',
         volume: s.volume,
       },
     });

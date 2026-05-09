@@ -14,7 +14,6 @@ interface Props {
 
 export default function SpeakerCard({ speaker: s, selected, onToggle, onCall }: Props) {
   const t = useTranslations('speakerCard');
-  const tZones = useTranslations('zones.labels');
   return (
     <div
       className={`speaker-card ${selected ? 'selected' : ''} ${!s.online ? 'offline' : ''} bg-white border-2 border-slate-200 rounded-xl p-4 flex flex-col gap-3`}
@@ -22,7 +21,7 @@ export default function SpeakerCard({ speaker: s, selected, onToggle, onCall }: 
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-slate-900 truncate">{s.name}</div>
-          <div className="text-xs text-slate-500 mt-0.5">{t('extLine', { ext: s.ext, area: s.area, zone: tZones(s.zone) })}</div>
+          <div className="text-xs text-slate-500 mt-0.5">{t('extLine', { ext: s.ext, area: s.area })}</div>
         </div>
         <label className="flex-shrink-0">
           <input
