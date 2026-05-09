@@ -64,7 +64,6 @@ export default function VillageCallPage() {
   let title = '—';
   let sub = '—';
   let micGlyph = '📢';
-  let ttsLine: string | null = null;
   let isEmergency = false;
 
   if (data.kind === 'emergency' && emergency) {
@@ -72,7 +71,6 @@ export default function VillageCallPage() {
     title = t('emergencyTitle', { name: tEm(emergency.id) });
     sub = t('emergencySub', { ext: emergency.ext });
     micGlyph = '🚨';
-    if (emergency.tts) ttsLine = `🗣️ "${emergency.tts}"`;
   } else if (data.kind === 'template' && template) {
     title = tTpl(template.id);
     sub = t('templateSub', { count: speakers.length, duration: template.duration });
@@ -125,11 +123,6 @@ export default function VillageCallPage() {
           <div style={{ fontSize: 56, fontWeight: 800, fontFamily: 'monospace', marginTop: 32, letterSpacing: '0.04em' }}>
             {m}:{s}
           </div>
-          {ttsLine && (
-            <div style={{ marginTop: 24, padding: '14px 18px', background: 'rgba(255,255,255,0.18)', borderRadius: 16, fontSize: 17, maxWidth: 480, lineHeight: 1.5 }}>
-              {ttsLine}
-            </div>
-          )}
         </div>
         <div style={{ padding: '0 20px 28px' }}>
           <button onClick={hangup} className="btn-elder-hangup">

@@ -87,6 +87,7 @@
     "nav": {
       "control": "Control",
       "mp3": "Audio files",
+      "presets": "Presets",
       "scheduler": "Scheduler",
       "log": "Log",
       "status": "Status",
@@ -124,7 +125,8 @@
       "project": "Project",
       "status": "Status",
       "users": "Users",
-      "speakers": "Speakers"
+      "speakers": "Speakers",
+      "expires": "Expires"
     },
     "activity": {
       "newProject": "New project: Bang Saphan Municipality",
@@ -149,6 +151,11 @@
       "subtitle": "Set the basics — assign users and speakers after saving",
       "name": "Project name",
       "namePlaceholder": "Municipality / SAO ...",
+      "contractStart": "Contract start",
+      "contractEnd": "Contract end",
+      "contact": "Contact",
+      "contactPlaceholder": "Contact name",
+      "phone": "Phone",
       "submit": "Create project",
       "demoSavedAlert": "🎭 (Demo) Saved — projects will be created for real once implemented"
     }
@@ -157,7 +164,7 @@
     "back": "← Back to projects",
     "edit": "Edit",
     "suspend": "Suspend",
-    "infoLine": "id: {id}",
+    "infoLine": "id: {id} · contact: {contact} ({phone}) · contract {start} → {end}",
     "stats": {
       "users": "Users",
       "headVillages": "{count} head villages",
@@ -206,7 +213,7 @@
       "name": "Name",
       "project": "Project",
       "ext": "Ext.",
-      "area": "Area",
+      "zoneArea": "Zone · Area",
       "status": "Status",
       "assignedTo": "Assigned to",
       "actions": "Actions",
@@ -219,8 +226,7 @@
       "name": "Name",
       "namePlaceholder": "e.g. Community Hall",
       "extension": "Extension",
-      "area": "Area",
-      "areaPlaceholder": "e.g. Mu 1",
+      "zone": "Zone",
       "project": "Project",
       "assignTo": "Assign to head village (optional)",
       "noAssign": "— Not assigned —",
@@ -250,21 +256,33 @@
   "controlPanel": {
     "calling": "Calling...",
     "broadcastingSiren": "● Sounding siren",
+    "broadcastingSirenIntro": "● Siren MP3 playing...",
+    "broadcastingMicLive": "● Live mic — speak now",
     "broadcasting": "● Broadcasting",
-    "ttsDefault": "Text-to-speech test",
+    "playingMp3": "● Playing MP3",
+    "playingIntro": "● Intro MP3 playing...",
     "noSelection": "No speakers selected",
     "extraSpots": " and {count} more",
-    "noSpeakersFound": "No speakers match the filters",
-    "speakersTitle": "Speakers",
-    "speakersSummary": "{filtered} in view · {online}/{total} online",
-    "searchPlaceholder": "Search speakers..."
+    "noSpeakersFound": "No speakers match the filters"
+  },
+  "playMode": {
+    "label": "Play mode",
+    "modes": {
+      "mp3": { "label": "MP3 only", "desc": "Play the MP3 file and stop. Mic stays closed." },
+      "mp3-then-mic": { "label": "MP3 intro + live mic", "desc": "Play the MP3 as an intro, then open the mic for live talk." }
+    }
   },
   "emergency": {
     "title": "Emergency alert",
-    "subtitle": "Pick a disaster type — siren plays automatically with the matching evacuation script",
+    "subtitle": "Pick a disaster type — the siren MP3 plays across every speaker in the project",
+    "managePresets": "Manage presets",
+    "managePresetsInline": "Manage presets here",
+    "emptyPresets": "No emergency presets yet.",
     "extLabel": "Ext. {ext}",
     "confirmTitle": "Confirm {name} alert?",
     "confirmSub": "The siren will play across every speaker · Ext. {ext}",
+    "mp3Hint": "Will play MP3: {name}",
+    "mp3DefaultTone": "Will play default siren tone",
     "warning": "⚠️ This action will be logged with your username and timestamp",
     "confirmBtn": "Confirm — broadcast",
     "names": {
@@ -273,19 +291,15 @@
       "earthquake": "Earthquake",
       "criminal": "Criminal threat",
       "general": "General alert"
-    },
-    "tts": {
-      "fire": "A fire has broken out. Please evacuate the area immediately along the safe routes.",
-      "flood": "Flood warning — water is rising rapidly. Please move to higher ground.",
-      "earthquake": "An earthquake has occurred. Please leave buildings and move to open areas immediately.",
-      "criminal": "Please return home, lock doors and windows, and avoid going outside.",
-      "general": ""
     }
   },
   "templates": {
     "title": "Pre-recorded announcements",
-    "subtitle": "Tap to play a pre-recorded clip · or type a message for the system to read (TTS)",
-    "ttsButton": "Type a TTS message",
+    "subtitle": "Tap to play a pre-recorded clip — pick MP3 from the project library",
+    "managePresets": "Manage presets",
+    "managePresetsInline": "Manage presets here",
+    "emptyPresets": "No template presets yet.",
+    "noMp3": "No MP3 selected",
     "names": {
       "t1": "Meeting invitation",
       "t2": "Water outage notice",
@@ -297,40 +311,36 @@
       "t8": "Annual festival"
     }
   },
-  "tts": {
-    "title": "Text-to-Speech announcement",
-    "subtitle": "Type a message — the system will speak it through the speakers",
-    "placeholder": "e.g. Residents of Mu 3, please collect your welfare cards at the municipal office this Thursday at 09:00.",
-    "voice": "Voice:",
-    "voiceFemaleNormal": "Thai female — normal",
-    "voiceMaleNormal": "Thai male — normal",
-    "voiceFemaleFormal": "Thai female — formal",
-    "speed": "Speed:",
-    "speedNormal": "Normal",
-    "speedSlow": "Slow",
-    "speedFast": "Fast",
-    "repeatTwice": "Repeat 2 times",
-    "preview": "Preview",
-    "broadcast": "Broadcast"
+  "zones": {
+    "title": "Speakers",
+    "summary": "{filtered} in view · {online}/{total} online",
+    "searchPlaceholder": "Search speakers...",
+    "labels": {
+      "all": "All zones",
+      "central": "Central",
+      "north": "North",
+      "south": "South",
+      "east": "East",
+      "west": "West"
+    }
   },
   "speakerCard": {
-    "extLine": "Ext. {ext} · {area}",
+    "extLine": "Ext. {ext} · {area} · {zone}",
     "callBtn": "📞 Call"
   },
   "groupCall": {
     "title": "Group broadcast",
     "subtitle": "Pick multiple speakers from the list, then broadcast",
     "selected": "Selected",
-    "broadcast": "Broadcast"
+    "broadcast": "Broadcast",
+    "zoneShortcuts": "Zone shortcuts:"
   },
   "callOverlay": {
     "groupTarget": "Broadcasting to {count} speakers",
     "emergencyTarget": "{glyph} {name}",
     "emergencySubtarget": "Ext. {ext} · all {count} speakers",
-    "emergencyTtsLine": "Reading script: \"{tts}\"",
     "templateSubtarget": "Playing \"{file}\" · all online speakers · {duration}",
-    "ttsTarget": "🗣️ TTS announcement",
-    "ttsSubtarget": "All online speakers · {count} units",
+    "mp3Only": "🎵 MP3 only — no mic",
     "muteOn": "Unmute",
     "muteOff": "Mute",
     "volume": "Volume",
@@ -346,7 +356,25 @@
     "fileCount": "{count} files",
     "uploadedAt": "Uploaded {date}",
     "play": "▶ Play",
-    "playOnSpeaker": "📡 Play on speaker"
+    "playOnSpeaker": "📡 Play on speaker",
+    "empty": "No audio files in this project yet",
+    "confirmDelete": "Delete \"{name}\"?"
+  },
+  "broadcastConfirm": {
+    "kindTitle": {
+      "single": "Confirm direct call",
+      "group": "Confirm group broadcast",
+      "template": "Confirm template playback",
+      "mp3": "Confirm MP3 playback"
+    },
+    "targetSummary": "{count} speakers ({online} online)",
+    "detailSingle": "Ext. {ext} · direct call to this speaker",
+    "detailGroup": "Broadcast plays simultaneously on all selected speakers",
+    "detailTemplate": "Play template: \"{name}\"",
+    "detailMp3": "🎵 Playing file: {name}",
+    "noSpeakers": "No online speakers — broadcast not possible",
+    "logged": "This broadcast will be logged with your user and timestamp",
+    "confirmBtn": "Confirm — broadcast"
   },
   "scheduler": {
     "title": "Scheduled announcements",
@@ -415,7 +443,7 @@
     "servicesTitle": "Services",
     "speakerHealthTitle": "Speaker health (checked {time})",
     "speakerHealthCount": "{online} / {total} online",
-    "speakerExt": "Ext. {ext} · {area}",
+    "speakerExt": "Ext. {ext} · {zone}",
     "storageBackupTitle": "Storage & backup",
     "diskSpace": "Disk space",
     "diskUsage": "{used} / {total} {unit} ({pct}%)",
@@ -505,7 +533,7 @@
     "broadcastSingle": "Single broadcast",
     "broadcastGroup": "Group / multi broadcast",
     "emergencyAlert": "Emergency alert",
-    "templateOrTts": "Template / TTS",
+    "template": "Template",
     "uploadMp3": "Upload MP3",
     "scheduleAnnouncement": "Schedule announcement",
     "viewProjectLog": "View project log",
@@ -579,6 +607,51 @@
       "empty": "No broadcasts yet",
       "lineSub": "{time} · {duration}",
       "playRecording": "Play recording"
+    }
+  },
+  "presetsPage": {
+    "title": "Manage presets",
+    "subtitle": "Add, edit, or delete emergency and template presets · pick MP3 from your project library",
+    "tabs": {
+      "emergency": "Emergency ({count})",
+      "template": "Templates ({count})"
+    },
+    "emergencyHint": "Emergency presets — used in the operations panel.",
+    "templateHint": "Pre-recorded template presets — used in the operations panel.",
+    "addEmergency": "+ Add emergency preset",
+    "addTemplate": "+ Add template preset",
+    "emptyEmergency": "No emergency presets yet — click \"+ Add\" to create one.",
+    "emptyTemplate": "No template presets yet — click \"+ Add\" to create one.",
+    "confirmDelete": "Delete preset \"{name}\"?",
+    "mp3Set": "MP3: {name}",
+    "mp3DefaultTone": "Using default siren tone",
+    "mp3NotSet": "No MP3 selected",
+    "modeMp3Only": "🎵 MP3 only",
+    "modeMp3ThenMic": "🎵→🎤 MP3 intro + live mic",
+    "emergencyEditor": {
+      "addTitle": "Add emergency preset",
+      "editTitle": "Edit emergency preset",
+      "subtitle": "Set the name, type, and siren MP3 to play during the alert",
+      "icon": "Icon",
+      "name": "Name",
+      "namePlaceholder": "e.g. Fire, Flood...",
+      "ext": "Ext.",
+      "palette": "Theme color",
+      "mp3": "Siren MP3 (from project library)",
+      "mp3None": "— Use default siren —",
+      "mp3Hint": "Pick an uploaded file from \"Audio files\". Leave blank to use the default siren."
+    },
+    "templateEditor": {
+      "addTitle": "Add template preset",
+      "editTitle": "Edit template preset",
+      "subtitle": "Set the name and pick the MP3 file to play",
+      "icon": "Icon",
+      "name": "Name",
+      "namePlaceholder": "e.g. Meeting invitation, Water outage...",
+      "duration": "Duration",
+      "mp3": "MP3 file (from project library)",
+      "mp3None": "— Not selected —",
+      "mp3Hint": "Pick an uploaded file from \"Audio files\"."
     }
   },
   "metadata": {

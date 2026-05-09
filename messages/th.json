@@ -87,6 +87,7 @@
     "nav": {
       "control": "แผงควบคุม",
       "mp3": "ไฟล์เสียง",
+      "presets": "Preset",
       "scheduler": "ตั้งเวลา",
       "log": "บันทึก",
       "status": "สถานะระบบ",
@@ -124,7 +125,8 @@
       "project": "โครงการ",
       "status": "สถานะ",
       "users": "ผู้ใช้",
-      "speakers": "จุดประกาศ"
+      "speakers": "จุดประกาศ",
+      "expires": "หมดอายุ"
     },
     "activity": {
       "newProject": "โครงการใหม่: เทศบาลตำบลบางสะพาน",
@@ -149,6 +151,11 @@
       "subtitle": "กำหนดข้อมูลพื้นฐาน · สามารถ assign ผู้ใช้และจุดประกาศหลังบันทึก",
       "name": "ชื่อโครงการ",
       "namePlaceholder": "เทศบาล... / อบต. ...",
+      "contractStart": "เริ่มสัญญา",
+      "contractEnd": "สิ้นสุดสัญญา",
+      "contact": "ผู้ติดต่อ",
+      "contactPlaceholder": "ชื่อผู้ติดต่อ",
+      "phone": "โทรศัพท์",
       "submit": "สร้างโครงการ",
       "demoSavedAlert": "🎭 (เดโม) บันทึกแล้ว — โครงการจะถูกสร้างจริงตอน implement"
     }
@@ -157,7 +164,7 @@
     "back": "← กลับไปยังรายการโครงการ",
     "edit": "แก้ไข",
     "suspend": "ระงับ",
-    "infoLine": "id: {id}",
+    "infoLine": "id: {id} · ติดต่อ: {contact} ({phone}) · สัญญา {start} → {end}",
     "stats": {
       "users": "ผู้ใช้",
       "headVillages": "{count} ผู้ใหญ่บ้าน",
@@ -206,7 +213,7 @@
       "name": "ชื่อจุด",
       "project": "โครงการ",
       "ext": "Ext.",
-      "area": "พื้นที่",
+      "zoneArea": "โซน · พื้นที่",
       "status": "สถานะ",
       "assignedTo": "Assigned to",
       "actions": "ดำเนินการ",
@@ -219,8 +226,7 @@
       "name": "ชื่อจุด",
       "namePlaceholder": "เช่น ศาลาประชาคม",
       "extension": "Extension",
-      "area": "พื้นที่",
-      "areaPlaceholder": "เช่น หมู่ 1",
+      "zone": "โซน",
       "project": "โครงการ",
       "assignTo": "Assign ให้ผู้ใหญ่บ้าน (ไม่บังคับ)",
       "noAssign": "— ไม่ assign —",
@@ -250,21 +256,33 @@
   "controlPanel": {
     "calling": "กำลังโทร...",
     "broadcastingSiren": "● กำลังประกาศไซเรน",
+    "broadcastingSirenIntro": "● ไซเรน MP3 กำลังเล่น...",
+    "broadcastingMicLive": "● พูดสด — ไมค์เปิดอยู่",
     "broadcasting": "● กำลังประกาศ",
-    "ttsDefault": "ทดสอบระบบ Text-to-Speech",
+    "playingMp3": "● กำลังเล่นไฟล์ MP3",
+    "playingIntro": "● MP3 อินโทรกำลังเล่น...",
     "noSelection": "ยังไม่ได้เลือกจุดใด",
     "extraSpots": " และอีก {count} จุด",
-    "noSpeakersFound": "ไม่พบจุดประกาศตามเงื่อนไข",
-    "speakersTitle": "จุดประกาศ",
-    "speakersSummary": "{filtered} จุดในมุมมองนี้ · {online}/{total} จุดออนไลน์",
-    "searchPlaceholder": "ค้นหาจุดประกาศ..."
+    "noSpeakersFound": "ไม่พบจุดประกาศตามเงื่อนไข"
+  },
+  "playMode": {
+    "label": "รูปแบบการเล่น",
+    "modes": {
+      "mp3": { "label": "เล่น MP3 อย่างเดียว", "desc": "เล่นไฟล์ MP3 จบแล้วหยุด ไม่เปิดไมค์" },
+      "mp3-then-mic": { "label": "MP3 เป็นอินโทร + เปิดไมค์", "desc": "เล่นไฟล์ MP3 เป็นอินโทร แล้วเปิดไมค์ให้พูดสด" }
+    }
   },
   "emergency": {
     "title": "เตือนภัยพิบัติ",
-    "subtitle": "เลือกประเภทภัย — ระบบเล่นไซเรนเฉพาะประเภท + อ่านสคริปต์อพยพอัตโนมัติ",
+    "subtitle": "เลือกประเภทภัย — ระบบจะเล่นเสียงไซเรน MP3 ออกลำโพงทุกจุดในโครงการ",
+    "managePresets": "จัดการ Preset",
+    "managePresetsInline": "จัดการ Preset ที่นี่",
+    "emptyPresets": "ยังไม่มี preset เตือนภัย",
     "extLabel": "Ext. {ext}",
     "confirmTitle": "ยืนยันการประกาศ {name}?",
     "confirmSub": "เสียงไซเรนจะดังออกลำโพงทุกจุด · Ext. {ext}",
+    "mp3Hint": "เล่นไฟล์ MP3: {name}",
+    "mp3DefaultTone": "เล่นเสียงไซเรนเริ่มต้น",
     "warning": "⚠️ การกระทำนี้จะถูกบันทึกไว้ในระบบ พร้อมชื่อผู้ใช้และเวลา",
     "confirmBtn": "ยืนยัน — ประกาศ",
     "names": {
@@ -273,19 +291,15 @@
       "earthquake": "แผ่นดินไหว",
       "criminal": "ภัยจากคนร้าย",
       "general": "เตือนภัยทั่วไป"
-    },
-    "tts": {
-      "fire": "เกิดเหตุเพลิงไหม้ ขอให้ประชาชนรีบอพยพออกจากพื้นที่ตามเส้นทางที่ปลอดภัย",
-      "flood": "แจ้งเตือนระดับน้ำสูงขึ้นรวดเร็ว ขอให้ประชาชนเคลื่อนย้ายไปยังที่สูง",
-      "earthquake": "เกิดเหตุแผ่นดินไหว ขอให้ออกจากอาคารไปยังพื้นที่โล่งโดยด่วน",
-      "criminal": "ขอให้ประชาชนกลับเข้าบ้าน ปิดประตูหน้าต่าง และหลีกเลี่ยงการออกนอกบ้าน",
-      "general": ""
     }
   },
   "templates": {
     "title": "ข้อความสำเร็จรูป",
-    "subtitle": "กดเพื่อเล่นข้อความที่บันทึกไว้ล่วงหน้า · หรือพิมพ์ข้อความให้ระบบอ่าน (TTS)",
-    "ttsButton": "พิมพ์ข้อความ TTS",
+    "subtitle": "กดเพื่อเล่นข้อความที่บันทึกไว้ล่วงหน้า — เลือกไฟล์ MP3 จากไลบรารีของโครงการ",
+    "managePresets": "จัดการ Preset",
+    "managePresetsInline": "จัดการ Preset ที่นี่",
+    "emptyPresets": "ยังไม่มี preset ข้อความสำเร็จรูป",
+    "noMp3": "ยังไม่ได้เลือกไฟล์ MP3",
     "names": {
       "t1": "เชิญร่วมประชุม",
       "t2": "แจ้งดับน้ำประปา",
@@ -297,40 +311,36 @@
       "t8": "งานบุญประจำปี"
     }
   },
-  "tts": {
-    "title": "ประกาศข้อความ (Text-to-Speech)",
-    "subtitle": "พิมพ์ข้อความ ระบบจะอ่านเสียงไทยผ่านลำโพง",
-    "placeholder": "เช่น: ขอเชิญประชาชนหมู่ 3 มารับเอกสารบัตรสวัสดิการแห่งรัฐ ที่ที่ทำการเทศบาล วันพฤหัสบดีนี้ เวลา 09:00 น.",
-    "voice": "เสียง:",
-    "voiceFemaleNormal": "หญิงไทย — ปกติ",
-    "voiceMaleNormal": "ชายไทย — ปกติ",
-    "voiceFemaleFormal": "หญิงไทย — ทางการ",
-    "speed": "ความเร็ว:",
-    "speedNormal": "ปกติ",
-    "speedSlow": "ช้า",
-    "speedFast": "เร็ว",
-    "repeatTwice": "เล่นซ้ำ 2 รอบ",
-    "preview": "ฟังตัวอย่าง",
-    "broadcast": "ประกาศผ่านลำโพง"
+  "zones": {
+    "title": "จุดประกาศ",
+    "summary": "{filtered} จุดในมุมมองนี้ · {online}/{total} จุดออนไลน์",
+    "searchPlaceholder": "ค้นหาจุดประกาศ...",
+    "labels": {
+      "all": "ทุกโซน",
+      "central": "โซนกลาง",
+      "north": "โซนเหนือ",
+      "south": "โซนใต้",
+      "east": "โซนตะวันออก",
+      "west": "โซนตะวันตก"
+    }
   },
   "speakerCard": {
-    "extLine": "Ext. {ext} · {area}",
+    "extLine": "Ext. {ext} · {area} · {zone}",
     "callBtn": "📞 โทร"
   },
   "groupCall": {
     "title": "ประกาศพร้อมกัน",
     "subtitle": "เลือกหลายจุดจาก list ด้านซ้าย แล้วกดประกาศ",
     "selected": "จุดที่เลือก",
-    "broadcast": "ประกาศพร้อมกัน"
+    "broadcast": "ประกาศพร้อมกัน",
+    "zoneShortcuts": "ปุ่มลัดเลือกตามโซน:"
   },
   "callOverlay": {
     "groupTarget": "ประกาศพร้อมกัน {count} จุด",
     "emergencyTarget": "{glyph} {name}",
     "emergencySubtarget": "Ext. {ext} · ทุกจุด {count} ลำโพง",
-    "emergencyTtsLine": "กำลังอ่านสคริปต์: \"{tts}\"",
     "templateSubtarget": "เล่น \"{file}\" · ทุกจุดออนไลน์ · {duration}",
-    "ttsTarget": "🗣️ ประกาศข้อความ TTS",
-    "ttsSubtarget": "ทุกจุดออนไลน์ · {count} ลำโพง",
+    "mp3Only": "🎵 เล่น MP3 อย่างเดียว",
     "muteOn": "เปิดไมค์",
     "muteOff": "ปิดไมค์",
     "volume": "ระดับเสียง",
@@ -346,7 +356,25 @@
     "fileCount": "{count} ไฟล์",
     "uploadedAt": "อัปโหลด {date}",
     "play": "▶ ฟัง",
-    "playOnSpeaker": "📡 เล่นผ่านลำโพง"
+    "playOnSpeaker": "📡 เล่นผ่านลำโพง",
+    "empty": "ยังไม่มีไฟล์เสียงในโครงการนี้",
+    "confirmDelete": "ลบไฟล์ \"{name}\" หรือไม่?"
+  },
+  "broadcastConfirm": {
+    "kindTitle": {
+      "single": "ยืนยันการโทรไปยังจุดประกาศ",
+      "group": "ยืนยันการประกาศพร้อมกันหลายจุด",
+      "template": "ยืนยันการเล่น Template",
+      "mp3": "ยืนยันการเล่นไฟล์ MP3"
+    },
+    "targetSummary": "{count} จุด ({online} ออนไลน์)",
+    "detailSingle": "Ext. {ext} · ระบบจะโทรไปยังจุดประกาศโดยตรง",
+    "detailGroup": "ระบบจะเปิดประกาศพร้อมกันทุกจุดที่เลือก",
+    "detailTemplate": "เล่นข้อความสำเร็จรูป: \"{name}\"",
+    "detailMp3": "🎵 เล่นไฟล์: {name}",
+    "noSpeakers": "ไม่มีจุดประกาศที่ออนไลน์ — ไม่สามารถประกาศได้",
+    "logged": "การประกาศนี้จะถูกบันทึกพร้อมชื่อผู้ใช้และเวลา",
+    "confirmBtn": "ยืนยัน — เริ่มประกาศ"
   },
   "scheduler": {
     "title": "ตั้งเวลาประกาศอัตโนมัติ",
@@ -415,7 +443,7 @@
     "servicesTitle": "สถานะบริการ",
     "speakerHealthTitle": "สุขภาพลำโพง (ตรวจล่าสุด {time})",
     "speakerHealthCount": "{online} / {total} ออนไลน์",
-    "speakerExt": "Ext. {ext} · {area}",
+    "speakerExt": "Ext. {ext} · {zone}",
     "storageBackupTitle": "พื้นที่จัดเก็บ & สำรองข้อมูล",
     "diskSpace": "พื้นที่ดิสก์",
     "diskUsage": "{used} / {total} {unit} ({pct}%)",
@@ -505,7 +533,7 @@
     "broadcastSingle": "ประกาศจุดเดียว",
     "broadcastGroup": "ประกาศกลุ่ม / หลายจุด",
     "emergencyAlert": "เตือนภัยพิบัติ",
-    "templateOrTts": "ใช้ template / TTS",
+    "template": "ใช้ template",
     "uploadMp3": "อัปโหลด MP3",
     "scheduleAnnouncement": "ตั้งเวลาประกาศ",
     "viewProjectLog": "ดู log ของโครงการ",
@@ -579,6 +607,51 @@
       "empty": "ยังไม่มีประวัติการประกาศ",
       "lineSub": "{time} · เป็นเวลา {duration} นาที",
       "playRecording": "ฟังเสียงที่บันทึกไว้"
+    }
+  },
+  "presetsPage": {
+    "title": "จัดการ Preset",
+    "subtitle": "เพิ่ม/แก้ไข/ลบ preset สำหรับเตือนภัยและข้อความสำเร็จรูป · เลือก MP3 จากไลบรารีของโครงการ",
+    "tabs": {
+      "emergency": "เตือนภัย ({count})",
+      "template": "ข้อความสำเร็จรูป ({count})"
+    },
+    "emergencyHint": "Preset เตือนภัย — ใช้ในแผงควบคุมหน้าหลัก",
+    "templateHint": "Preset ข้อความสำเร็จรูป — ใช้ในแผงควบคุมหน้าหลัก",
+    "addEmergency": "+ เพิ่ม preset เตือนภัย",
+    "addTemplate": "+ เพิ่ม preset ข้อความ",
+    "emptyEmergency": "ยังไม่มี preset เตือนภัย — กด \"+ เพิ่ม\" เพื่อเริ่มต้น",
+    "emptyTemplate": "ยังไม่มี preset ข้อความ — กด \"+ เพิ่ม\" เพื่อเริ่มต้น",
+    "confirmDelete": "ลบ preset \"{name}\" หรือไม่?",
+    "mp3Set": "MP3: {name}",
+    "mp3DefaultTone": "ใช้เสียงไซเรนเริ่มต้น",
+    "mp3NotSet": "ยังไม่ได้เลือก MP3",
+    "modeMp3Only": "🎵 เล่น MP3 อย่างเดียว",
+    "modeMp3ThenMic": "🎵→🎤 MP3 เป็นอินโทร + เปิดไมค์",
+    "emergencyEditor": {
+      "addTitle": "เพิ่ม preset เตือนภัย",
+      "editTitle": "แก้ไข preset เตือนภัย",
+      "subtitle": "ตั้งชื่อ ประเภท และเลือกเสียงไซเรน MP3 ที่จะเล่นเมื่อเตือนภัย",
+      "icon": "ไอคอน",
+      "name": "ชื่อ",
+      "namePlaceholder": "เช่น ไฟไหม้, น้ำท่วม...",
+      "ext": "Ext.",
+      "palette": "สีธีม",
+      "mp3": "ไซเรน MP3 (จากไลบรารีโครงการ)",
+      "mp3None": "— ใช้เสียงไซเรนเริ่มต้น —",
+      "mp3Hint": "เลือกไฟล์จาก \"ไฟล์เสียง\" ของโครงการ · ถ้าไม่เลือก จะใช้ไซเรนเริ่มต้น"
+    },
+    "templateEditor": {
+      "addTitle": "เพิ่ม preset ข้อความ",
+      "editTitle": "แก้ไข preset ข้อความ",
+      "subtitle": "ตั้งชื่อและเลือกไฟล์ MP3 ที่จะเล่น",
+      "icon": "ไอคอน",
+      "name": "ชื่อ",
+      "namePlaceholder": "เช่น เชิญร่วมประชุม, แจ้งดับน้ำประปา...",
+      "duration": "ระยะเวลา",
+      "mp3": "ไฟล์ MP3 (จากไลบรารีโครงการ)",
+      "mp3None": "— ยังไม่เลือก —",
+      "mp3Hint": "เลือกไฟล์จาก \"ไฟล์เสียง\" ของโครงการ"
     }
   },
   "metadata": {

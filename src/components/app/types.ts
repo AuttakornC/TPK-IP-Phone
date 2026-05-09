@@ -1,13 +1,16 @@
-import type { Emergency, Speaker, Template } from '@/lib/mock';
+import type { Mp3File, Speaker } from '@/lib/mock';
+import type { EmergencyPreset, PlayMode, TemplatePreset } from '@/lib/presetStore';
 
-export type CallKind = 'single' | 'group' | 'emergency' | 'template' | 'tts';
+export type CallKind = 'single' | 'group' | 'emergency' | 'template' | 'mp3';
 
 export interface CallState {
   kind: CallKind;
   speakers: Speaker[];
-  emergency?: Emergency;
-  template?: Template;
-  tts?: string;
+  emergency?: EmergencyPreset;
+  template?: TemplatePreset;
+  mp3?: Mp3File;
+  /** When set on emergency/template, drives whether the mic opens after the MP3. */
+  playMode?: PlayMode;
 }
 
 export const EMERGENCY_GLYPHS: Record<string, string> = {

@@ -5,15 +5,21 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import AppHeader from '@/components/AppHeader';
 import DemoRibbon from '@/components/ui/DemoRibbon';
+import BroadcastConfirmDialog from '@/components/app/BroadcastConfirmDialog';
 import CallOverlay from '@/components/app/CallOverlay';
 import EmergencyConfirmDialog from '@/components/app/EmergencyConfirmDialog';
 import EmergencyGrid from '@/components/app/EmergencyGrid';
 import GroupCallSidebar from '@/components/app/GroupCallSidebar';
 import SpeakerCard from '@/components/app/SpeakerCard';
 import TemplateStrip from '@/components/app/TemplateStrip';
-import TtsModal from '@/components/app/TtsModal';
 import type { CallState } from '@/components/app/types';
-import { SPEAKERS, type Emergency, type Speaker } from '@/lib/mock';
+import { SPEAKERS, type Project, type Speaker } from '@/lib/mock';
+import {
+  listEmergencyPresets,
+  listTemplatePresets,
+  type EmergencyPreset,
+  type TemplatePreset,
+} from '@/lib/presetStore';
 import { getCurrentProject, getCurrentRole } from '@/lib/role';
 
 export default function ControlPanelPage() {
@@ -22,14 +28,16 @@ export default function ControlPanelPage() {
   const tCommon = useTranslations('common');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [pendingEmergency, setPendingEmergency] = useState<Emergency | null>(null);
+  const [pendingEmergency, setPendingEmergency] = useState<EmergencyPreset | null>(null);
+  const [pendingBroadcast, setPendingBroadcast] = useState<CallState | null>(null);
+  const [emergencyPresets, setEmergencyPresets] = useState<EmergencyPreset[]>([]);
+  const [templatePresets, setTemplatePresets] = useState<TemplatePreset[]>([]);
   const [call, setCall] = useState<CallState | null>(null);
   const [callStatus, setCallStatus] = useState(t('calling'));
   const [seconds, setSeconds] = useState(0);
   const [muted, setMuted] = useState(false);
   const [micPct, setMicPct] = useState(0);
-  const [showTTS, setShowTTS] = useState(false);
-  const [ttsText, setTtsText] = useState('');
+  const [project, setProject] = useState<Project | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const micRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mutedRef = useRef(false);
@@ -38,11 +46,15 @@ export default function ControlPanelPage() {
     const role = getCurrentRole();
     if (role === 'admin') router.replace('/admin/dashboard');
     else if (role === 'headVillage') router.replace('/village');
+    const p = getCurrentProject();
+    setProject(p);
+    if (p) {
+      setEmergencyPresets(listEmergencyPresets(p.id));
+      setTemplatePresets(listTemplatePresets(p.id));
+    }
   }, [router]);
 
   useEffect(() => { mutedRef.current = muted; }, [muted]);
-
-  const project = useMemo(() => (typeof window !== 'undefined' ? getCurrentProject() : null), [call]);
 
   const projectSpeakers = useMemo(() => {
     if (!project) return SPEAKERS;
@@ -84,11 +96,32 @@ export default function ControlPanelPage() {
     setMicPct(0);
     setCallStatus(t('calling'));
     setTimeout(() => {
-      setCallStatus(c.kind === 'emergency' ? t('broadcastingSiren') : t('broadcasting'));
+      // Decide the running status text based on play mode.
+      let running: string;
+      if (c.playMode === 'mp3') {
+        running = t('playingMp3');
+      } else if (c.playMode === 'mp3-then-mic') {
+        running = c.kind === 'emergency' ? t('broadcastingSirenIntro') : t('playingIntro');
+      } else if (c.kind === 'emergency') {
+        running = t('broadcastingSiren');
+      } else {
+        running = t('broadcasting');
+      }
+      setCallStatus(running);
+
       timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
-      micRef.current = setInterval(() => {
-        setMicPct(() => (mutedRef.current ? 0 : 20 + Math.random() * 70));
-      }, 120);
+
+      // Only animate the mic level when the mic actually opens.
+      if (c.playMode !== 'mp3') {
+        micRef.current = setInterval(() => {
+          setMicPct(() => (mutedRef.current ? 0 : 20 + Math.random() * 70));
+        }, 120);
+      }
+
+      // For 'mp3-then-mic', simulate the intro-to-mic transition after a short delay.
+      if (c.playMode === 'mp3-then-mic') {
+        setTimeout(() => setCallStatus(t('broadcastingMicLive')), 2500);
+      }
     }, 1200);
   }
 
@@ -109,18 +142,24 @@ export default function ControlPanelPage() {
     if (!pendingEmergency) return;
     const em = pendingEmergency;
     setPendingEmergency(null);
-    startCall({ kind: 'emergency', speakers: projectSpeakers, emergency: em });
+    startCall({
+      kind: 'emergency',
+      speakers: projectSpeakers,
+      emergency: em,
+      playMode: em.playMode ?? 'mp3-then-mic',
+    });
   }
 
-  function groupCall() {
+  function requestGroupCall() {
     const speakers = Array.from(selected).map(id => SPEAKERS.find(s => s.id === id)).filter(Boolean) as Speaker[];
-    if (speakers.length) startCall({ kind: 'group', speakers });
+    if (speakers.length) setPendingBroadcast({ kind: 'group', speakers });
   }
 
-  function sendTTS() {
-    const text = ttsText.trim() || t('ttsDefault');
-    setShowTTS(false);
-    startCall({ kind: 'tts', speakers: projectSpeakers.filter(s => s.online), tts: text });
+  function confirmBroadcast() {
+    if (!pendingBroadcast) return;
+    const next = pendingBroadcast;
+    setPendingBroadcast(null);
+    startCall(next);
   }
 
   const selectedNames = useMemo(() => {
@@ -137,11 +176,16 @@ export default function ControlPanelPage() {
       <AppHeader />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        <EmergencyGrid onPick={setPendingEmergency} />
+        <EmergencyGrid presets={emergencyPresets} onPick={setPendingEmergency} />
 
         <TemplateStrip
-          onPick={tpl => startCall({ kind: 'template', speakers: projectSpeakers, template: tpl })}
-          onOpenTts={() => setShowTTS(true)}
+          presets={templatePresets}
+          onPick={tpl => setPendingBroadcast({
+            kind: 'template',
+            speakers: projectSpeakers,
+            template: tpl,
+            playMode: tpl.playMode ?? 'mp3',
+          })}
         />
 
         <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5">
@@ -175,7 +219,7 @@ export default function ControlPanelPage() {
                 speaker={s}
                 selected={selected.has(s.id)}
                 onToggle={() => toggleSelected(s.id)}
-                onCall={() => startCall({ kind: 'single', speakers: [s] })}
+                onCall={() => setPendingBroadcast({ kind: 'single', speakers: [s] })}
               />
             ))}
           </section>
@@ -183,7 +227,7 @@ export default function ControlPanelPage() {
           <GroupCallSidebar
             selectedCount={selected.size}
             selectedNames={selectedNames}
-            onCall={groupCall}
+            onCall={requestGroupCall}
           />
         </div>
       </main>
@@ -204,12 +248,10 @@ export default function ControlPanelPage() {
         onConfirm={confirmEmergency}
       />
 
-      <TtsModal
-        open={showTTS}
-        text={ttsText}
-        onTextChange={setTtsText}
-        onClose={() => setShowTTS(false)}
-        onSend={sendTTS}
+      <BroadcastConfirmDialog
+        pending={pendingBroadcast}
+        onCancel={() => setPendingBroadcast(null)}
+        onConfirm={confirmBroadcast}
       />
     </div>
   );

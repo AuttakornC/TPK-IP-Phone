@@ -7,16 +7,16 @@ import { ROLE_LABEL, type Project, type RoleId, type User } from '@/lib/mock';
 import { getCurrentProject, getCurrentRole, getCurrentUser, roleBadgeClass } from '@/lib/role';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
-type NavFlag = 'op' | 'mp3' | 'scheduler' | 'log' | 'status' | 'users';
-type NavItem = { href: string; flag: NavFlag; key: 'control' | 'mp3' | 'scheduler' | 'log' | 'status' | 'users' };
+type NavFlag = 'op' | 'mp3' | 'presets' | 'scheduler' | 'log' | 'status';
+type NavItem = { href: string; flag: NavFlag; key: 'control' | 'mp3' | 'presets' | 'scheduler' | 'log' | 'status' };
 
 const NAV: NavItem[] = [
   { href: '/app', flag: 'op', key: 'control' },
   { href: '/mp3', flag: 'mp3', key: 'mp3' },
+  { href: '/presets', flag: 'presets', key: 'presets' },
   { href: '/scheduler', flag: 'scheduler', key: 'scheduler' },
   { href: '/log', flag: 'log', key: 'log' },
   { href: '/status', flag: 'status', key: 'status' },
-  { href: '/users', flag: 'users', key: 'users' },
 ];
 
 export default function AppHeader() {
@@ -35,7 +35,7 @@ export default function AppHeader() {
     setRole(getCurrentRole());
   }, []);
 
-  const visibleNav = NAV.filter(n => !(role === 'officer' && n.flag === 'users'));
+  const visibleNav = NAV;
   const r = ROLE_LABEL[role];
 
   return (
