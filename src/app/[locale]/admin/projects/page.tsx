@@ -63,7 +63,6 @@ export default function AdminProjectsPage() {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <StatusPill status={p.status} />
-                <span className="text-slate-500 font-mono">{p.contractStart} → {p.contractEnd}</span>
               </div>
             </Link>
           );
@@ -90,26 +89,6 @@ export default function AdminProjectsPage() {
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.name')}</label>
               <input type="text" placeholder={t('modal.namePlaceholder')} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" required />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.contractStart')}</label>
-                <input type="date" defaultValue="2026-05-08" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.contractEnd')}</label>
-                <input type="date" defaultValue="2027-05-07" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.contact')}</label>
-                <input type="text" placeholder={t('modal.contactPlaceholder')} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.phone')}</label>
-                <input type="tel" placeholder="032-555-1234" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              </div>
             </div>
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg font-medium hover:bg-slate-50">{tCommon('cancel')}</button>

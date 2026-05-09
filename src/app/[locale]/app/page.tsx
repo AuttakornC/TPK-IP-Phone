@@ -12,7 +12,6 @@ import GroupCallSidebar from '@/components/app/GroupCallSidebar';
 import SpeakerCard from '@/components/app/SpeakerCard';
 import TemplateStrip from '@/components/app/TemplateStrip';
 import TtsModal from '@/components/app/TtsModal';
-import ZoneTabs from '@/components/app/ZoneTabs';
 import type { CallState } from '@/components/app/types';
 import { SPEAKERS, type Emergency, type Speaker } from '@/lib/mock';
 import { getCurrentProject, getCurrentRole } from '@/lib/role';
@@ -20,7 +19,7 @@ import { getCurrentProject, getCurrentRole } from '@/lib/role';
 export default function ControlPanelPage() {
   const router = useRouter();
   const t = useTranslations('controlPanel');
-  const [zone, setZone] = useState<string>('all');
+  const tCommon = useTranslations('common');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pendingEmergency, setPendingEmergency] = useState<Emergency | null>(null);
@@ -52,12 +51,11 @@ export default function ControlPanelPage() {
 
   const filteredSpeakers = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return projectSpeakers.filter(s => {
-      if (zone !== 'all' && s.zone !== zone) return false;
-      if (q && !(s.name.toLowerCase().includes(q) || s.ext.includes(q) || s.area.toLowerCase().includes(q))) return false;
-      return true;
-    });
-  }, [projectSpeakers, zone, search]);
+    if (!q) return projectSpeakers;
+    return projectSpeakers.filter(s =>
+      s.name.toLowerCase().includes(q) || s.ext.includes(q) || s.area.toLowerCase().includes(q)
+    );
+  }, [projectSpeakers, search]);
 
   const onlineCount = projectSpeakers.filter(s => s.online).length;
 
@@ -78,14 +76,6 @@ export default function ControlPanelPage() {
   }
 
   function clearSelection() { setSelected(new Set()); }
-
-  function selectZone(zoneId: string) {
-    setSelected(prev => {
-      const next = new Set(prev);
-      projectSpeakers.filter(s => s.zone === zoneId && s.online).forEach(s => next.add(s.id));
-      return next;
-    });
-  }
 
   function startCall(c: CallState) {
     setCall(c);
@@ -154,17 +144,25 @@ export default function ControlPanelPage() {
           onOpenTts={() => setShowTTS(true)}
         />
 
-        <ZoneTabs
-          zone={zone}
-          onZoneChange={setZone}
-          search={search}
-          onSearchChange={setSearch}
-          onSelectAll={selectAllFiltered}
-          onClear={clearSelection}
-          filteredCount={filteredSpeakers.length}
-          onlineCount={onlineCount}
-          totalCount={projectSpeakers.length}
-        />
+        <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="font-bold text-slate-900">{t('speakersTitle')}</h2>
+              <p className="text-xs text-slate-500">{t('speakersSummary', { filtered: filteredSpeakers.length, online: onlineCount, total: projectSpeakers.length })}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={t('searchPlaceholder')}
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm w-full sm:w-56 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+              />
+              <button onClick={selectAllFiltered} className="px-3 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 whitespace-nowrap">{tCommon('selectAll')}</button>
+              <button onClick={clearSelection} className="px-3 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 whitespace-nowrap">{tCommon('clear')}</button>
+            </div>
+          </div>
+        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
           <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -186,7 +184,6 @@ export default function ControlPanelPage() {
             selectedCount={selected.size}
             selectedNames={selectedNames}
             onCall={groupCall}
-            onSelectZone={selectZone}
           />
         </div>
       </main>

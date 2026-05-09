@@ -45,7 +45,7 @@ export default function AdminProjectDetailPage({ params }: { params: Promise<{ i
             <h1 className="text-2xl font-bold">{project.name}</h1>
             <StatusPill status={project.status} />
           </div>
-          <div className="text-sm text-slate-400 mt-1">{t('infoLine', { id: project.id, contact: project.contact, phone: project.phone, start: project.contractStart, end: project.contractEnd })}</div>
+          <div className="text-sm text-slate-400 mt-1">{t('infoLine', { id: project.id })}</div>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 border border-slate-600 hover:bg-slate-700 rounded-lg text-sm font-medium">{t('edit')}</button>

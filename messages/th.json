@@ -124,8 +124,7 @@
       "project": "โครงการ",
       "status": "สถานะ",
       "users": "ผู้ใช้",
-      "speakers": "จุดประกาศ",
-      "expires": "หมดอายุ"
+      "speakers": "จุดประกาศ"
     },
     "activity": {
       "newProject": "โครงการใหม่: เทศบาลตำบลบางสะพาน",
@@ -150,11 +149,6 @@
       "subtitle": "กำหนดข้อมูลพื้นฐาน · สามารถ assign ผู้ใช้และจุดประกาศหลังบันทึก",
       "name": "ชื่อโครงการ",
       "namePlaceholder": "เทศบาล... / อบต. ...",
-      "contractStart": "เริ่มสัญญา",
-      "contractEnd": "สิ้นสุดสัญญา",
-      "contact": "ผู้ติดต่อ",
-      "contactPlaceholder": "ชื่อผู้ติดต่อ",
-      "phone": "โทรศัพท์",
       "submit": "สร้างโครงการ",
       "demoSavedAlert": "🎭 (เดโม) บันทึกแล้ว — โครงการจะถูกสร้างจริงตอน implement"
     }
@@ -163,7 +157,7 @@
     "back": "← กลับไปยังรายการโครงการ",
     "edit": "แก้ไข",
     "suspend": "ระงับ",
-    "infoLine": "id: {id} · ติดต่อ: {contact} ({phone}) · สัญญา {start} → {end}",
+    "infoLine": "id: {id}",
     "stats": {
       "users": "ผู้ใช้",
       "headVillages": "{count} ผู้ใหญ่บ้าน",
@@ -212,7 +206,7 @@
       "name": "ชื่อจุด",
       "project": "โครงการ",
       "ext": "Ext.",
-      "zoneArea": "โซน · พื้นที่",
+      "area": "พื้นที่",
       "status": "สถานะ",
       "assignedTo": "Assigned to",
       "actions": "ดำเนินการ",
@@ -225,7 +219,8 @@
       "name": "ชื่อจุด",
       "namePlaceholder": "เช่น ศาลาประชาคม",
       "extension": "Extension",
-      "zone": "โซน",
+      "area": "พื้นที่",
+      "areaPlaceholder": "เช่น หมู่ 1",
       "project": "โครงการ",
       "assignTo": "Assign ให้ผู้ใหญ่บ้าน (ไม่บังคับ)",
       "noAssign": "— ไม่ assign —",
@@ -259,7 +254,10 @@
     "ttsDefault": "ทดสอบระบบ Text-to-Speech",
     "noSelection": "ยังไม่ได้เลือกจุดใด",
     "extraSpots": " และอีก {count} จุด",
-    "noSpeakersFound": "ไม่พบจุดประกาศตามเงื่อนไข"
+    "noSpeakersFound": "ไม่พบจุดประกาศตามเงื่อนไข",
+    "speakersTitle": "จุดประกาศ",
+    "speakersSummary": "{filtered} จุดในมุมมองนี้ · {online}/{total} จุดออนไลน์",
+    "searchPlaceholder": "ค้นหาจุดประกาศ..."
   },
   "emergency": {
     "title": "เตือนภัยพิบัติ",
@@ -299,19 +297,6 @@
       "t8": "งานบุญประจำปี"
     }
   },
-  "zones": {
-    "title": "จุดประกาศ",
-    "summary": "{filtered} จุดในมุมมองนี้ · {online}/{total} จุดออนไลน์",
-    "searchPlaceholder": "ค้นหาจุดประกาศ...",
-    "labels": {
-      "all": "ทุกโซน",
-      "central": "โซนกลาง",
-      "north": "โซนเหนือ",
-      "south": "โซนใต้",
-      "east": "โซนตะวันออก",
-      "west": "โซนตะวันตก"
-    }
-  },
   "tts": {
     "title": "ประกาศข้อความ (Text-to-Speech)",
     "subtitle": "พิมพ์ข้อความ ระบบจะอ่านเสียงไทยผ่านลำโพง",
@@ -329,15 +314,14 @@
     "broadcast": "ประกาศผ่านลำโพง"
   },
   "speakerCard": {
-    "extLine": "Ext. {ext} · {area} · {zone}",
+    "extLine": "Ext. {ext} · {area}",
     "callBtn": "📞 โทร"
   },
   "groupCall": {
     "title": "ประกาศพร้อมกัน",
     "subtitle": "เลือกหลายจุดจาก list ด้านซ้าย แล้วกดประกาศ",
     "selected": "จุดที่เลือก",
-    "broadcast": "ประกาศพร้อมกัน",
-    "zoneShortcuts": "ปุ่มลัดเลือกตามโซน:"
+    "broadcast": "ประกาศพร้อมกัน"
   },
   "callOverlay": {
     "groupTarget": "ประกาศพร้อมกัน {count} จุด",
@@ -431,7 +415,7 @@
     "servicesTitle": "สถานะบริการ",
     "speakerHealthTitle": "สุขภาพลำโพง (ตรวจล่าสุด {time})",
     "speakerHealthCount": "{online} / {total} ออนไลน์",
-    "speakerExt": "Ext. {ext} · {zone}",
+    "speakerExt": "Ext. {ext} · {area}",
     "storageBackupTitle": "พื้นที่จัดเก็บ & สำรองข้อมูล",
     "diskSpace": "พื้นที่ดิสก์",
     "diskUsage": "{used} / {total} {unit} ({pct}%)",

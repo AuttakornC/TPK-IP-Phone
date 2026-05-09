@@ -124,8 +124,7 @@
       "project": "Project",
       "status": "Status",
       "users": "Users",
-      "speakers": "Speakers",
-      "expires": "Expires"
+      "speakers": "Speakers"
     },
     "activity": {
       "newProject": "New project: Bang Saphan Municipality",
@@ -150,11 +149,6 @@
       "subtitle": "Set the basics — assign users and speakers after saving",
       "name": "Project name",
       "namePlaceholder": "Municipality / SAO ...",
-      "contractStart": "Contract start",
-      "contractEnd": "Contract end",
-      "contact": "Contact",
-      "contactPlaceholder": "Contact name",
-      "phone": "Phone",
       "submit": "Create project",
       "demoSavedAlert": "🎭 (Demo) Saved — projects will be created for real once implemented"
     }
@@ -163,7 +157,7 @@
     "back": "← Back to projects",
     "edit": "Edit",
     "suspend": "Suspend",
-    "infoLine": "id: {id} · contact: {contact} ({phone}) · contract {start} → {end}",
+    "infoLine": "id: {id}",
     "stats": {
       "users": "Users",
       "headVillages": "{count} head villages",
@@ -212,7 +206,7 @@
       "name": "Name",
       "project": "Project",
       "ext": "Ext.",
-      "zoneArea": "Zone · Area",
+      "area": "Area",
       "status": "Status",
       "assignedTo": "Assigned to",
       "actions": "Actions",
@@ -225,7 +219,8 @@
       "name": "Name",
       "namePlaceholder": "e.g. Community Hall",
       "extension": "Extension",
-      "zone": "Zone",
+      "area": "Area",
+      "areaPlaceholder": "e.g. Mu 1",
       "project": "Project",
       "assignTo": "Assign to head village (optional)",
       "noAssign": "— Not assigned —",
@@ -259,7 +254,10 @@
     "ttsDefault": "Text-to-speech test",
     "noSelection": "No speakers selected",
     "extraSpots": " and {count} more",
-    "noSpeakersFound": "No speakers match the filters"
+    "noSpeakersFound": "No speakers match the filters",
+    "speakersTitle": "Speakers",
+    "speakersSummary": "{filtered} in view · {online}/{total} online",
+    "searchPlaceholder": "Search speakers..."
   },
   "emergency": {
     "title": "Emergency alert",
@@ -299,19 +297,6 @@
       "t8": "Annual festival"
     }
   },
-  "zones": {
-    "title": "Speakers",
-    "summary": "{filtered} in view · {online}/{total} online",
-    "searchPlaceholder": "Search speakers...",
-    "labels": {
-      "all": "All zones",
-      "central": "Central",
-      "north": "North",
-      "south": "South",
-      "east": "East",
-      "west": "West"
-    }
-  },
   "tts": {
     "title": "Text-to-Speech announcement",
     "subtitle": "Type a message — the system will speak it through the speakers",
@@ -329,15 +314,14 @@
     "broadcast": "Broadcast"
   },
   "speakerCard": {
-    "extLine": "Ext. {ext} · {area} · {zone}",
+    "extLine": "Ext. {ext} · {area}",
     "callBtn": "📞 Call"
   },
   "groupCall": {
     "title": "Group broadcast",
     "subtitle": "Pick multiple speakers from the list, then broadcast",
     "selected": "Selected",
-    "broadcast": "Broadcast",
-    "zoneShortcuts": "Zone shortcuts:"
+    "broadcast": "Broadcast"
   },
   "callOverlay": {
     "groupTarget": "Broadcasting to {count} speakers",
@@ -431,7 +415,7 @@
     "servicesTitle": "Services",
     "speakerHealthTitle": "Speaker health (checked {time})",
     "speakerHealthCount": "{online} / {total} online",
-    "speakerExt": "Ext. {ext} · {zone}",
+    "speakerExt": "Ext. {ext} · {area}",
     "storageBackupTitle": "Storage & backup",
     "diskSpace": "Disk space",
     "diskUsage": "{used} / {total} {unit} ({pct}%)",
