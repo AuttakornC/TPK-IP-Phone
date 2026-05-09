@@ -443,7 +443,7 @@
     "servicesTitle": "Services",
     "speakerHealthTitle": "Speaker health (checked {time})",
     "speakerHealthCount": "{online} / {total} online",
-    "speakerExt": "Ext. {ext} · {zone}",
+    "speakerExt": "Ext. {ext} · {area}",
     "storageBackupTitle": "Storage & backup",
     "diskSpace": "Disk space",
     "diskUsage": "{used} / {total} {unit} ({pct}%)",
