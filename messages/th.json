@@ -223,9 +223,20 @@
     "speakersTab": {
       "title": "จุดประกาศของโครงการ",
       "addSpeaker": "+ เพิ่มจุดประกาศ",
+      "editSpeaker": "แก้ไขจุดประกาศ",
+      "deleteSpeaker": "ลบจุดประกาศ",
       "notAssigned": "ยังไม่ได้ assign ให้ผู้ใช้ทั่วไป",
       "assignedTo": "→ {names}",
-      "noAsteriskHint": "ต้องมี Asterisk อย่างน้อยหนึ่งตัวก่อนเพิ่มจุดประกาศ"
+      "noAsteriskHint": "ต้องมี Asterisk อย่างน้อยหนึ่งตัวก่อนเพิ่มจุดประกาศ",
+      "deleteModal": {
+        "title": "ลบจุดประกาศ?",
+        "warning": "การลบจะลบ assign ผู้ใช้ทั่วไปที่ผูกกับจุดนี้ด้วย และไม่สามารถย้อนกลับได้",
+        "confirm": "ลบจุดประกาศ"
+      },
+      "deleteErrors": {
+        "notFound": "ไม่พบจุดประกาศ — อาจถูกลบไปแล้ว",
+        "generic": "ไม่สามารถลบจุดประกาศได้ — กรุณาลองใหม่อีกครั้ง"
+      }
     },
     "usageTab": {
       "monthlyAnnouncements": "ประกาศเดือนนี้",
@@ -259,6 +270,17 @@
         "extTaken": "Ext {ext} ถูกใช้แล้วในโครงการนี้",
         "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้า",
         "projectMissing": "ไม่พบโครงการนี้ — กรุณารีเฟรชหน้า"
+      }
+    },
+    "editSpeakerModal": {
+      "title": "แก้ไขจุดประกาศ",
+      "subtitle": "{name} — แก้ไขชื่อ ext พื้นที่ หรือ Asterisk",
+      "errors": {
+        "required": "กรุณากรอกข้อมูลให้ครบทุกช่อง",
+        "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
+        "extTaken": "Ext {ext} ถูกใช้แล้วในโครงการนี้",
+        "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้า",
+        "notFound": "ไม่พบจุดประกาศ — กรุณารีเฟรชหน้า"
       }
     }
   },

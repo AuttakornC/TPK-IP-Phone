@@ -13,7 +13,7 @@ import StatCard from '@/components/ui/StatCard';
 import StatusPill from '@/components/ui/StatusPill';
 import type { ProjectStatus } from '@/lib/mock';
 import { deleteProject, updateProject, type DeleteProjectResult, type ProjectRow, type UpdateProjectResult } from '@/server/actions/projects';
-import { createSpeaker, type CreateSpeakerResult } from '@/server/actions/speakers';
+import { createSpeaker, updateSpeaker, deleteSpeaker, type CreateSpeakerResult, type UpdateSpeakerResult } from '@/server/actions/speakers';
 import { deleteUser, type ProjectUserRow } from '@/server/actions/users';
 import type { SpeakerRow } from '@/server/actions/speakers';
 
@@ -37,6 +37,14 @@ const SPEAKER_ERROR_KEY: Record<Extract<CreateSpeakerResult, { ok: false }>['err
   ext_taken: 'extTaken',
   asterisk_missing: 'asteriskMissing',
   project_missing: 'projectMissing',
+};
+
+const UPDATE_SPEAKER_ERROR_KEY: Record<Extract<UpdateSpeakerResult, { ok: false }>['error'], string> = {
+  required: 'required',
+  ext_format: 'extFormat',
+  ext_taken: 'extTaken',
+  asterisk_missing: 'asteriskMissing',
+  not_found: 'notFound',
 };
 
 type Tab = 'accounts' | 'speakers' | 'usage';
@@ -88,6 +96,18 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
   const [speakerArea, setSpeakerArea] = useState('');
   const [speakerAsteriskId, setSpeakerAsteriskId] = useState('');
   const [speakerError, setSpeakerError] = useState<string | null>(null);
+
+  // Edit speaker modal state
+  const [editingSpeaker, setEditingSpeaker] = useState<SpeakerRow | null>(null);
+  const [editSpeakerName, setEditSpeakerName] = useState('');
+  const [editSpeakerExt, setEditSpeakerExt] = useState('');
+  const [editSpeakerArea, setEditSpeakerArea] = useState('');
+  const [editSpeakerAsteriskId, setEditSpeakerAsteriskId] = useState('');
+  const [editSpeakerError, setEditSpeakerError] = useState<string | null>(null);
+
+  // Delete speaker dialog state
+  const [deletingSpeaker, setDeletingSpeaker] = useState<SpeakerRow | null>(null);
+  const [deleteSpeakerError, setDeleteSpeakerError] = useState<string | null>(null);
 
   function togglePassword(id: string) {
     setRevealedPasswords(prev => {
@@ -208,6 +228,58 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
         return;
       }
       setShowAddSpeaker(false);
+      router.refresh();
+    });
+  }
+
+  function openEditSpeaker(s: SpeakerRow) {
+    setEditingSpeaker(s);
+    setEditSpeakerName(s.name);
+    setEditSpeakerExt(s.ext);
+    setEditSpeakerArea(s.area);
+    setEditSpeakerAsteriskId(s.asteriskId);
+    setEditSpeakerError(null);
+  }
+
+  function handleEditSpeakerSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingSpeaker) return;
+    setEditSpeakerError(null);
+    startTransition(async () => {
+      const result = await updateSpeaker({
+        id: editingSpeaker.id,
+        name: editSpeakerName,
+        ext: editSpeakerExt,
+        area: editSpeakerArea,
+        asteriskId: editSpeakerAsteriskId,
+      });
+      if (!result.ok) {
+        const params: Record<string, string> = {};
+        if (result.error === 'ext_taken') params.ext = editSpeakerExt.trim();
+        setEditSpeakerError(t(`editSpeakerModal.errors.${UPDATE_SPEAKER_ERROR_KEY[result.error]}`, params));
+        return;
+      }
+      setEditingSpeaker(null);
+      router.refresh();
+    });
+  }
+
+  function openDeleteSpeaker(s: SpeakerRow) {
+    setDeleteSpeakerError(null);
+    setDeletingSpeaker(s);
+  }
+
+  function handleDeleteSpeakerConfirm() {
+    const target = deletingSpeaker;
+    if (!target) return;
+    setDeleteSpeakerError(null);
+    startTransition(async () => {
+      const result = await deleteSpeaker(target.id);
+      if (!result.ok) {
+        setDeleteSpeakerError(t(`speakersTab.deleteErrors.${result.error === 'not_found' ? 'notFound' : 'generic'}`));
+        return;
+      }
+      setDeletingSpeaker(null);
       router.refresh();
     });
   }
@@ -371,7 +443,27 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                       <div className="font-medium text-white truncate">{s.name}</div>
                       <div className="text-xs text-slate-400">Ext. {s.ext} · {s.area}</div>
                     </div>
-                    <SpeakerStatusPill status={s.status} />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <SpeakerStatusPill status={s.status} />
+                      <button
+                        type="button"
+                        onClick={() => openEditSpeaker(s)}
+                        disabled={pending}
+                        title={t('speakersTab.editSpeaker')}
+                        className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded disabled:opacity-60"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openDeleteSpeaker(s)}
+                        disabled={pending}
+                        title={t('speakersTab.deleteSpeaker')}
+                        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded disabled:opacity-60"
+                      >
+                        🗑
+                      </button>
+                    </div>
                   </div>
                   <div className={`text-xs ${assignedTo.length === 0 ? 'text-slate-500' : 'text-slate-300'}`}>
                     {assignedTo.length === 0
@@ -449,6 +541,20 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
         pending={pending}
         onCancel={() => setShowSuspend(false)}
         onConfirm={handleSuspendToggleConfirm}
+      />
+
+      <ConfirmDialog
+        open={deletingSpeaker !== null}
+        tone="danger"
+        icon="🗑"
+        title={t('speakersTab.deleteModal.title')}
+        subtitle={deletingSpeaker ? `${deletingSpeaker.name} · Ext. ${deletingSpeaker.ext}` : undefined}
+        warning={t('speakersTab.deleteModal.warning')}
+        error={deleteSpeakerError}
+        confirmLabel={t('speakersTab.deleteModal.confirm')}
+        pending={pending}
+        onCancel={() => setDeletingSpeaker(null)}
+        onConfirm={handleDeleteSpeakerConfirm}
       />
 
       <ConfirmDialog
@@ -603,6 +709,93 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                 className="flex-1 px-4 py-2.5 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-bold disabled:opacity-60"
               >
                 {t('addSpeakerModal.submit')}
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
+
+      <Modal open={editingSpeaker !== null} onClose={() => setEditingSpeaker(null)} variant="admin" size="md">
+        <div className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-bold">{t('editSpeakerModal.title')}</h3>
+              <p className="text-sm text-slate-500">
+                {editingSpeaker ? t('editSpeakerModal.subtitle', { name: editingSpeaker.name }) : ''}
+              </p>
+            </div>
+            <button onClick={() => setEditingSpeaker(null)} className="text-slate-400 hover:text-slate-700">✕</button>
+          </div>
+          <form className="space-y-3" onSubmit={handleEditSpeakerSubmit}>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('addSpeakerModal.name')}</label>
+              <input
+                type="text"
+                value={editSpeakerName}
+                onChange={e => setEditSpeakerName(e.target.value)}
+                placeholder={t('addSpeakerModal.namePlaceholder')}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                autoFocus
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">{t('addSpeakerModal.ext')}</label>
+                <input
+                  type="text"
+                  value={editSpeakerExt}
+                  onChange={e => setEditSpeakerExt(e.target.value)}
+                  placeholder="1001"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">{t('addSpeakerModal.area')}</label>
+                <input
+                  type="text"
+                  value={editSpeakerArea}
+                  onChange={e => setEditSpeakerArea(e.target.value)}
+                  placeholder={t('addSpeakerModal.areaPlaceholder')}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('addSpeakerModal.asterisk')}</label>
+              <select
+                value={editSpeakerAsteriskId}
+                onChange={e => setEditSpeakerAsteriskId(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                required
+              >
+                <option value="" disabled>{t('addSpeakerModal.asteriskPlaceholder')}</option>
+                {asterisks.map(a => (
+                  <option key={a.id} value={a.id}>{a.name} — {a.domain}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500 mt-1">{t('addSpeakerModal.asteriskHint')}</p>
+            </div>
+            {editSpeakerError && (
+              <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{editSpeakerError}</div>
+            )}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingSpeaker(null)}
+                disabled={pending}
+                className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg font-medium hover:bg-slate-50 disabled:opacity-60"
+              >
+                {tCommon('cancel')}
+              </button>
+              <button
+                type="submit"
+                disabled={pending}
+                className="flex-1 px-4 py-2.5 bg-blue-900 hover:bg-blue-800 text-white rounded-lg font-bold disabled:opacity-60"
+              >
+                {tCommon('save')}
               </button>
             </div>
           </form>

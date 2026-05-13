@@ -223,9 +223,20 @@
     "speakersTab": {
       "title": "Project speakers",
       "addSpeaker": "+ Add speaker",
+      "editSpeaker": "Edit speaker",
+      "deleteSpeaker": "Delete speaker",
       "notAssigned": "Not yet assigned to a general user",
       "assignedTo": "→ {names}",
-      "noAsteriskHint": "Create an Asterisk before adding speakers"
+      "noAsteriskHint": "Create an Asterisk before adding speakers",
+      "deleteModal": {
+        "title": "Delete this speaker?",
+        "warning": "This also removes any general-user assignments tied to this speaker. This cannot be undone.",
+        "confirm": "Delete speaker"
+      },
+      "deleteErrors": {
+        "notFound": "Speaker not found — may already be deleted",
+        "generic": "Could not delete speaker — please try again"
+      }
     },
     "usageTab": {
       "monthlyAnnouncements": "Announcements this month",
@@ -259,6 +270,17 @@
         "extTaken": "Ext {ext} is already taken in this project",
         "asteriskMissing": "Selected Asterisk no longer exists — refresh the page",
         "projectMissing": "Project not found — refresh the page"
+      }
+    },
+    "editSpeakerModal": {
+      "title": "Edit speaker",
+      "subtitle": "{name} — update name, ext, area, or Asterisk",
+      "errors": {
+        "required": "Please fill in every field",
+        "extFormat": "Ext must be 3–6 digits",
+        "extTaken": "Ext {ext} is already taken in this project",
+        "asteriskMissing": "Selected Asterisk no longer exists — refresh the page",
+        "notFound": "Speaker not found — refresh the page"
       }
     }
   },
