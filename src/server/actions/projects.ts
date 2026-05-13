@@ -129,3 +129,30 @@ export async function updateProject(input: {
   revalidatePath('/[locale]/admin/dashboard', 'page');
   return { ok: true };
 }
+
+export type DeleteProjectResult = { ok: true } | { ok: false; error: 'not_found' };
+
+export async function deleteProject(id: string): Promise<DeleteProjectResult> {
+  await requireAdmin();
+  const existing = await prisma.project.findUnique({ where: { id }, select: { id: true } });
+  if (!existing) return { ok: false, error: 'not_found' };
+
+  await prisma.project.delete({ where: { id } });
+
+  revalidatePath('/[locale]/admin/projects', 'page');
+  revalidatePath('/[locale]/admin/dashboard', 'page');
+  return { ok: true };
+}
+
+export async function getProjectDeletionImpact(id: string): Promise<{
+  userCount: number;
+  speakerCount: number;
+} | null> {
+  await requireAdmin();
+  const p = await prisma.project.findUnique({
+    where: { id },
+    include: { _count: { select: { users: true, speakers: true } } },
+  });
+  if (!p) return null;
+  return { userCount: p._count.users, speakerCount: p._count.speakers };
+}

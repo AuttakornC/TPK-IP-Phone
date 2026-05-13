@@ -4,14 +4,22 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/server/auth';
 
+export type SpeakerCallStatus = 'idle' | 'busy';
+
 export interface SpeakerRow {
   id: string;
   name: string;
   ext: string;
   area: string;
   online: boolean;
+  status: SpeakerCallStatus;
   asteriskId: string;
 }
+
+const STATUS_FROM_DB = {
+  IDLE: 'idle',
+  BUSY: 'busy',
+} as const satisfies Record<'IDLE' | 'BUSY', SpeakerCallStatus>;
 
 export async function listProjectSpeakers(projectId: string): Promise<SpeakerRow[]> {
   await requireAdmin();
@@ -25,6 +33,7 @@ export async function listProjectSpeakers(projectId: string): Promise<SpeakerRow
     ext: s.ext,
     area: s.area,
     online: s.online,
+    status: STATUS_FROM_DB[s.status],
     asteriskId: s.asteriskId,
   }));
 }

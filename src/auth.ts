@@ -1,6 +1,21 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { USERS, type RoleId } from '@/lib/mock';
+import bcrypt from 'bcryptjs';
+import { prisma } from '@/lib/prisma';
+import type { RoleId } from '@/lib/mock';
+
+const ROLE_FROM_DB = {
+  AUTHORITY: 'authority',
+  OFFICER: 'officer',
+  HEAD_VILLAGE: 'headVillage',
+} as const satisfies Record<'AUTHORITY' | 'OFFICER' | 'HEAD_VILLAGE', Exclude<RoleId, 'admin'>>;
+
+async function verifyPassword(supplied: string, hash: string | null): Promise<boolean> {
+  if (hash) return bcrypt.compare(supplied, hash);
+  // Fallback for accounts without a stored hash (e.g. legacy/demo data).
+  const expected = process.env.DEMO_LOGIN_PASSWORD || 'demo1234';
+  return supplied === expected;
+}
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
@@ -14,26 +29,27 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const username = String(credentials?.username ?? '').trim();
+        const username = String(credentials?.username ?? '').trim().toLowerCase();
         const password = String(credentials?.password ?? '');
         if (!username || !password) throw new Error('invalid_credentials');
 
-        const user = USERS.find(u => u.username === username);
+        const user = await prisma.user.findUnique({ where: { username } });
         if (!user) throw new Error('invalid_credentials');
-
-        // Admin signs in via a separate surface — block here.
-        if (user.role === 'admin') throw new Error('admin_blocked');
-
         if (!user.active) throw new Error('account_inactive');
 
-        const expected = process.env.DEMO_LOGIN_PASSWORD || 'demo1234';
-        if (password !== expected) throw new Error('invalid_credentials');
+        const ok = await verifyPassword(password, user.passwordHash);
+        if (!ok) throw new Error('invalid_credentials');
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
 
         return {
-          id: user.username,
+          id: user.id,
           name: user.name,
           username: user.username,
-          role: user.role,
+          role: ROLE_FROM_DB[user.role],
           projectId: user.projectId,
         };
       },
@@ -46,27 +62,28 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const username = String(credentials?.username ?? '').trim();
+        const username = String(credentials?.username ?? '').trim().toLowerCase();
         const password = String(credentials?.password ?? '');
         if (!username || !password) throw new Error('invalid_credentials');
 
-        const user = USERS.find(u => u.username === username);
-        if (!user) throw new Error('invalid_credentials');
+        const admin = await prisma.admin.findUnique({ where: { username } });
+        if (!admin) throw new Error('invalid_credentials');
+        if (!admin.active) throw new Error('account_inactive');
 
-        // Only admin accounts are allowed through this surface.
-        if (user.role !== 'admin') throw new Error('not_admin');
+        const ok = await verifyPassword(password, admin.passwordHash);
+        if (!ok) throw new Error('invalid_credentials');
 
-        if (!user.active) throw new Error('account_inactive');
-
-        const expected = process.env.DEMO_LOGIN_PASSWORD || 'demo1234';
-        if (password !== expected) throw new Error('invalid_credentials');
+        await prisma.admin.update({
+          where: { id: admin.id },
+          data: { lastLoginAt: new Date() },
+        });
 
         return {
-          id: user.username,
-          name: user.name,
-          username: user.username,
-          role: user.role,
-          projectId: user.projectId,
+          id: admin.id,
+          name: admin.name,
+          username: admin.username,
+          role: 'admin',
+          projectId: null,
         };
       },
     }),

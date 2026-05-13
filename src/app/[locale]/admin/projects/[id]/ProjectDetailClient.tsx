@@ -4,15 +4,17 @@ import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import AddUserModal from '@/components/admin/AddUserModal';
+import EditUserModal from '@/components/admin/EditUserModal';
 import Avatar from '@/components/ui/Avatar';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import Modal from '@/components/ui/Modal';
-import OnlinePill from '@/components/ui/OnlinePill';
+import SpeakerStatusPill from '@/components/ui/SpeakerStatusPill';
 import StatCard from '@/components/ui/StatCard';
 import StatusPill from '@/components/ui/StatusPill';
 import type { ProjectStatus } from '@/lib/mock';
-import { updateProject, type ProjectRow, type UpdateProjectResult } from '@/server/actions/projects';
+import { deleteProject, updateProject, type DeleteProjectResult, type ProjectRow, type UpdateProjectResult } from '@/server/actions/projects';
 import { createSpeaker, type CreateSpeakerResult } from '@/server/actions/speakers';
-import type { ProjectUserRow } from '@/server/actions/users';
+import { deleteUser, type ProjectUserRow } from '@/server/actions/users';
 import type { SpeakerRow } from '@/server/actions/speakers';
 
 const ROLE_BADGE: Record<string, string> = {
@@ -64,6 +66,13 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
 
   const [tab, setTab] = useState<Tab>('accounts');
   const [showAddUser, setShowAddUser] = useState(false);
+  const [editingUser, setEditingUser] = useState<ProjectUserRow | null>(null);
+  const [deletingUser, setDeletingUser] = useState<ProjectUserRow | null>(null);
+  const [deleteUserError, setDeleteUserError] = useState<string | null>(null);
+  const [showDeleteProject, setShowDeleteProject] = useState(false);
+  const [deleteProjectError, setDeleteProjectError] = useState<string | null>(null);
+  const [showSuspend, setShowSuspend] = useState(false);
+  const [suspendError, setSuspendError] = useState<string | null>(null);
   const [revealedPasswords, setRevealedPasswords] = useState<Set<string>>(new Set());
 
   // Edit modal state
@@ -113,17 +122,62 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
 
   const isSuspended = project.status === 'expired';
 
-  function handleSuspendToggle() {
+  function openSuspendToggle() {
+    setSuspendError(null);
+    setShowSuspend(true);
+  }
+
+  function handleSuspendToggleConfirm() {
     const nextStatus: ProjectStatus = isSuspended ? 'active' : 'expired';
-    const confirmKey = isSuspended ? 'unsuspendConfirm' : 'suspendConfirm';
-    if (!confirm(t(confirmKey, { name: project.name }))) return;
+    setSuspendError(null);
     startTransition(async () => {
       const result = await updateProject({ id: project.id, name: project.name, status: nextStatus });
       if (!result.ok) {
-        alert(tProjects(`errors.${UPDATE_ERROR_KEY[result.error]}`, { name: project.name }));
+        setSuspendError(tProjects(`errors.${UPDATE_ERROR_KEY[result.error]}`, { name: project.name }));
         return;
       }
+      setShowSuspend(false);
       router.refresh();
+    });
+  }
+
+  function openDeleteUser(user: ProjectUserRow) {
+    setDeleteUserError(null);
+    setDeletingUser(user);
+  }
+
+  function handleDeleteUserConfirm() {
+    const user = deletingUser;
+    if (!user) return;
+    setDeleteUserError(null);
+    startTransition(async () => {
+      const result = await deleteUser(user.id);
+      if (!result.ok) {
+        setDeleteUserError(t(`accountsTab.deleteErrors.${result.error === 'not_found' ? 'notFound' : 'generic'}`));
+        return;
+      }
+      setDeletingUser(null);
+      router.refresh();
+    });
+  }
+
+  function openDeleteProject() {
+    setDeleteProjectError(null);
+    setShowDeleteProject(true);
+  }
+
+  function handleDeleteProjectConfirm() {
+    setDeleteProjectError(null);
+    startTransition(async () => {
+      const result = await deleteProject(project.id);
+      if (!result.ok) {
+        setDeleteProjectError(
+          t(`deleteProject.errors.${result.error === 'not_found' ? 'notFound' : 'generic'}`)
+        );
+        return;
+      }
+      setShowDeleteProject(false);
+      router.push('/admin/projects');
     });
   }
 
@@ -162,7 +216,7 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
 
   const infoCards = [
     { label: t('stats.users'), value: `${users.length}`, hint: t('stats.headVillages', { count: headVillages }) },
-    { label: t('stats.speakers'), value: `${speakers.length}`, hint: t('stats.online', { count: speakers.filter(s => s.online).length }) },
+    { label: t('stats.speakers'), value: `${speakers.length}`, hint: t('stats.idle', { count: speakers.filter(s => s.status === 'idle').length }) },
     { label: t('stats.storage'), value: '2.1 GB', hint: t('stats.lastUsed') },
   ];
 
@@ -187,15 +241,22 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
             {t('edit')}
           </button>
           <button
-            onClick={handleSuspendToggle}
+            onClick={openSuspendToggle}
             disabled={pending}
             className={`px-3 py-2 rounded-lg text-sm font-medium disabled:opacity-60 ${
               isSuspended
                 ? 'bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25'
-                : 'bg-red-500/15 text-red-400 hover:bg-red-500/25'
+                : 'bg-amber-500/15 text-amber-300 hover:bg-amber-500/25'
             }`}
           >
             {isSuspended ? t('unsuspend') : t('suspend')}
+          </button>
+          <button
+            onClick={openDeleteProject}
+            disabled={pending}
+            className="px-3 py-2 bg-red-500/15 text-red-400 hover:bg-red-500/25 rounded-lg text-sm font-medium disabled:opacity-60"
+          >
+            {t('deleteProject.button')}
           </button>
         </div>
       </div>
@@ -261,8 +322,24 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                   </div>
                   <span className={`inline-flex px-2 py-0.5 text-xs rounded-full font-medium ${ROLE_BADGE[u.role] || 'bg-slate-500/15 text-slate-400'}`}>{tRoles(`${u.role}.name`)}</span>
                   <div className="flex gap-1">
-                    <button className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded">✎</button>
-                    <button className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded">🗑</button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingUser(u)}
+                      disabled={pending}
+                      title={t('accountsTab.editUser')}
+                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded disabled:opacity-60"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openDeleteUser(u)}
+                      disabled={pending}
+                      title={t('accountsTab.deleteUser')}
+                      className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded disabled:opacity-60"
+                    >
+                      🗑
+                    </button>
                   </div>
                 </div>
               );
@@ -294,7 +371,7 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                       <div className="font-medium text-white truncate">{s.name}</div>
                       <div className="text-xs text-slate-400">Ext. {s.ext} · {s.area}</div>
                     </div>
-                    <OnlinePill online={s.online} />
+                    <SpeakerStatusPill status={s.status} />
                   </div>
                   <div className={`text-xs ${assignedTo.length === 0 ? 'text-slate-500' : 'text-slate-300'}`}>
                     {assignedTo.length === 0
@@ -335,6 +412,61 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
         speakers={speakers}
         suggestedExt={suggestedExt}
         onClose={() => setShowAddUser(false)}
+      />
+
+      <EditUserModal
+        open={editingUser !== null}
+        user={editingUser}
+        asterisks={asterisks}
+        speakers={speakers}
+        onClose={() => setEditingUser(null)}
+      />
+
+      <ConfirmDialog
+        open={deletingUser !== null}
+        tone="danger"
+        icon="🗑"
+        title={t('accountsTab.deleteModal.title')}
+        subtitle={deletingUser ? `${deletingUser.name} · @${deletingUser.username}` : undefined}
+        warning={t('accountsTab.deleteModal.warning')}
+        error={deleteUserError}
+        confirmLabel={t('accountsTab.deleteModal.confirm')}
+        pending={pending}
+        onCancel={() => setDeletingUser(null)}
+        onConfirm={handleDeleteUserConfirm}
+      />
+
+      <ConfirmDialog
+        open={showSuspend}
+        tone={isSuspended ? 'primary' : 'warning'}
+        icon={isSuspended ? '✓' : '⏸'}
+        title={t(isSuspended ? 'suspendModal.unsuspendTitle' : 'suspendModal.suspendTitle')}
+        subtitle={`${project.name} · ${t('infoLine', { id: project.id })}`}
+        body={t(isSuspended ? 'suspendModal.unsuspendBody' : 'suspendModal.suspendBody')}
+        warning={isSuspended ? undefined : t('suspendModal.suspendWarning')}
+        error={suspendError}
+        confirmLabel={t(isSuspended ? 'suspendModal.unsuspendConfirm' : 'suspendModal.suspendConfirm')}
+        pending={pending}
+        onCancel={() => setShowSuspend(false)}
+        onConfirm={handleSuspendToggleConfirm}
+      />
+
+      <ConfirmDialog
+        open={showDeleteProject}
+        tone="danger"
+        icon="🗑"
+        title={t('deleteProject.title')}
+        subtitle={`${project.name} · ${t('infoLine', { id: project.id })}`}
+        body={t('deleteProject.body', {
+          users: users.length,
+          speakers: speakers.length,
+        })}
+        warning={t('deleteProject.warning')}
+        error={deleteProjectError}
+        confirmLabel={t('deleteProject.confirm')}
+        pending={pending}
+        onCancel={() => setShowDeleteProject(false)}
+        onConfirm={handleDeleteProjectConfirm}
       />
 
       <Modal open={showEdit} onClose={() => setShowEdit(false)} variant="admin" size="md">

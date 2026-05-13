@@ -165,14 +165,33 @@
     "edit": "Edit",
     "suspend": "Suspend",
     "unsuspend": "Reactivate",
-    "suspendConfirm": "Suspend project \"{name}\"?",
-    "unsuspendConfirm": "Reactivate project \"{name}\"?",
+    "suspendModal": {
+      "suspendTitle": "Suspend project?",
+      "suspendBody": "Users in this project will not be able to sign in or broadcast until it is reactivated.",
+      "suspendWarning": "All data is preserved — reactivate any time to restore access.",
+      "suspendConfirm": "Suspend project",
+      "unsuspendTitle": "Reactivate project?",
+      "unsuspendBody": "Users in this project will be able to sign in and broadcast again.",
+      "unsuspendConfirm": "Reactivate"
+    },
+    "deleteProject": {
+      "button": "Delete project",
+      "title": "Delete project?",
+      "body": "This permanently deletes everything in the project: {users} users, {speakers} speakers, MP3 files, schedules, and broadcast history.",
+      "warning": "This cannot be undone. To pause access instead, use \"Suspend\".",
+      "confirm": "Delete permanently",
+      "errors": {
+        "notFound": "Project not found — may already be deleted",
+        "generic": "Could not delete project — please try again"
+      }
+    },
     "infoLine": "id: {id}",
     "stats": {
       "users": "Users",
       "headVillages": "{count} head villages",
       "speakers": "Speakers",
       "online": "{count} online",
+      "idle": "{count} idle",
       "storage": "MP3 storage",
       "lastUsed": "Recently used"
     },
@@ -188,7 +207,18 @@
       "responsibleFor": "Responsible for {count} speakers",
       "sipExt": "SIP ext: {ext}",
       "passwordShow": "Show password",
-      "passwordHide": "Hide password"
+      "passwordHide": "Hide password",
+      "editUser": "Edit user",
+      "deleteUser": "Delete user",
+      "deleteModal": {
+        "title": "Delete user?",
+        "warning": "This also removes their SIP credentials and speaker assignments. This cannot be undone.",
+        "confirm": "Delete user"
+      },
+      "deleteErrors": {
+        "notFound": "User not found — may already be deleted",
+        "generic": "Could not delete user — please try again"
+      }
     },
     "speakersTab": {
       "title": "Project speakers",
@@ -232,6 +262,23 @@
       }
     }
   },
+  "editUserModal": {
+    "title": "Edit user",
+    "subtitle": "@{username} — username cannot be changed",
+    "fields": {
+      "loginPassword": "Reset login password",
+      "loginPasswordPlaceholder": "Leave blank to keep current password",
+      "loginPasswordHint": "Only fill in if you want to set a new password — min 6 characters"
+    },
+    "errors": {
+      "required": "Please fill in every field",
+      "notFound": "User not found — refresh the page",
+      "extFormat": "Ext must be 3–6 digits",
+      "extTaken": "Ext {ext} is already taken",
+      "loginPasswordShort": "Login password must be at least 6 characters",
+      "asteriskMissing": "Selected Asterisk no longer exists — refresh the page"
+    }
+  },
   "addUserModal": {
     "title": "New user",
     "subtitle": "Every user needs SIP credentials to use Asterisk",
@@ -255,7 +302,10 @@
       "password": "SIP password",
       "passwordShow": "Show password",
       "passwordHide": "Hide password",
-      "passwordGenerate": "Regenerate password"
+      "passwordGenerate": "Regenerate password",
+      "loginPassword": "Login password",
+      "loginPasswordHint": "The user signs in with this password — share it with them after creating the account.",
+      "loginPasswordGenerate": "Generate random password"
     },
     "errors": {
       "required": "Please fill in every field",
@@ -263,6 +313,7 @@
       "usernameTaken": "Username \"{username}\" is already taken",
       "extFormat": "Ext must be 3–6 digits",
       "extTaken": "Ext {ext} is already taken",
+      "loginPasswordShort": "Login password must be at least 6 characters",
       "asteriskMissing": "Selected Asterisk no longer exists — refresh the page and try again"
     }
   },
@@ -599,6 +650,10 @@
     "active": "Active",
     "expiring": "Expiring soon",
     "expired": "Expired"
+  },
+  "speakerStatus": {
+    "idle": "Idle",
+    "busy": "Busy"
   },
   "village": {
     "greeting": "Hello",

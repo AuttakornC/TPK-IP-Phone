@@ -61,6 +61,7 @@ export type CreateUserResult =
         | 'username_taken'
         | 'ext_format'
         | 'ext_taken'
+        | 'login_password_short'
         | 'asterisk_missing';
     };
 
@@ -72,6 +73,7 @@ export async function createUserWithAsterisk(input: {
   asteriskId: string;
   ext: string;
   password: string;
+  loginPassword: string;
   assignedSpeakerIds: string[];
 }): Promise<CreateUserResult> {
   await requireAdmin();
@@ -79,12 +81,14 @@ export async function createUserWithAsterisk(input: {
   const username = input.username.trim().toLowerCase();
   const ext = input.ext.trim();
   const password = input.password.trim();
+  const loginPassword = input.loginPassword.trim();
 
-  if (!name || !username || !input.asteriskId || !ext || !password) {
+  if (!name || !username || !input.asteriskId || !ext || !password || !loginPassword) {
     return { ok: false, error: 'required' };
   }
   if (!/^[a-z0-9_.-]{3,}$/.test(username)) return { ok: false, error: 'username_format' };
   if (!/^\d{3,6}$/.test(ext)) return { ok: false, error: 'ext_format' };
+  if (loginPassword.length < 6) return { ok: false, error: 'login_password_short' };
 
   const [usernameDup, extDup, asteriskExists] = await Promise.all([
     prisma.user.findUnique({ where: { username }, select: { id: true } }),
@@ -95,7 +99,7 @@ export async function createUserWithAsterisk(input: {
   if (extDup) return { ok: false, error: 'ext_taken' };
   if (!asteriskExists) return { ok: false, error: 'asterisk_missing' };
 
-  const loginHash = await bcrypt.hash(process.env.DEMO_LOGIN_PASSWORD || 'demo1234', 10);
+  const loginHash = await bcrypt.hash(loginPassword, 10);
 
   const created = await prisma.$transaction(async tx => {
     const user = await tx.user.create({
@@ -132,6 +136,110 @@ export async function createUserWithAsterisk(input: {
   revalidatePath('/[locale]/admin/projects', 'page');
   revalidatePath('/[locale]/admin/dashboard', 'page');
   return { ok: true, id: created.id };
+}
+
+export type UpdateUserResult =
+  | { ok: true }
+  | {
+      ok: false;
+      error:
+        | 'required'
+        | 'not_found'
+        | 'ext_format'
+        | 'ext_taken'
+        | 'login_password_short'
+        | 'asterisk_missing';
+    };
+
+export async function updateUser(input: {
+  id: string;
+  name: string;
+  role: Exclude<RoleId, 'admin'>;
+  asteriskId: string;
+  ext: string;
+  password: string;
+  loginPassword: string;
+  assignedSpeakerIds: string[];
+}): Promise<UpdateUserResult> {
+  await requireAdmin();
+  const name = input.name.trim();
+  const ext = input.ext.trim();
+  const password = input.password.trim();
+  const loginPassword = input.loginPassword;
+
+  if (!name || !input.asteriskId || !ext || !password) {
+    return { ok: false, error: 'required' };
+  }
+  if (!/^\d{3,6}$/.test(ext)) return { ok: false, error: 'ext_format' };
+  if (loginPassword && loginPassword.trim().length < 6) {
+    return { ok: false, error: 'login_password_short' };
+  }
+
+  const existing = await prisma.user.findUnique({
+    where: { id: input.id },
+    select: { id: true, asterisk: { select: { id: true } } },
+  });
+  if (!existing) return { ok: false, error: 'not_found' };
+
+  const [extDup, asteriskExists] = await Promise.all([
+    prisma.userAsterisk.findFirst({
+      where: { ext, NOT: { userId: input.id } },
+      select: { id: true },
+    }),
+    prisma.asterisk.findUnique({ where: { id: input.asteriskId }, select: { id: true } }),
+  ]);
+  if (extDup) return { ok: false, error: 'ext_taken' };
+  if (!asteriskExists) return { ok: false, error: 'asterisk_missing' };
+
+  const newLoginHash = loginPassword ? await bcrypt.hash(loginPassword.trim(), 10) : null;
+
+  await prisma.$transaction(async tx => {
+    await tx.user.update({
+      where: { id: input.id },
+      data: {
+        name,
+        role: DB_ROLE[input.role],
+        ...(newLoginHash ? { passwordHash: newLoginHash } : {}),
+      },
+    });
+    if (existing.asterisk) {
+      await tx.userAsterisk.update({
+        where: { userId: input.id },
+        data: { asteriskId: input.asteriskId, ext, password },
+      });
+    } else {
+      await tx.userAsterisk.create({
+        data: { userId: input.id, asteriskId: input.asteriskId, ext, password },
+      });
+    }
+    await tx.speakerAssignment.deleteMany({ where: { userId: input.id } });
+    if (input.role === 'headVillage' && input.assignedSpeakerIds.length > 0) {
+      await tx.speakerAssignment.createMany({
+        data: input.assignedSpeakerIds.map(speakerId => ({ userId: input.id, speakerId })),
+        skipDuplicates: true,
+      });
+    }
+  });
+
+  revalidatePath('/[locale]/admin/projects/[id]', 'page');
+  revalidatePath('/[locale]/admin/projects', 'page');
+  revalidatePath('/[locale]/admin/dashboard', 'page');
+  return { ok: true };
+}
+
+export type DeleteUserResult = { ok: true } | { ok: false; error: 'not_found' };
+
+export async function deleteUser(id: string): Promise<DeleteUserResult> {
+  await requireAdmin();
+  const existing = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+  if (!existing) return { ok: false, error: 'not_found' };
+
+  await prisma.user.delete({ where: { id } });
+
+  revalidatePath('/[locale]/admin/projects/[id]', 'page');
+  revalidatePath('/[locale]/admin/projects', 'page');
+  revalidatePath('/[locale]/admin/dashboard', 'page');
+  return { ok: true };
 }
 
 export async function suggestNextExt(): Promise<string> {

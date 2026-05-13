@@ -165,14 +165,33 @@
     "edit": "แก้ไข",
     "suspend": "ระงับ",
     "unsuspend": "เปิดใช้งาน",
-    "suspendConfirm": "ระงับโครงการ \"{name}\" ใช่หรือไม่?",
-    "unsuspendConfirm": "เปิดใช้งานโครงการ \"{name}\" อีกครั้งใช่หรือไม่?",
+    "suspendModal": {
+      "suspendTitle": "ระงับโครงการ?",
+      "suspendBody": "ผู้ใช้ในโครงการนี้จะไม่สามารถเข้าสู่ระบบหรือประกาศได้จนกว่าจะเปิดใช้งานอีกครั้ง",
+      "suspendWarning": "ข้อมูลทั้งหมดยังคงอยู่ — กดเปิดใช้งานเพื่อกลับมาใช้งานได้ตามปกติ",
+      "suspendConfirm": "ระงับโครงการ",
+      "unsuspendTitle": "เปิดใช้งานโครงการ?",
+      "unsuspendBody": "ผู้ใช้ในโครงการนี้จะสามารถเข้าสู่ระบบและประกาศได้อีกครั้ง",
+      "unsuspendConfirm": "เปิดใช้งาน"
+    },
+    "deleteProject": {
+      "button": "ลบโครงการ",
+      "title": "ลบโครงการ?",
+      "body": "การลบจะลบข้อมูลทั้งหมดของโครงการนี้: ผู้ใช้ {users} คน, จุดประกาศ {speakers} จุด, MP3, schedule และประวัติการประกาศ",
+      "warning": "การกระทำนี้ไม่สามารถย้อนกลับได้ — หากต้องการหยุดใช้งานชั่วคราว ให้ใช้ปุ่ม \"ระงับ\" แทน",
+      "confirm": "ลบโครงการถาวร",
+      "errors": {
+        "notFound": "ไม่พบโครงการ — อาจถูกลบไปแล้ว",
+        "generic": "ไม่สามารถลบโครงการได้ — กรุณาลองใหม่อีกครั้ง"
+      }
+    },
     "infoLine": "id: {id}",
     "stats": {
       "users": "ผู้ใช้",
       "headVillages": "{count} ผู้ใหญ่บ้าน",
       "speakers": "จุดประกาศ",
       "online": "{count} ออนไลน์",
+      "idle": "{count} พร้อมใช้งาน",
       "storage": "Storage MP3",
       "lastUsed": "ใช้งานล่าสุด"
     },
@@ -188,7 +207,18 @@
       "responsibleFor": "รับผิดชอบ {count} จุดประกาศ",
       "sipExt": "SIP ext: {ext}",
       "passwordShow": "แสดงรหัสผ่าน",
-      "passwordHide": "ซ่อนรหัสผ่าน"
+      "passwordHide": "ซ่อนรหัสผ่าน",
+      "editUser": "แก้ไขผู้ใช้",
+      "deleteUser": "ลบผู้ใช้",
+      "deleteModal": {
+        "title": "ลบผู้ใช้?",
+        "warning": "การลบจะลบ SIP credentials และการ assign จุดประกาศของผู้ใช้นี้ด้วย และไม่สามารถย้อนกลับได้",
+        "confirm": "ลบผู้ใช้"
+      },
+      "deleteErrors": {
+        "notFound": "ไม่พบผู้ใช้ — อาจถูกลบไปแล้ว",
+        "generic": "ไม่สามารถลบผู้ใช้ได้ — กรุณาลองใหม่อีกครั้ง"
+      }
     },
     "speakersTab": {
       "title": "จุดประกาศของโครงการ",
@@ -232,6 +262,23 @@
       }
     }
   },
+  "editUserModal": {
+    "title": "แก้ไขผู้ใช้",
+    "subtitle": "@{username} — username แก้ไขไม่ได้",
+    "fields": {
+      "loginPassword": "รีเซ็ตรหัสผ่านเข้าสู่ระบบ",
+      "loginPasswordPlaceholder": "เว้นว่างไว้เพื่อใช้รหัสผ่านเดิม",
+      "loginPasswordHint": "กรอกเฉพาะเมื่อต้องการตั้งรหัสผ่านใหม่ — อย่างน้อย 6 ตัวอักษร"
+    },
+    "errors": {
+      "required": "กรุณากรอกข้อมูลให้ครบทุกช่อง",
+      "notFound": "ไม่พบผู้ใช้ — กรุณารีเฟรชหน้า",
+      "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
+      "extTaken": "Ext {ext} ถูกใช้แล้ว",
+      "loginPasswordShort": "รหัสผ่านเข้าสู่ระบบต้องมีอย่างน้อย 6 ตัวอักษร",
+      "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้า"
+    }
+  },
   "addUserModal": {
     "title": "เพิ่มผู้ใช้ใหม่",
     "subtitle": "ผู้ใช้ทุกคนต้องมี SIP credentials เพื่อใช้งาน Asterisk",
@@ -255,7 +302,10 @@
       "password": "SIP password",
       "passwordShow": "แสดงรหัสผ่าน",
       "passwordHide": "ซ่อนรหัสผ่าน",
-      "passwordGenerate": "สุ่มรหัสผ่านใหม่"
+      "passwordGenerate": "สุ่มรหัสผ่านใหม่",
+      "loginPassword": "รหัสผ่านเข้าสู่ระบบ",
+      "loginPasswordHint": "ผู้ใช้จะใช้รหัสนี้ในการเข้าสู่ระบบ — แจ้งให้ผู้ใช้ทราบหลังจากสร้างบัญชี",
+      "loginPasswordGenerate": "สุ่มรหัสผ่านใหม่"
     },
     "errors": {
       "required": "กรุณากรอกข้อมูลให้ครบทุกช่อง",
@@ -263,6 +313,7 @@
       "usernameTaken": "Username \"{username}\" ถูกใช้แล้ว",
       "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
       "extTaken": "Ext {ext} ถูกใช้แล้ว",
+      "loginPasswordShort": "รหัสผ่านเข้าสู่ระบบต้องมีอย่างน้อย 6 ตัวอักษร",
       "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้าและลองใหม่"
     }
   },
@@ -599,6 +650,10 @@
     "active": "ใช้งาน",
     "expiring": "ใกล้หมดอายุ",
     "expired": "หมดอายุ"
+  },
+  "speakerStatus": {
+    "idle": "พร้อมใช้งาน",
+    "busy": "กำลังใช้งาน"
   },
   "village": {
     "greeting": "สวัสดีครับ",
