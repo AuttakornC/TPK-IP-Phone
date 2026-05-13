@@ -52,4 +52,5 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts tsconfig.json ./
 COPY prisma ./prisma
 COPY src/generated ./src/generated
-CMD ["pnpm", "exec", "prisma", "migrate", "deploy"]
+COPY src/lib ./src/lib
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm db:seed:prod"]

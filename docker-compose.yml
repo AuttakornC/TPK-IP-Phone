@@ -22,12 +22,12 @@ services:
       target: migrator
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-wireless_pa}:${POSTGRES_PASSWORD:-wireless_pa}@db:5432/${POSTGRES_DB:-wireless_pa}?schema=public
+      SUPERADMIN_USERNAME: ${SUPERADMIN_USERNAME:-superadmin}
+      SUPERADMIN_NAME: ${SUPERADMIN_NAME:-Super Admin}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
-    # Run migrations then seed; comment out seed if not desired.
-    command: >
-      sh -c "pnpm exec prisma migrate deploy && pnpm exec prisma db seed"
     restart: "no"
 
   app:
