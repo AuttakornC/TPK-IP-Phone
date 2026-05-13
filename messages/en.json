@@ -49,7 +49,7 @@
       "admin": "Manage projects, users, and speakers across the system (vendor level)",
       "authority": "Project authority — full access to every function within their project",
       "officer": "Broadcast, schedule, manage MP3, and view project logs",
-      "headVillage": "Head village — large readable UI for mobile, broadcasts instantly"
+      "general": "General user — large readable UI for mobile, broadcasts instantly"
     }
   },
   "login": {
@@ -114,7 +114,7 @@
       "activeProjects": "Active projects",
       "expiringHint": "{count} expiring",
       "totalAccounts": "Total users",
-      "headVillagesHint": "{count} head villages",
+      "generalUsersHint": "{count} general users",
       "speakers": "Speakers",
       "onlineHint": "{count} online"
     },
@@ -129,7 +129,7 @@
     },
     "activity": {
       "newProject": "New project: Bang Saphan Municipality",
-      "newUser": "New user added: Lung Somsak (head village) in project p1",
+      "newUser": "New user added: Lung Somsak (general) in project p1",
       "newSpeakers": "Added 3 new speakers in project p2",
       "expiring": "Project p3 expiring in 24 days",
       "renewed": "Project p2 renewed for 1 year"
@@ -188,7 +188,7 @@
     "infoLine": "id: {id}",
     "stats": {
       "users": "Users",
-      "headVillages": "{count} head villages",
+      "generalUsers": "{count} general users",
       "speakers": "Speakers",
       "online": "{count} online",
       "idle": "{count} idle",
@@ -223,7 +223,7 @@
     "speakersTab": {
       "title": "Project speakers",
       "addSpeaker": "+ Add speaker",
-      "notAssigned": "Not yet assigned to a head village",
+      "notAssigned": "Not yet assigned to a general user",
       "assignedTo": "→ {names}",
       "noAsteriskHint": "Create an Asterisk before adding speakers"
     },
@@ -288,7 +288,7 @@
       "sip": "SIP credentials (admin only)",
       "sipHint": "These credentials are auto-applied when the user broadcasts — the user never sees them.",
       "speakers": "Assign speakers",
-      "speakersHint": "Pick which speakers this head village is responsible for"
+      "speakersHint": "Pick which speakers this user is responsible for"
     },
     "fields": {
       "name": "Full name",
@@ -626,10 +626,10 @@
       "short": "Officer",
       "desc": "Broadcast, schedule, manage MP3 · view project logs"
     },
-    "headVillage": {
-      "name": "Head Village",
-      "short": "Head Village",
-      "desc": "Broadcast to assigned village speakers · mobile-friendly"
+    "general": {
+      "name": "General",
+      "short": "General",
+      "desc": "Broadcast to assigned speakers · mobile-friendly"
     }
   },
   "permissions": {
@@ -644,7 +644,7 @@
     "manageUsers": "Manage project users",
     "manageProjects": "Manage all projects",
     "manageSpeakers": "Create/edit speakers",
-    "assignSpeakers": "Assign speakers to head village"
+    "assignSpeakers": "Assign speakers to general user"
   },
   "projectStatus": {
     "active": "Active",
@@ -655,9 +655,9 @@
     "idle": "Idle",
     "busy": "Busy"
   },
-  "village": {
+  "general": {
     "greeting": "Hello",
-    "fallbackName": "Head Village",
+    "fallbackName": "General user",
     "dateFormat": "{weekday}, {day} {month} {year}",
     "weekdays": [
       "Sunday",
@@ -682,9 +682,9 @@
       "November",
       "December"
     ],
-    "broadcastAll": "Broadcast to all village speakers",
+    "broadcastAll": "Broadcast to all speakers",
     "emergency": "Emergency alert",
-    "mySpeakers": "Your village speakers",
+    "mySpeakers": "Your speakers",
     "noSpeakers": "No speakers assigned to you yet — please contact the administrator",
     "speakerOnline": "Online — ready to broadcast",
     "speakerOffline": "Offline — cannot broadcast",
@@ -698,13 +698,13 @@
       "noSpeakerTitle": "No speakers assigned to you",
       "noSpeakerDetail": "Please contact the administrator",
       "allTitle": "Broadcast to all speakers?",
-      "allDetail": "Your voice will play on all {count} village speakers at once",
+      "allDetail": "Your voice will play on all {count} speakers at once",
       "singleTitle": "Broadcast to {name}?",
       "singleDetail": "Your voice will play on this speaker immediately",
       "templateTitle": "Play \"{name}\"?",
-      "templateDetail": "The system will play the audio file on every village speaker",
+      "templateDetail": "The system will play the audio file on every assigned speaker",
       "emergencyTitle": "Confirm \"{name}\" alert?",
-      "emergencyDetail": "The system will play the alert on every village speaker immediately",
+      "emergencyDetail": "The system will play the alert on every assigned speaker immediately",
       "yes": "Yes, start broadcasting",
       "no": "No, cancel"
     },

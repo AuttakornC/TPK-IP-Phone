@@ -7,8 +7,8 @@ import type { RoleId } from '@/lib/mock';
 const ROLE_FROM_DB = {
   AUTHORITY: 'authority',
   OFFICER: 'officer',
-  HEAD_VILLAGE: 'headVillage',
-} as const satisfies Record<'AUTHORITY' | 'OFFICER' | 'HEAD_VILLAGE', Exclude<RoleId, 'admin'>>;
+  GENERAL: 'general',
+} as const satisfies Record<'AUTHORITY' | 'OFFICER' | 'GENERAL', Exclude<RoleId, 'admin'>>;
 
 async function verifyPassword(supplied: string, hash: string | null): Promise<boolean> {
   if (hash) return bcrypt.compare(supplied, hash);

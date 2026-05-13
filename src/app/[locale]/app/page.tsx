@@ -45,7 +45,7 @@ export default function ControlPanelPage() {
   useEffect(() => {
     const role = getCurrentRole();
     if (role === 'admin') router.replace('/admin/dashboard');
-    else if (role === 'headVillage') router.replace('/village');
+    else if (role === 'general') router.replace('/general');
     const p = getCurrentProject();
     setProject(p);
     if (p) {

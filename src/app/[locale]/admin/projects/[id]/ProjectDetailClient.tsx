@@ -20,7 +20,7 @@ import type { SpeakerRow } from '@/server/actions/speakers';
 const ROLE_BADGE: Record<string, string> = {
   authority: 'bg-red-500/15 text-red-400',
   officer: 'bg-blue-500/15 text-blue-400',
-  headVillage: 'bg-green-500/15 text-green-400',
+  general: 'bg-green-500/15 text-green-400',
 };
 
 const STATUSES: ProjectStatus[] = ['active', 'expiring', 'expired'];
@@ -212,10 +212,10 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
     });
   }
 
-  const headVillages = users.filter(u => u.role === 'headVillage').length;
+  const generalUsers = users.filter(u => u.role === 'general').length;
 
   const infoCards = [
-    { label: t('stats.users'), value: `${users.length}`, hint: t('stats.headVillages', { count: headVillages }) },
+    { label: t('stats.users'), value: `${users.length}`, hint: t('stats.generalUsers', { count: generalUsers }) },
     { label: t('stats.speakers'), value: `${speakers.length}`, hint: t('stats.idle', { count: speakers.filter(s => s.status === 'idle').length }) },
     { label: t('stats.storage'), value: '2.1 GB', hint: t('stats.lastUsed') },
   ];
@@ -301,7 +301,7 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-white">{u.name}</div>
                     <div className="text-xs text-slate-400">@{u.username}</div>
-                    {u.role === 'headVillage' && (
+                    {u.role === 'general' && (
                       <div className="text-xs text-blue-400 mt-1">{t('accountsTab.responsibleFor', { count: u.assignedSpeakerIds.length })}</div>
                     )}
                     {u.credentials && (
@@ -363,7 +363,7 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {speakers.map(s => {
-              const assignedTo = users.filter(u => u.role === 'headVillage' && u.assignedSpeakerIds.includes(s.id));
+              const assignedTo = users.filter(u => u.role === 'general' && u.assignedSpeakerIds.includes(s.id));
               return (
                 <div key={s.id} className="admin-card">
                   <div className="flex items-start justify-between gap-2 mb-2">

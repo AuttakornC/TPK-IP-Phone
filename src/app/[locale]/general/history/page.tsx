@@ -9,14 +9,14 @@ import { getCurrentUser } from '@/lib/role';
 
 const TYPE_ICON: Record<string, string> = { emergency: '🚨', group: '📢', single: '🔊', mp3: '🎵', scheduled: '⏰' };
 
-export default function VillageHistoryPage() {
-  const t = useTranslations('village');
-  const tHistory = useTranslations('village.history');
+export default function GeneralHistoryPage() {
+  const t = useTranslations('general');
+  const tHistory = useTranslations('general.history');
   const [user, setUser] = useState<User | null>(null);
   const [entries, setEntries] = useState<LogEntry[]>([]);
 
   useEffect(() => {
-    const u = getCurrentUser() || USERS.find(x => x.username === DEMO_USER_BY_ROLE.headVillage) || null;
+    const u = getCurrentUser() || USERS.find(x => x.username === DEMO_USER_BY_ROLE.general) || null;
     setUser(u);
     setEntries(u ? LOG_ENTRIES.filter(e => e.userId === u.username) : []);
   }, []);
@@ -63,8 +63,8 @@ export default function VillageHistoryPage() {
       </div>
 
       <nav className="elder-bottombar">
-        <Link href="/village"><span className="ic">🏠</span><span>{t('navHome')}</span></Link>
-        <Link href="/village/history" className="active"><span className="ic">📜</span><span>{t('navHistory')}</span></Link>
+        <Link href="/general"><span className="ic">🏠</span><span>{t('navHome')}</span></Link>
+        <Link href="/general/history" className="active"><span className="ic">📜</span><span>{t('navHistory')}</span></Link>
         <Link href="/"><span className="ic">🚪</span><span>{t('navExit')}</span></Link>
       </nav>
     </div>

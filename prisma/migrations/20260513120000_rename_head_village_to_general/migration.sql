@@ -1,0 +1,2 @@
+-- Rename the HEAD_VILLAGE role enum value to GENERAL.
+ALTER TYPE "role" RENAME VALUE 'HEAD_VILLAGE' TO 'GENERAL';

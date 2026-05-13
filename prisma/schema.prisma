@@ -17,7 +17,7 @@ datasource db {
 enum Role {
   AUTHORITY
   OFFICER
-  HEAD_VILLAGE
+  GENERAL
 
   @@map("role")
 }
@@ -146,7 +146,7 @@ model UserAsterisk {
   @@map("user_asterisks")
 }
 
-// Head-village ↔ speaker assignments (many-to-many).
+// General-user ↔ speaker assignments (many-to-many).
 model SpeakerAssignment {
   userId    String   @map("user_id")
   speakerId String   @map("speaker_id")

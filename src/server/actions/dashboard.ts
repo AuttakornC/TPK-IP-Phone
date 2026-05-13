@@ -15,7 +15,7 @@ export interface DashboardStats {
   activeProjects: number;
   expiringProjects: number;
   totalUsers: number;
-  headVillages: number;
+  generalUsers: number;
   totalSpeakers: number;
   onlineSpeakers: number;
   recentProjects: {
@@ -34,7 +34,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     activeProjects,
     expiringProjects,
     totalUsers,
-    headVillages,
+    generalUsers,
     totalSpeakers,
     onlineSpeakers,
     recent,
@@ -43,7 +43,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     prisma.project.count({ where: { status: 'ACTIVE' } }),
     prisma.project.count({ where: { status: 'EXPIRING' } }),
     prisma.user.count(),
-    prisma.user.count({ where: { role: 'HEAD_VILLAGE' } }),
+    prisma.user.count({ where: { role: 'GENERAL' } }),
     prisma.speaker.count(),
     prisma.speaker.count({ where: { online: true } }),
     prisma.project.findMany({
@@ -60,7 +60,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     activeProjects,
     expiringProjects,
     totalUsers,
-    headVillages,
+    generalUsers,
     totalSpeakers,
     onlineSpeakers,
     recentProjects: recent.map(p => ({

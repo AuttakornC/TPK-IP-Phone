@@ -37,9 +37,9 @@ interface ConfirmDialog {
   target: PendingTarget | null;
 }
 
-export default function VillageHomePage() {
+export default function GeneralHomePage() {
   const router = useRouter();
-  const t = useTranslations('village');
+  const t = useTranslations('general');
   const tEm = useTranslations('emergency.names');
   const tTpl = useTranslations('templates.names');
   const [user, setUser] = useState<User | null>(null);
@@ -48,7 +48,7 @@ export default function VillageHomePage() {
   const [showEmPicker, setShowEmPicker] = useState(false);
 
   useEffect(() => {
-    const u = getCurrentUser() || USERS.find(x => x.username === DEMO_USER_BY_ROLE.headVillage) || null;
+    const u = getCurrentUser() || USERS.find(x => x.username === DEMO_USER_BY_ROLE.general) || null;
     setUser(u);
     setProject(u && u.projectId ? PROJECTS.find(p => p.id === u.projectId) || null : null);
   }, []);
@@ -78,13 +78,13 @@ export default function VillageHomePage() {
       return;
     }
     const target = confirm.target;
-    sessionStorage.setItem('villageCall', JSON.stringify({
+    sessionStorage.setItem('generalCall', JSON.stringify({
       kind: target.kind,
       emergencyId: target.emergency ? target.emergency.id : null,
       templateId: target.template ? target.template.id : null,
       speakerIds: (target.speakers || []).map(s => s.id),
     }));
-    router.push('/village/call');
+    router.push('/general/call');
   }
 
   return (
@@ -185,8 +185,8 @@ export default function VillageHomePage() {
       </div>
 
       <nav className="elder-bottombar">
-        <Link href="/village" className="active"><span className="ic">🏠</span><span>{t('navHome')}</span></Link>
-        <Link href="/village/history"><span className="ic">📜</span><span>{t('navHistory')}</span></Link>
+        <Link href="/general" className="active"><span className="ic">🏠</span><span>{t('navHome')}</span></Link>
+        <Link href="/general/history"><span className="ic">📜</span><span>{t('navHistory')}</span></Link>
         <Link href="/"><span className="ic">🚪</span><span>{t('navExit')}</span></Link>
       </nav>
 

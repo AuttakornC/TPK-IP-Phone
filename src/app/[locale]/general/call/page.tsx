@@ -6,9 +6,9 @@ import { Link, useRouter } from '@/i18n/navigation';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import { EMERGENCIES, SPEAKERS, TEMPLATES, type Emergency, type Speaker, type Template } from '@/lib/mock';
 
-export default function VillageCallPage() {
+export default function GeneralCallPage() {
   const router = useRouter();
-  const t = useTranslations('village.call');
+  const t = useTranslations('general.call');
   const tEm = useTranslations('emergency.names');
   const tTpl = useTranslations('templates.names');
   const [data, setData] = useState<{ kind: string; emergencyId?: string | null; templateId?: string | null; speakerIds?: string[] } | null>(null);
@@ -18,20 +18,20 @@ export default function VillageCallPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem('villageCall');
+    const raw = sessionStorage.getItem('generalCall');
     if (!raw) {
-      router.replace('/village');
+      router.replace('/general');
       return;
     }
     try {
       const parsed = JSON.parse(raw);
       if (!parsed.kind) {
-        router.replace('/village');
+        router.replace('/general');
         return;
       }
       setData(parsed);
     } catch {
-      router.replace('/village');
+      router.replace('/general');
       return;
     }
 
@@ -51,8 +51,8 @@ export default function VillageCallPage() {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = null;
     setDone(true);
-    sessionStorage.removeItem('villageCall');
-    setTimeout(() => router.push('/village'), 4000);
+    sessionStorage.removeItem('generalCall');
+    setTimeout(() => router.push('/general'), 4000);
   }
 
   if (!data) return null;
@@ -101,7 +101,7 @@ export default function VillageCallPage() {
             </div>
           </div>
           <div style={{ padding: '0 20px 28px' }}>
-            <Link href="/village" className="btn-elder-hangup" style={{ textDecoration: 'none', color: '#15803d' }}>
+            <Link href="/general" className="btn-elder-hangup" style={{ textDecoration: 'none', color: '#15803d' }}>
               <span style={{ fontSize: 32 }}>🏠</span>
               <span>{t('backHome')}</span>
             </Link>

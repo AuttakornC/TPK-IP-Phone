@@ -9,14 +9,14 @@ import type { RoleId } from '@/lib/mock';
 const DB_ROLE = {
   authority: 'AUTHORITY',
   officer: 'OFFICER',
-  headVillage: 'HEAD_VILLAGE',
-} as const satisfies Record<Exclude<RoleId, 'admin'>, 'AUTHORITY' | 'OFFICER' | 'HEAD_VILLAGE'>;
+  general: 'GENERAL',
+} as const satisfies Record<Exclude<RoleId, 'admin'>, 'AUTHORITY' | 'OFFICER' | 'GENERAL'>;
 
 const ROLE_FROM_DB = {
   AUTHORITY: 'authority',
   OFFICER: 'officer',
-  HEAD_VILLAGE: 'headVillage',
-} as const satisfies Record<'AUTHORITY' | 'OFFICER' | 'HEAD_VILLAGE', Exclude<RoleId, 'admin'>>;
+  GENERAL: 'general',
+} as const satisfies Record<'AUTHORITY' | 'OFFICER' | 'GENERAL', Exclude<RoleId, 'admin'>>;
 
 export interface ProjectUserRow {
   id: string;
@@ -120,7 +120,7 @@ export async function createUserWithAsterisk(input: {
         password,
       },
     });
-    if (input.role === 'headVillage' && input.assignedSpeakerIds.length > 0) {
+    if (input.role === 'general' && input.assignedSpeakerIds.length > 0) {
       await tx.speakerAssignment.createMany({
         data: input.assignedSpeakerIds.map(speakerId => ({
           userId: user.id,
@@ -213,7 +213,7 @@ export async function updateUser(input: {
       });
     }
     await tx.speakerAssignment.deleteMany({ where: { userId: input.id } });
-    if (input.role === 'headVillage' && input.assignedSpeakerIds.length > 0) {
+    if (input.role === 'general' && input.assignedSpeakerIds.length > 0) {
       await tx.speakerAssignment.createMany({
         data: input.assignedSpeakerIds.map(speakerId => ({ userId: input.id, speakerId })),
         skipDuplicates: true,

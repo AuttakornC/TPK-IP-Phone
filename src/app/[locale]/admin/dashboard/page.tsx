@@ -30,7 +30,7 @@ export default async function AdminDashboardPage() {
     {
       label: t('stats.totalAccounts'),
       value: String(stats.totalUsers),
-      hint: t('stats.headVillagesHint', { count: stats.headVillages }),
+      hint: t('stats.generalUsersHint', { count: stats.generalUsers }),
       color: '#34d399',
     },
     {

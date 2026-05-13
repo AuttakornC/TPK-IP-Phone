@@ -39,7 +39,7 @@ export function landingForRole(role: RoleId): string {
     admin: '/admin/dashboard',
     authority: '/app',
     officer: '/app',
-    headVillage: '/village',
+    general: '/general',
   };
   return map[role] || '/';
 }

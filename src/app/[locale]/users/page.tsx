@@ -56,7 +56,7 @@ export default function UsersPage() {
     const u = getCurrentUser();
     setMe(u);
     if (u && u.role !== 'admin') {
-      router.replace(u.role === 'headVillage' ? '/village' : '/app');
+      router.replace(u.role === 'general' ? '/general' : '/app');
     }
   }, [router]);
 
@@ -115,7 +115,7 @@ export default function UsersPage() {
                   <th className="px-3 py-3 text-center font-semibold">{tRoles('admin.name')}</th>
                   <th className="px-3 py-3 text-center font-semibold">{tRoles('authority.name')}</th>
                   <th className="px-3 py-3 text-center font-semibold">{tRoles('officer.name')}</th>
-                  <th className="px-3 py-3 text-center font-semibold">{tRoles('headVillage.name')}</th>
+                  <th className="px-3 py-3 text-center font-semibold">{tRoles('general.name')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -127,7 +127,7 @@ export default function UsersPage() {
                       <Cmark yes={row.admin} />
                       <Cmark yes={row.authority} />
                       <Cmark yes={row.officer} />
-                      <Cmark yes={row.headVillage} />
+                      <Cmark yes={row.general} />
                     </tr>
                   );
                 })}

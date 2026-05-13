@@ -124,7 +124,7 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
         ext: cleanExt,
         password: cleanPassword,
         loginPassword: cleanLoginPassword,
-        assignedSpeakerIds: role === 'headVillage' ? assignedSpeakers : [],
+        assignedSpeakerIds: role === 'general' ? assignedSpeakers : [],
       });
       if (!result.ok) {
         const key = ERROR_KEY[result.error];
@@ -186,7 +186,7 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
                 >
                   <option value="authority">{tRoles('authority.name')}</option>
                   <option value="officer">{tRoles('officer.name')}</option>
-                  <option value="headVillage">{tRoles('headVillage.name')}</option>
+                  <option value="general">{tRoles('general.name')}</option>
                 </select>
               </div>
             </div>
@@ -284,7 +284,7 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
           </fieldset>
 
           {/* Speaker assignments — head village only */}
-          {role === 'headVillage' && speakers.length > 0 && (
+          {role === 'general' && speakers.length > 0 && (
             <fieldset className="space-y-2 border-t border-slate-200 pt-4">
               <legend className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('section.speakers')}</legend>
               <p className="text-xs text-slate-500">{t('section.speakersHint')}</p>

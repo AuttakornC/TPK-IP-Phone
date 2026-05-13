@@ -41,7 +41,7 @@ export default function PresetsPage() {
   useEffect(() => {
     const role = getCurrentRole();
     if (role === 'admin') { router.replace('/admin/dashboard'); return; }
-    if (role === 'headVillage') { router.replace('/village'); return; }
+    if (role === 'general') { router.replace('/general'); return; }
     const u = getCurrentUser();
     const pid = u?.projectId ?? null;
     setProjectId(pid);

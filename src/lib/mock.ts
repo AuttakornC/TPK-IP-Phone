@@ -1,7 +1,7 @@
 // Mock data — placeholder Thai municipality scenario (v2: multi-tenant SaaS)
 // Throwaway data for client demo. No real speakers, users, or logs.
 
-export type RoleId = 'admin' | 'authority' | 'officer' | 'headVillage';
+export type RoleId = 'admin' | 'authority' | 'officer' | 'general';
 export type ProjectStatus = 'active' | 'expiring' | 'expired';
 export type LogType = 'emergency' | 'group' | 'single' | 'scheduled' | 'mp3';
 
@@ -81,7 +81,7 @@ export interface PermissionRow {
   admin: boolean;
   authority: boolean;
   officer: boolean;
-  headVillage: boolean;
+  general: boolean;
 }
 
 export interface LogEntry {
@@ -192,12 +192,12 @@ export const USERS: User[] = [
 
   { name: 'นายสมพงษ์ จันทร์ประดิษฐ์', role: 'authority', projectId: 'p1', username: 'somphong', active: true, last: '2026-05-07 14:30', assignedSpeakers: [] },
   { name: 'นายสมชาย วงศ์สวัสดิ์', role: 'officer', projectId: 'p1', username: 'somchai', active: true, last: '2026-05-07 13:15', assignedSpeakers: [] },
-  { name: 'ลุงมานิตย์ มั่นใจ', role: 'headVillage', projectId: 'p1', username: 'manit', active: true, last: '2026-05-07 09:45', assignedSpeakers: ['sp04','sp05','sp06'] },
-  { name: 'ลุงสมศักดิ์ รักดี', role: 'headVillage', projectId: 'p1', username: 'somsak', active: true, last: '2026-05-06 11:20', assignedSpeakers: ['sp07','sp08','sp09','sp10'] },
+  { name: 'ลุงมานิตย์ มั่นใจ', role: 'general', projectId: 'p1', username: 'manit', active: true, last: '2026-05-07 09:45', assignedSpeakers: ['sp04','sp05','sp06'] },
+  { name: 'ลุงสมศักดิ์ รักดี', role: 'general', projectId: 'p1', username: 'somsak', active: true, last: '2026-05-06 11:20', assignedSpeakers: ['sp07','sp08','sp09','sp10'] },
 
   { name: 'นางสุดา รักไทย', role: 'authority', projectId: 'p2', username: 'suda', active: true, last: '2026-05-07 10:00', assignedSpeakers: [] },
   { name: 'นายปกครอง สุขใจ', role: 'officer', projectId: 'p2', username: 'pokkrong', active: true, last: '2026-05-06 14:30', assignedSpeakers: [] },
-  { name: 'ลุงเสถียร ดีงาม', role: 'headVillage', projectId: 'p2', username: 'sathian', active: true, last: '2026-05-07 08:30', assignedSpeakers: ['sp19','sp20'] },
+  { name: 'ลุงเสถียร ดีงาม', role: 'general', projectId: 'p2', username: 'sathian', active: true, last: '2026-05-07 08:30', assignedSpeakers: ['sp19','sp20'] },
 
   { name: 'นายกฤษณะ พงษ์ไทย', role: 'authority', projectId: 'p3', username: 'kritsana', active: true, last: '2026-05-05 11:00', assignedSpeakers: [] },
   { name: 'นางสาวพิมพ์ แสนดี', role: 'officer', projectId: 'p3', username: 'pim', active: true, last: '2026-05-04 09:30', assignedSpeakers: [] },
@@ -207,7 +207,7 @@ export const DEMO_USER_BY_ROLE: Record<RoleId, string> = {
   admin: 'admin',
   authority: 'somphong',
   officer: 'somchai',
-  headVillage: 'manit',
+  general: 'manit',
 };
 
 // ============= USER ASTERISKS =============
@@ -230,24 +230,24 @@ export const ROLES: Role[] = [
   { id: 'admin', name: 'ผู้ดูแลระบบ', short: 'Admin', desc: 'จัดการโครงการ ผู้ใช้ และจุดประกาศทั้งหมด · ระดับ vendor', color: 'slate' },
   { id: 'authority', name: 'ผู้บริหาร', short: 'Authority', desc: 'ผู้บริหารโครงการ — ใช้ได้ทุกฟังก์ชันในโครงการของตน', color: 'red' },
   { id: 'officer', name: 'เจ้าหน้าที่', short: 'Officer', desc: 'ประกาศ ตั้งเวลา จัดการ MP3 · ดู log ของโครงการ', color: 'blue' },
-  { id: 'headVillage', name: 'ผู้ใหญ่บ้าน', short: 'Head Village', desc: 'ประกาศไปยังลำโพงในหมู่บ้านที่รับผิดชอบ · ใช้บนมือถือ', color: 'green' },
+  { id: 'general', name: 'ทั่วไป', short: 'General', desc: 'ประกาศไปยังลำโพงที่รับผิดชอบ · ใช้บนมือถือ', color: 'green' },
 ];
 
 export const ROLE_LABEL: Record<RoleId, Role> = Object.fromEntries(ROLES.map(r => [r.id, r])) as Record<RoleId, Role>;
 
 export const PERMISSION_MATRIX: PermissionRow[] = [
-  { perm: 'ประกาศจุดเดียว', admin: false, authority: true, officer: true, headVillage: true },
-  { perm: 'ประกาศกลุ่ม / หลายจุด', admin: false, authority: true, officer: true, headVillage: true },
-  { perm: 'เตือนภัยพิบัติ', admin: false, authority: true, officer: true, headVillage: true },
-  { perm: 'ใช้ template', admin: false, authority: true, officer: true, headVillage: true },
-  { perm: 'อัปโหลด MP3', admin: false, authority: true, officer: true, headVillage: false },
-  { perm: 'ตั้งเวลาประกาศ', admin: false, authority: true, officer: true, headVillage: false },
-  { perm: 'ดู log ของโครงการ', admin: true, authority: true, officer: true, headVillage: false },
-  { perm: 'ดู log ของตัวเอง', admin: true, authority: true, officer: true, headVillage: true },
-  { perm: 'จัดการผู้ใช้ในโครงการ', admin: true, authority: false, officer: false, headVillage: false },
-  { perm: 'จัดการโครงการทั้งหมด', admin: true, authority: false, officer: false, headVillage: false },
-  { perm: 'สร้าง/แก้ไขจุดประกาศ', admin: true, authority: false, officer: false, headVillage: false },
-  { perm: 'Assign จุดให้ผู้ใหญ่บ้าน', admin: true, authority: false, officer: false, headVillage: false },
+  { perm: 'ประกาศจุดเดียว', admin: false, authority: true, officer: true, general: true },
+  { perm: 'ประกาศกลุ่ม / หลายจุด', admin: false, authority: true, officer: true, general: true },
+  { perm: 'เตือนภัยพิบัติ', admin: false, authority: true, officer: true, general: true },
+  { perm: 'ใช้ template', admin: false, authority: true, officer: true, general: true },
+  { perm: 'อัปโหลด MP3', admin: false, authority: true, officer: true, general: false },
+  { perm: 'ตั้งเวลาประกาศ', admin: false, authority: true, officer: true, general: false },
+  { perm: 'ดู log ของโครงการ', admin: true, authority: true, officer: true, general: false },
+  { perm: 'ดู log ของตัวเอง', admin: true, authority: true, officer: true, general: true },
+  { perm: 'จัดการผู้ใช้ในโครงการ', admin: true, authority: false, officer: false, general: false },
+  { perm: 'จัดการโครงการทั้งหมด', admin: true, authority: false, officer: false, general: false },
+  { perm: 'สร้าง/แก้ไขจุดประกาศ', admin: true, authority: false, officer: false, general: false },
+  { perm: 'Assign จุดให้ผู้ใช้ทั่วไป', admin: true, authority: false, officer: false, general: false },
 ];
 
 // ============= LOGS =============

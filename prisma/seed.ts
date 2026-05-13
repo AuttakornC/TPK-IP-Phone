@@ -30,8 +30,8 @@ const PROJECT_STATUS_MAP = {
 const ROLE_MAP = {
   authority: 'AUTHORITY',
   officer: 'OFFICER',
-  headVillage: 'HEAD_VILLAGE',
-} as const satisfies Record<Exclude<RoleId, 'admin'>, 'AUTHORITY' | 'OFFICER' | 'HEAD_VILLAGE'>;
+  general: 'GENERAL',
+} as const satisfies Record<Exclude<RoleId, 'admin'>, 'AUTHORITY' | 'OFFICER' | 'GENERAL'>;
 
 const LOG_TYPE_MAP = {
   emergency: 'EMERGENCY',
@@ -193,7 +193,7 @@ async function main() {
   }
   console.log(`  ✓ ${USER_ASTERISKS.length} user asterisks (SIP credentials)`);
 
-  // ----- Speaker assignments (head-village ↔ speakers) -----
+  // ----- Speaker assignments (general user ↔ speakers) -----
   let assignmentCount = 0;
   for (const u of projectUsers) {
     for (const speakerId of u.assignedSpeakers) {
