@@ -167,7 +167,7 @@
     "unsuspend": "Reactivate",
     "suspendConfirm": "Suspend project \"{name}\"?",
     "unsuspendConfirm": "Reactivate project \"{name}\"?",
-    "infoLine": "id: {id} · contact: {contact} ({phone}) · contract {start} → {end}",
+    "infoLine": "id: {id}",
     "stats": {
       "users": "Users",
       "headVillages": "{count} head villages",
@@ -314,8 +314,14 @@
   "playMode": {
     "label": "Play mode",
     "modes": {
-      "mp3": { "label": "MP3 only", "desc": "Play the MP3 file and stop. Mic stays closed." },
-      "mp3-then-mic": { "label": "MP3 intro + live mic", "desc": "Play the MP3 as an intro, then open the mic for live talk." }
+      "mp3": {
+        "label": "MP3 only",
+        "desc": "Play the MP3 file and stop. Mic stays closed."
+      },
+      "mp3-then-mic": {
+        "label": "MP3 intro + live mic",
+        "desc": "Play the MP3 as an intro, then open the mic for live talk."
+      }
     }
   },
   "emergency": {
@@ -598,8 +604,29 @@
     "greeting": "Hello",
     "fallbackName": "Head Village",
     "dateFormat": "{weekday}, {day} {month} {year}",
-    "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "weekdays": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
     "broadcastAll": "Broadcast to all village speakers",
     "emergency": "Emergency alert",
     "mySpeakers": "Your village speakers",
