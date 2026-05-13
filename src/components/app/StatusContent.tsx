@@ -16,7 +16,6 @@ export default function StatusContent({ projectId = null }: Props = {}) {
   const t = useTranslations('statusPage');
   const tCommon = useTranslations('common');
   const tIssues = useTranslations('recentIssues');
-  const tZones = useTranslations('zones.labels');
   const tUptime = useTranslations('systemUptime');
   const tSpeakers = useTranslations('speakers');
 
@@ -109,7 +108,7 @@ export default function StatusContent({ projectId = null }: Props = {}) {
               <span className={`w-2 h-2 rounded-full ${s.online ? 'bg-green-500' : 'bg-red-500'}`} />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-slate-900 truncate">{s.name}</div>
-                <div className="text-xs text-slate-500">{t('speakerExt', { ext: s.ext, zone: tZones(s.zone) })}</div>
+                <div className="text-xs text-slate-500">{t('speakerExt', { ext: s.ext, zone: s.area })}</div>
               </div>
               <span className={`text-xs font-medium ${s.online ? 'text-green-700' : 'text-red-700'}`}>{s.online ? tCommon('online') : tCommon('offline')}</span>
             </div>

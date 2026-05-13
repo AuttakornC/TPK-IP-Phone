@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
 import {
+  ASTERISKS,
   EMERGENCIES,
   LOG_ENTRIES,
   MP3_FILES,
@@ -11,6 +12,7 @@ import {
   SPEAKERS,
   TEMPLATES,
   USERS,
+  USER_ASTERISKS,
   type LogType,
   type ProjectStatus,
   type RoleId,
@@ -69,7 +71,9 @@ async function main() {
   await prisma.schedule.deleteMany();
   await prisma.mp3File.deleteMany();
   await prisma.speakerAssignment.deleteMany();
+  await prisma.userAsterisk.deleteMany();
   await prisma.speaker.deleteMany();
+  await prisma.asterisk.deleteMany();
   await prisma.user.deleteMany();
   await prisma.admin.deleteMany();
   await prisma.project.deleteMany();
@@ -145,12 +149,26 @@ async function main() {
   }
   console.log(`  ✓ 1 admin + ${projectUsers.length} users`);
 
+  // ----- Asterisks (must precede speakers + user_asterisks — FK target) -----
+  for (const a of ASTERISKS) {
+    await prisma.asterisk.create({
+      data: {
+        id: a.id,
+        name: a.name,
+        domain: a.domain,
+        active: a.active,
+      },
+    });
+  }
+  console.log(`  ✓ ${ASTERISKS.length} asterisks`);
+
   // ----- Speakers -----
   for (const s of SPEAKERS) {
     await prisma.speaker.create({
       data: {
         id: s.id,
         projectId: s.projectId,
+        asteriskId: s.asteriskId,
         name: s.name,
         ext: s.ext,
         area: s.area,
@@ -161,6 +179,19 @@ async function main() {
     });
   }
   console.log(`  ✓ ${SPEAKERS.length} speakers`);
+
+  // ----- User asterisks (SIP credentials, 1–1 with project users) -----
+  for (const ua of USER_ASTERISKS) {
+    await prisma.userAsterisk.create({
+      data: {
+        userId: ua.userId,
+        asteriskId: ua.asteriskId,
+        ext: ua.ext,
+        password: ua.password,
+      },
+    });
+  }
+  console.log(`  ✓ ${USER_ASTERISKS.length} user asterisks (SIP credentials)`);
 
   // ----- Speaker assignments (head-village ↔ speakers) -----
   let assignmentCount = 0;

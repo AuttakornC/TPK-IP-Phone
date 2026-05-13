@@ -1,18 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Link, usePathname } from '@/i18n/navigation';
-import { USERS, type User } from '@/lib/mock';
-import { getCurrentUser } from '@/lib/role';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
-const NAV: { href: string; key: 'dashboard' | 'projects' | 'speakers' | 'accounts' | 'status'; match: string }[] = [
+const NAV: { href: string; key: 'dashboard' | 'projects' | 'asterisks' | 'status'; match: string }[] = [
   { href: '/admin/dashboard', key: 'dashboard', match: '/admin/dashboard' },
   { href: '/admin/projects', key: 'projects', match: '/admin/projects' },
-  { href: '/admin/speakers', key: 'speakers', match: '/admin/speakers' },
-  { href: '/admin/accounts', key: 'accounts', match: '/admin/accounts' },
+  { href: '/admin/asterisks', key: 'asterisks', match: '/admin/asterisks' },
   { href: '/admin/status', key: 'status', match: '/admin/status' },
 ];
 
@@ -20,12 +17,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const t = useTranslations('adminShell');
   const tCommon = useTranslations('common');
-  const [me, setMe] = useState<User | null>(null);
-
-  useEffect(() => {
-    const u = getCurrentUser() || USERS.find(x => x.role === 'admin') || null;
-    setMe(u);
-  }, []);
+  const { data: session } = useSession();
+  const me = session?.user;
 
   return (
     <div className="admin-body">

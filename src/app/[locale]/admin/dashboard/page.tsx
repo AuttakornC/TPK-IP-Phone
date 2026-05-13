@@ -1,11 +1,10 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import AdminShell from '@/components/AdminShell';
 import StatCard from '@/components/ui/StatCard';
 import StatusPill from '@/components/ui/StatusPill';
-import { PROJECTS, SPEAKERS, USERS } from '@/lib/mock';
+import { requireAdmin } from '@/server/auth';
+import { getDashboardStats } from '@/server/actions/dashboard';
 
 const ACTIVITY = [
   { t: '2026-05-07 14:00', icon: '✨', key: 'newProject' },
@@ -15,20 +14,31 @@ const ACTIVITY = [
   { t: '2026-05-03 12:00', icon: '📝', key: 'renewed' },
 ] as const;
 
-export default function AdminDashboardPage() {
-  const t = useTranslations('adminDashboard');
-  const tCommon = useTranslations('common');
-  const totalAccounts = USERS.filter(u => u.role !== 'admin').length;
-  const headVillages = USERS.filter(u => u.role === 'headVillage').length;
-  const totalSpeakers = SPEAKERS.length;
-  const onlineSpeakers = SPEAKERS.filter(s => s.online).length;
-  const activeProjects = PROJECTS.filter(p => p.status === 'active').length;
-  const expiring = PROJECTS.filter(p => p.status === 'expiring').length;
+export default async function AdminDashboardPage() {
+  await requireAdmin();
+  const t = await getTranslations('adminDashboard');
+  const tCommon = await getTranslations('common');
+  const stats = await getDashboardStats();
 
-  const stats = [
-    { label: t('stats.activeProjects'), value: `${activeProjects} / ${PROJECTS.length}`, hint: t('stats.expiringHint', { count: expiring }), color: '#60a5fa' },
-    { label: t('stats.totalAccounts'), value: String(totalAccounts), hint: t('stats.headVillagesHint', { count: headVillages }), color: '#34d399' },
-    { label: t('stats.speakers'), value: String(totalSpeakers), hint: t('stats.onlineHint', { count: onlineSpeakers }), color: '#fbbf24' },
+  const cards = [
+    {
+      label: t('stats.activeProjects'),
+      value: `${stats.activeProjects} / ${stats.totalProjects}`,
+      hint: t('stats.expiringHint', { count: stats.expiringProjects }),
+      color: '#60a5fa',
+    },
+    {
+      label: t('stats.totalAccounts'),
+      value: String(stats.totalUsers),
+      hint: t('stats.headVillagesHint', { count: stats.headVillages }),
+      color: '#34d399',
+    },
+    {
+      label: t('stats.speakers'),
+      value: String(stats.totalSpeakers),
+      hint: t('stats.onlineHint', { count: stats.onlineSpeakers }),
+      color: '#fbbf24',
+    },
   ];
 
   return (
@@ -42,8 +52,8 @@ export default function AdminDashboardPage() {
       </div>
 
       <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-        {stats.map(s => (
-          <StatCard key={s.label} variant="admin" label={s.label} value={s.value} hint={s.hint} accent={s.color} />
+        {cards.map(c => (
+          <StatCard key={c.label} variant="admin" label={c.label} value={c.value} hint={c.hint} accent={c.color} />
         ))}
       </section>
 
@@ -78,20 +88,16 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {PROJECTS.map(p => {
-                const accounts = USERS.filter(u => u.projectId === p.id).length;
-                const speakers = SPEAKERS.filter(s => s.projectId === p.id).length;
-                return (
-                  <tr key={p.id} className="border-t border-white/5">
-                    <td className="px-3 py-3">
-                      <Link href={`/admin/projects/${p.id}`} className="text-blue-400 hover:underline font-medium">{p.name}</Link>
-                    </td>
-                    <td className="px-3 py-3"><StatusPill status={p.status} /></td>
-                    <td className="px-3 py-3 font-mono">{accounts}</td>
-                    <td className="px-3 py-3 font-mono">{speakers}</td>
-                  </tr>
-                );
-              })}
+              {stats.recentProjects.map(p => (
+                <tr key={p.id} className="border-t border-white/5">
+                  <td className="px-3 py-3">
+                    <Link href={`/admin/projects/${p.id}`} className="text-blue-400 hover:underline font-medium">{p.name}</Link>
+                  </td>
+                  <td className="px-3 py-3"><StatusPill status={p.status} /></td>
+                  <td className="px-3 py-3 font-mono">{p.userCount}</td>
+                  <td className="px-3 py-3 font-mono">{p.speakerCount}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

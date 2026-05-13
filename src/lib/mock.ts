@@ -22,6 +22,24 @@ export interface Speaker {
   status: SpeakerStatus;
   volume: number;
   projectId: string;
+  asteriskId: string;
+}
+
+export interface Asterisk {
+  id: string;
+  name: string;
+  domain: string;
+  active: boolean;
+}
+
+// SIP credentials for a project user (1–1 with User). Plaintext on purpose —
+// admin reads/edits these directly so they can be auto-supplied when the user
+// broadcasts through their assigned Asterisk.
+export interface UserAsterisk {
+  userId: string;
+  asteriskId: string;
+  ext: string;
+  password: string;
 }
 
 export interface Emergency {
@@ -104,40 +122,47 @@ export const PROJECTS: Project[] = [
   { id: 'p4', name: 'อบต.ดอนแก้ว (เก่า)', status: 'expired' },
 ];
 
+// ============= ASTERISKS =============
+// Vendor-managed PBX domains. Global — every speaker registers to one.
+export const ASTERISKS: Asterisk[] = [
+  { id: 'as1', name: 'Asterisk หลัก', domain: 'sip.tpk-pa.local', active: true },
+  { id: 'as2', name: 'Asterisk สำรอง', domain: 'sip-backup.tpk-pa.local', active: true },
+];
+
 // ============= SPEAKERS =============
 export const SPEAKERS: Speaker[] = [
   // Project p1
-  { id: 'sp01', name: 'ศาลาประชาคม', ext: '1001', area: 'หมู่ 1', online: true, status: 'idle', volume: 80, projectId: 'p1' },
-  { id: 'sp02', name: 'ที่ทำการเทศบาล', ext: '1002', area: 'หมู่ 1', online: true, status: 'idle', volume: 75, projectId: 'p1' },
-  { id: 'sp03', name: 'ตลาดสดเทศบาล', ext: '1003', area: 'หมู่ 1', online: true, status: 'idle', volume: 90, projectId: 'p1' },
-  { id: 'sp04', name: 'โรงเรียนเทศบาล 1', ext: '2001', area: 'หมู่ 2', online: true, status: 'idle', volume: 70, projectId: 'p1' },
-  { id: 'sp05', name: 'วัดเหนือ', ext: '2002', area: 'หมู่ 2', online: false, status: 'idle', volume: 60, projectId: 'p1' },
-  { id: 'sp06', name: 'รพ.สต. หมู่ 3', ext: '2003', area: 'หมู่ 3', online: true, status: 'idle', volume: 75, projectId: 'p1' },
-  { id: 'sp07', name: 'สวนสาธารณะ', ext: '3001', area: 'หมู่ 4', online: true, status: 'idle', volume: 80, projectId: 'p1' },
-  { id: 'sp08', name: 'สนามกีฬาเทศบาล', ext: '3002', area: 'หมู่ 4', online: true, status: 'idle', volume: 85, projectId: 'p1' },
-  { id: 'sp09', name: 'แยกไฟแดง', ext: '3003', area: 'หมู่ 5', online: true, status: 'idle', volume: 95, projectId: 'p1' },
-  { id: 'sp10', name: 'วัดใต้', ext: '3004', area: 'หมู่ 5', online: true, status: 'idle', volume: 60, projectId: 'p1' },
-  { id: 'sp11', name: 'โรงเรียนเทศบาล 2', ext: '4001', area: 'หมู่ 6', online: true, status: 'idle', volume: 75, projectId: 'p1' },
-  { id: 'sp12', name: 'หอนาฬิกาประจำตำบล', ext: '4002', area: 'หมู่ 6', online: false, status: 'idle', volume: 80, projectId: 'p1' },
-  { id: 'sp13', name: 'ตลาดนัดวันพุธ', ext: '5001', area: 'หมู่ 7', online: true, status: 'idle', volume: 90, projectId: 'p1' },
-  { id: 'sp14', name: 'ทางเข้าหมู่บ้าน', ext: '5002', area: 'หมู่ 8', online: true, status: 'idle', volume: 80, projectId: 'p1' },
+  { id: 'sp01', name: 'ศาลาประชาคม', ext: '1001', area: 'หมู่ 1', online: true, status: 'idle', volume: 80, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp02', name: 'ที่ทำการเทศบาล', ext: '1002', area: 'หมู่ 1', online: true, status: 'idle', volume: 75, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp03', name: 'ตลาดสดเทศบาล', ext: '1003', area: 'หมู่ 1', online: true, status: 'idle', volume: 90, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp04', name: 'โรงเรียนเทศบาล 1', ext: '2001', area: 'หมู่ 2', online: true, status: 'idle', volume: 70, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp05', name: 'วัดเหนือ', ext: '2002', area: 'หมู่ 2', online: false, status: 'idle', volume: 60, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp06', name: 'รพ.สต. หมู่ 3', ext: '2003', area: 'หมู่ 3', online: true, status: 'idle', volume: 75, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp07', name: 'สวนสาธารณะ', ext: '3001', area: 'หมู่ 4', online: true, status: 'idle', volume: 80, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp08', name: 'สนามกีฬาเทศบาล', ext: '3002', area: 'หมู่ 4', online: true, status: 'idle', volume: 85, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp09', name: 'แยกไฟแดง', ext: '3003', area: 'หมู่ 5', online: true, status: 'idle', volume: 95, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp10', name: 'วัดใต้', ext: '3004', area: 'หมู่ 5', online: true, status: 'idle', volume: 60, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp11', name: 'โรงเรียนเทศบาล 2', ext: '4001', area: 'หมู่ 6', online: true, status: 'idle', volume: 75, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp12', name: 'หอนาฬิกาประจำตำบล', ext: '4002', area: 'หมู่ 6', online: false, status: 'idle', volume: 80, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp13', name: 'ตลาดนัดวันพุธ', ext: '5001', area: 'หมู่ 7', online: true, status: 'idle', volume: 90, projectId: 'p1', asteriskId: 'as1' },
+  { id: 'sp14', name: 'ทางเข้าหมู่บ้าน', ext: '5002', area: 'หมู่ 8', online: true, status: 'idle', volume: 80, projectId: 'p1', asteriskId: 'as1' },
 
   // Project p2
-  { id: 'sp15', name: 'ที่ทำการ อบต.', ext: '1101', area: 'หมู่ 1', online: true, status: 'idle', volume: 80, projectId: 'p2' },
-  { id: 'sp16', name: 'วัดห้วยกระเจา', ext: '1102', area: 'หมู่ 1', online: true, status: 'idle', volume: 75, projectId: 'p2' },
-  { id: 'sp17', name: 'โรงเรียนห้วยกระเจา', ext: '1103', area: 'หมู่ 2', online: true, status: 'idle', volume: 70, projectId: 'p2' },
-  { id: 'sp18', name: 'รพ.สต. ห้วยกระเจา', ext: '1104', area: 'หมู่ 2', online: true, status: 'idle', volume: 80, projectId: 'p2' },
-  { id: 'sp19', name: 'ลานเอนกประสงค์', ext: '1105', area: 'หมู่ 3', online: true, status: 'idle', volume: 85, projectId: 'p2' },
-  { id: 'sp20', name: 'ทางเข้าตำบล', ext: '1106', area: 'หมู่ 3', online: true, status: 'idle', volume: 90, projectId: 'p2' },
-  { id: 'sp21', name: 'ตลาดเช้า', ext: '1107', area: 'หมู่ 4', online: false, status: 'idle', volume: 75, projectId: 'p2' },
-  { id: 'sp22', name: 'ศูนย์เด็กเล็ก', ext: '1108', area: 'หมู่ 4', online: true, status: 'idle', volume: 65, projectId: 'p2' },
+  { id: 'sp15', name: 'ที่ทำการ อบต.', ext: '1101', area: 'หมู่ 1', online: true, status: 'idle', volume: 80, projectId: 'p2', asteriskId: 'as1' },
+  { id: 'sp16', name: 'วัดห้วยกระเจา', ext: '1102', area: 'หมู่ 1', online: true, status: 'idle', volume: 75, projectId: 'p2', asteriskId: 'as1' },
+  { id: 'sp17', name: 'โรงเรียนห้วยกระเจา', ext: '1103', area: 'หมู่ 2', online: true, status: 'idle', volume: 70, projectId: 'p2', asteriskId: 'as1' },
+  { id: 'sp18', name: 'รพ.สต. ห้วยกระเจา', ext: '1104', area: 'หมู่ 2', online: true, status: 'idle', volume: 80, projectId: 'p2', asteriskId: 'as1' },
+  { id: 'sp19', name: 'ลานเอนกประสงค์', ext: '1105', area: 'หมู่ 3', online: true, status: 'idle', volume: 85, projectId: 'p2', asteriskId: 'as1' },
+  { id: 'sp20', name: 'ทางเข้าตำบล', ext: '1106', area: 'หมู่ 3', online: true, status: 'idle', volume: 90, projectId: 'p2', asteriskId: 'as1' },
+  { id: 'sp21', name: 'ตลาดเช้า', ext: '1107', area: 'หมู่ 4', online: false, status: 'idle', volume: 75, projectId: 'p2', asteriskId: 'as1' },
+  { id: 'sp22', name: 'ศูนย์เด็กเล็ก', ext: '1108', area: 'หมู่ 4', online: true, status: 'idle', volume: 65, projectId: 'p2', asteriskId: 'as1' },
 
   // Project p3
-  { id: 'sp23', name: 'หน้าศาลากลาง', ext: '2101', area: 'เขต 1', online: true, status: 'idle', volume: 80, projectId: 'p3' },
-  { id: 'sp24', name: 'ตลาดเทศบาล', ext: '2102', area: 'เขต 1', online: true, status: 'idle', volume: 90, projectId: 'p3' },
-  { id: 'sp25', name: 'วงเวียนกลางเมือง', ext: '2103', area: 'เขต 2', online: true, status: 'idle', volume: 95, projectId: 'p3' },
-  { id: 'sp26', name: 'สนามหลวง', ext: '2104', area: 'เขต 2', online: false, status: 'idle', volume: 80, projectId: 'p3' },
-  { id: 'sp27', name: 'หน้าโรงพยาบาลศูนย์', ext: '2105', area: 'เขต 3', online: true, status: 'idle', volume: 85, projectId: 'p3' },
+  { id: 'sp23', name: 'หน้าศาลากลาง', ext: '2101', area: 'เขต 1', online: true, status: 'idle', volume: 80, projectId: 'p3', asteriskId: 'as2' },
+  { id: 'sp24', name: 'ตลาดเทศบาล', ext: '2102', area: 'เขต 1', online: true, status: 'idle', volume: 90, projectId: 'p3', asteriskId: 'as2' },
+  { id: 'sp25', name: 'วงเวียนกลางเมือง', ext: '2103', area: 'เขต 2', online: true, status: 'idle', volume: 95, projectId: 'p3', asteriskId: 'as2' },
+  { id: 'sp26', name: 'สนามหลวง', ext: '2104', area: 'เขต 2', online: false, status: 'idle', volume: 80, projectId: 'p3', asteriskId: 'as2' },
+  { id: 'sp27', name: 'หน้าโรงพยาบาลศูนย์', ext: '2105', area: 'เขต 3', online: true, status: 'idle', volume: 85, projectId: 'p3', asteriskId: 'as2' },
 ];
 
 // ============= EMERGENCIES =============
@@ -184,6 +209,21 @@ export const DEMO_USER_BY_ROLE: Record<RoleId, string> = {
   officer: 'somchai',
   headVillage: 'manit',
 };
+
+// ============= USER ASTERISKS =============
+// SIP credentials for every project user (1–1 with User). Globally-unique ext.
+// Project p1 + p2 register on as1; p3 on as2 (matches the speaker assignment).
+export const USER_ASTERISKS: UserAsterisk[] = [
+  { userId: 'somphong',  asteriskId: 'as1', ext: '9001', password: 'sip-somphong-7q2x' },
+  { userId: 'somchai',   asteriskId: 'as1', ext: '9002', password: 'sip-somchai-k3vp'  },
+  { userId: 'manit',     asteriskId: 'as1', ext: '9003', password: 'sip-manit-9zwa'    },
+  { userId: 'somsak',    asteriskId: 'as1', ext: '9004', password: 'sip-somsak-bm4t'   },
+  { userId: 'suda',      asteriskId: 'as1', ext: '9005', password: 'sip-suda-xq7n'     },
+  { userId: 'pokkrong',  asteriskId: 'as1', ext: '9006', password: 'sip-pokkrong-h2dy' },
+  { userId: 'sathian',   asteriskId: 'as1', ext: '9007', password: 'sip-sathian-r6lq'  },
+  { userId: 'kritsana',  asteriskId: 'as2', ext: '9008', password: 'sip-kritsana-pf3e' },
+  { userId: 'pim',       asteriskId: 'as2', ext: '9009', password: 'sip-pim-c8jw'      },
+];
 
 // ============= ROLES =============
 export const ROLES: Role[] = [

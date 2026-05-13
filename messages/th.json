@@ -102,8 +102,7 @@
     "nav": {
       "dashboard": "📊 Dashboard",
       "projects": "📁 โครงการ",
-      "speakers": "🔊 จุดประกาศ",
-      "accounts": "👤 ผู้ใช้",
+      "asterisks": "📡 Asterisk",
       "status": "⚙️ สถานะระบบ"
     }
   },
@@ -148,22 +147,26 @@
     },
     "modal": {
       "title": "เพิ่มโครงการใหม่",
-      "subtitle": "กำหนดข้อมูลพื้นฐาน · สามารถ assign ผู้ใช้และจุดประกาศหลังบันทึก",
+      "subtitle": "กำหนดชื่อโครงการ · เพิ่มผู้ใช้และจุดประกาศได้หลังบันทึก",
       "name": "ชื่อโครงการ",
       "namePlaceholder": "เทศบาล... / อบต. ...",
-      "contractStart": "เริ่มสัญญา",
-      "contractEnd": "สิ้นสุดสัญญา",
-      "contact": "ผู้ติดต่อ",
-      "contactPlaceholder": "ชื่อผู้ติดต่อ",
-      "phone": "โทรศัพท์",
-      "submit": "สร้างโครงการ",
-      "demoSavedAlert": "🎭 (เดโม) บันทึกแล้ว — โครงการจะถูกสร้างจริงตอน implement"
+      "status": "สถานะ",
+      "idPreview": "Project ID จะถูกตั้งเป็น {id}",
+      "submit": "สร้างโครงการ"
+    },
+    "errors": {
+      "nameRequired": "กรุณาระบุชื่อโครงการ",
+      "nameTaken": "ชื่อ \"{name}\" ถูกใช้แล้ว",
+      "notFound": "ไม่พบโครงการนี้ — กรุณารีเฟรชหน้าและลองใหม่"
     }
   },
   "adminProjectDetail": {
     "back": "← กลับไปยังรายการโครงการ",
     "edit": "แก้ไข",
     "suspend": "ระงับ",
+    "unsuspend": "เปิดใช้งาน",
+    "suspendConfirm": "ระงับโครงการ \"{name}\" ใช่หรือไม่?",
+    "unsuspendConfirm": "เปิดใช้งานโครงการ \"{name}\" อีกครั้งใช่หรือไม่?",
     "infoLine": "id: {id} · ติดต่อ: {contact} ({phone}) · สัญญา {start} → {end}",
     "stats": {
       "users": "ผู้ใช้",
@@ -182,13 +185,17 @@
       "title": "ผู้ใช้ในโครงการ",
       "addUser": "+ เพิ่มผู้ใช้",
       "empty": "ยังไม่มีผู้ใช้ในโครงการนี้",
-      "responsibleFor": "รับผิดชอบ {count} จุดประกาศ"
+      "responsibleFor": "รับผิดชอบ {count} จุดประกาศ",
+      "sipExt": "SIP ext: {ext}",
+      "passwordShow": "แสดงรหัสผ่าน",
+      "passwordHide": "ซ่อนรหัสผ่าน"
     },
     "speakersTab": {
       "title": "จุดประกาศของโครงการ",
       "addSpeaker": "+ เพิ่มจุดประกาศ",
       "notAssigned": "ยังไม่ได้ assign ให้ผู้ใหญ่บ้าน",
-      "assignedTo": "→ {names}"
+      "assignedTo": "→ {names}",
+      "noAsteriskHint": "ต้องมี Asterisk อย่างน้อยหนึ่งตัวก่อนเพิ่มจุดประกาศ"
     },
     "usageTab": {
       "monthlyAnnouncements": "ประกาศเดือนนี้",
@@ -197,60 +204,99 @@
       "averageHint": "เฉลี่ย 1:27 ต่อครั้ง",
       "spaceUsed": "พื้นที่ใช้งาน",
       "spaceHint": "MP3 + บันทึกการประกาศ"
-    }
-  },
-  "adminSpeakers": {
-    "title": "จุดประกาศทั้งหมด",
-    "subtitle": "สร้าง/แก้ไขจุดประกาศ และ assign ให้ผู้ใหญ่บ้านในแต่ละโครงการ",
-    "addSpeaker": "+ เพิ่มจุดประกาศ",
-    "searchPlaceholder": "ค้นหา...",
-    "allProjects": "ทุกโครงการ",
-    "allStatuses": "ทุกสถานะ",
-    "allAssigned": "การ assign ทั้งหมด",
-    "assigned": "ถูก assign แล้ว",
-    "unassigned": "ยังไม่ได้ assign",
-    "table": {
-      "name": "ชื่อจุด",
-      "project": "โครงการ",
-      "ext": "Ext.",
-      "zoneArea": "โซน · พื้นที่",
-      "status": "สถานะ",
-      "assignedTo": "Assigned to",
-      "actions": "ดำเนินการ",
-      "empty": "ไม่พบจุดประกาศ",
-      "assignBtn": "+ assign"
     },
-    "modal": {
+    "editModal": {
+      "title": "แก้ไขโครงการ",
+      "subtitle": "เปลี่ยนชื่อหรือสถานะของโครงการ",
+      "name": "ชื่อโครงการ",
+      "status": "สถานะ"
+    },
+    "addSpeakerModal": {
       "title": "เพิ่มจุดประกาศใหม่",
-      "subtitle": "ผูกกับโครงการ และเลือก assign ผู้ใหญ่บ้านได้ทันที",
+      "subtitle": "ผูกกับ Asterisk และระบุ ext (unique ภายในโครงการ)",
       "name": "ชื่อจุด",
       "namePlaceholder": "เช่น ศาลาประชาคม",
-      "extension": "Extension",
-      "zone": "โซน",
-      "project": "โครงการ",
-      "assignTo": "Assign ให้ผู้ใหญ่บ้าน (ไม่บังคับ)",
-      "noAssign": "— ไม่ assign —",
+      "ext": "Extension",
+      "area": "พื้นที่",
+      "areaPlaceholder": "เช่น หมู่ 1",
+      "asterisk": "Asterisk PBX",
+      "asteriskPlaceholder": "— เลือก Asterisk —",
+      "asteriskHint": "ลำโพงจะ register กับ SIP domain นี้",
       "submit": "สร้างจุดประกาศ",
-      "demoSavedAlert": "🎭 (เดโม) บันทึกแล้ว"
+      "errors": {
+        "required": "กรุณากรอกข้อมูลให้ครบทุกช่อง",
+        "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
+        "extTaken": "Ext {ext} ถูกใช้แล้วในโครงการนี้",
+        "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้า",
+        "projectMissing": "ไม่พบโครงการนี้ — กรุณารีเฟรชหน้า"
+      }
     }
   },
-  "adminAccounts": {
-    "title": "ผู้ใช้ทั้งหมด",
-    "subtitle": "จัดการผู้ใช้ทุกโครงการ · กำหนดบทบาทและ assign จุดประกาศ",
-    "addUser": "+ เพิ่มผู้ใช้",
-    "searchPlaceholder": "ค้นหา...",
-    "allProjects": "ทุกโครงการ",
-    "allRoles": "ทุก role",
-    "table": {
-      "user": "ผู้ใช้",
+  "addUserModal": {
+    "title": "เพิ่มผู้ใช้ใหม่",
+    "subtitle": "ผู้ใช้ทุกคนต้องมี SIP credentials เพื่อใช้งาน Asterisk",
+    "submit": "สร้างผู้ใช้",
+    "section": {
+      "user": "ข้อมูลผู้ใช้",
+      "sip": "SIP credentials (admin เห็นเท่านั้น)",
+      "sipHint": "รหัสผ่านนี้ระบบจะใช้อัตโนมัติเมื่อผู้ใช้กดประกาศ — ผู้ใช้จะไม่เห็นค่านี้",
+      "speakers": "Assign จุดประกาศ",
+      "speakersHint": "เลือกจุดที่ผู้ใหญ่บ้านคนนี้รับผิดชอบ"
+    },
+    "fields": {
+      "name": "ชื่อ-นามสกุล",
+      "namePlaceholder": "เช่น นายสมชาย วงศ์สวัสดิ์",
+      "username": "Username",
       "role": "บทบาท",
-      "project": "โครงการ",
-      "responsibleFor": "จุดที่รับผิดชอบ",
-      "lastSeen": "เข้าใช้ล่าสุด",
+      "asterisk": "Asterisk PBX",
+      "asteriskPlaceholder": "— เลือก Asterisk —",
+      "ext": "SIP extension (unique ทั้งระบบ)",
+      "extSuggest": "หาเลขถัดไปอัตโนมัติ",
+      "password": "SIP password",
+      "passwordShow": "แสดงรหัสผ่าน",
+      "passwordHide": "ซ่อนรหัสผ่าน",
+      "passwordGenerate": "สุ่มรหัสผ่านใหม่"
+    },
+    "errors": {
+      "required": "กรุณากรอกข้อมูลให้ครบทุกช่อง",
+      "usernameFormat": "Username ใช้ได้เฉพาะตัวอักษรพิมพ์เล็ก ตัวเลข และ . _ - (อย่างน้อย 3 ตัว)",
+      "usernameTaken": "Username \"{username}\" ถูกใช้แล้ว",
+      "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
+      "extTaken": "Ext {ext} ถูกใช้แล้ว",
+      "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้าและลองใหม่"
+    }
+  },
+  "adminAsterisks": {
+    "title": "Asterisk PBX",
+    "subtitle": "จัดการ SIP domain ของระบบ — ลำโพงทุกจุดต้องผูกกับ Asterisk หนึ่งตัว",
+    "addAsterisk": "+ เพิ่ม Asterisk",
+    "searchPlaceholder": "ค้นหาชื่อหรือ domain...",
+    "speakerCount": "{count} จุด",
+    "deleteBlocked": "ไม่สามารถลบได้ — ยังมี {count} จุดประกาศใช้งานอยู่",
+    "deleteConfirm": "ลบ \"{name}\" ใช่หรือไม่?",
+    "table": {
+      "name": "ชื่อ",
+      "domain": "Domain",
+      "speakers": "จุดประกาศที่ใช้",
+      "status": "สถานะ",
       "actions": "ดำเนินการ",
-      "empty": "ไม่พบผู้ใช้",
-      "vendor": "— vendor —",
-      "speakerCount": "{count} จุด"
+      "empty": "ยังไม่มี Asterisk"
+    },
+    "modal": {
+      "title": "เพิ่ม Asterisk ใหม่",
+      "editTitle": "แก้ไข Asterisk",
+      "subtitle": "ใช้สำหรับ register ลำโพงเข้า PBX",
+      "name": "ชื่อเรียก",
+      "namePlaceholder": "เช่น Asterisk หลัก",
+      "domain": "SIP domain",
+      "domainHint": "เช่น sip.tpk-pa.local — ต้อง unique",
+      "active": "เปิดใช้งาน",
+      "submit": "สร้าง Asterisk"
+    },
+    "errors": {
+      "nameRequired": "กรุณาระบุชื่อ Asterisk",
+      "domainRequired": "กรุณาระบุ SIP domain",
+      "domainTaken": "Domain นี้ถูกใช้แล้ว"
     }
   },
   "controlPanel": {

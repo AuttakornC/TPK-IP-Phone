@@ -102,8 +102,7 @@
     "nav": {
       "dashboard": "📊 Dashboard",
       "projects": "📁 Projects",
-      "speakers": "🔊 Speakers",
-      "accounts": "👤 Users",
+      "asterisks": "📡 Asterisk",
       "status": "⚙️ System status"
     }
   },
@@ -148,22 +147,26 @@
     },
     "modal": {
       "title": "New project",
-      "subtitle": "Set the basics — assign users and speakers after saving",
+      "subtitle": "Pick a name — users and speakers can be added after saving",
       "name": "Project name",
       "namePlaceholder": "Municipality / SAO ...",
-      "contractStart": "Contract start",
-      "contractEnd": "Contract end",
-      "contact": "Contact",
-      "contactPlaceholder": "Contact name",
-      "phone": "Phone",
-      "submit": "Create project",
-      "demoSavedAlert": "🎭 (Demo) Saved — projects will be created for real once implemented"
+      "status": "Status",
+      "idPreview": "Project ID will be {id}",
+      "submit": "Create project"
+    },
+    "errors": {
+      "nameRequired": "Please enter a project name",
+      "nameTaken": "Name \"{name}\" is already taken",
+      "notFound": "Project not found — refresh the page and try again"
     }
   },
   "adminProjectDetail": {
     "back": "← Back to projects",
     "edit": "Edit",
     "suspend": "Suspend",
+    "unsuspend": "Reactivate",
+    "suspendConfirm": "Suspend project \"{name}\"?",
+    "unsuspendConfirm": "Reactivate project \"{name}\"?",
     "infoLine": "id: {id} · contact: {contact} ({phone}) · contract {start} → {end}",
     "stats": {
       "users": "Users",
@@ -182,13 +185,17 @@
       "title": "Project users",
       "addUser": "+ Add user",
       "empty": "No users in this project yet",
-      "responsibleFor": "Responsible for {count} speakers"
+      "responsibleFor": "Responsible for {count} speakers",
+      "sipExt": "SIP ext: {ext}",
+      "passwordShow": "Show password",
+      "passwordHide": "Hide password"
     },
     "speakersTab": {
       "title": "Project speakers",
       "addSpeaker": "+ Add speaker",
       "notAssigned": "Not yet assigned to a head village",
-      "assignedTo": "→ {names}"
+      "assignedTo": "→ {names}",
+      "noAsteriskHint": "Create an Asterisk before adding speakers"
     },
     "usageTab": {
       "monthlyAnnouncements": "Announcements this month",
@@ -197,60 +204,99 @@
       "averageHint": "avg. 1:27 per call",
       "spaceUsed": "Storage used",
       "spaceHint": "MP3 + recordings"
-    }
-  },
-  "adminSpeakers": {
-    "title": "All speakers",
-    "subtitle": "Create or edit speakers and assign them to head villages per project",
-    "addSpeaker": "+ Add speaker",
-    "searchPlaceholder": "Search...",
-    "allProjects": "All projects",
-    "allStatuses": "All statuses",
-    "allAssigned": "All assignments",
-    "assigned": "Assigned",
-    "unassigned": "Unassigned",
-    "table": {
-      "name": "Name",
-      "project": "Project",
-      "ext": "Ext.",
-      "zoneArea": "Zone · Area",
-      "status": "Status",
-      "assignedTo": "Assigned to",
-      "actions": "Actions",
-      "empty": "No speakers found",
-      "assignBtn": "+ assign"
     },
-    "modal": {
+    "editModal": {
+      "title": "Edit project",
+      "subtitle": "Change the project name or status",
+      "name": "Project name",
+      "status": "Status"
+    },
+    "addSpeakerModal": {
       "title": "New speaker",
-      "subtitle": "Bind to a project and optionally assign a head village",
+      "subtitle": "Bind to an Asterisk and pick a project-unique ext",
       "name": "Name",
       "namePlaceholder": "e.g. Community Hall",
-      "extension": "Extension",
-      "zone": "Zone",
-      "project": "Project",
-      "assignTo": "Assign to head village (optional)",
-      "noAssign": "— Not assigned —",
+      "ext": "Extension",
+      "area": "Area",
+      "areaPlaceholder": "e.g. Moo 1",
+      "asterisk": "Asterisk PBX",
+      "asteriskPlaceholder": "— Select Asterisk —",
+      "asteriskHint": "The speaker will register against this SIP domain",
       "submit": "Create speaker",
-      "demoSavedAlert": "🎭 (Demo) Saved"
+      "errors": {
+        "required": "Please fill in every field",
+        "extFormat": "Ext must be 3–6 digits",
+        "extTaken": "Ext {ext} is already taken in this project",
+        "asteriskMissing": "Selected Asterisk no longer exists — refresh the page",
+        "projectMissing": "Project not found — refresh the page"
+      }
     }
   },
-  "adminAccounts": {
-    "title": "All users",
-    "subtitle": "Manage users across projects · set roles and assign speakers",
-    "addUser": "+ Add user",
-    "searchPlaceholder": "Search...",
-    "allProjects": "All projects",
-    "allRoles": "All roles",
-    "table": {
-      "user": "User",
+  "addUserModal": {
+    "title": "New user",
+    "subtitle": "Every user needs SIP credentials to use Asterisk",
+    "submit": "Create user",
+    "section": {
+      "user": "User info",
+      "sip": "SIP credentials (admin only)",
+      "sipHint": "These credentials are auto-applied when the user broadcasts — the user never sees them.",
+      "speakers": "Assign speakers",
+      "speakersHint": "Pick which speakers this head village is responsible for"
+    },
+    "fields": {
+      "name": "Full name",
+      "namePlaceholder": "e.g. Somchai Wongsawat",
+      "username": "Username",
       "role": "Role",
-      "project": "Project",
-      "responsibleFor": "Speakers",
-      "lastSeen": "Last seen",
+      "asterisk": "Asterisk PBX",
+      "asteriskPlaceholder": "— Select Asterisk —",
+      "ext": "SIP extension (globally unique)",
+      "extSuggest": "Suggest next available",
+      "password": "SIP password",
+      "passwordShow": "Show password",
+      "passwordHide": "Hide password",
+      "passwordGenerate": "Regenerate password"
+    },
+    "errors": {
+      "required": "Please fill in every field",
+      "usernameFormat": "Username must be lowercase letters, digits, and . _ - only (min 3 chars)",
+      "usernameTaken": "Username \"{username}\" is already taken",
+      "extFormat": "Ext must be 3–6 digits",
+      "extTaken": "Ext {ext} is already taken",
+      "asteriskMissing": "Selected Asterisk no longer exists — refresh the page and try again"
+    }
+  },
+  "adminAsterisks": {
+    "title": "Asterisk PBX",
+    "subtitle": "Manage SIP domains — every speaker must be bound to one Asterisk",
+    "addAsterisk": "+ Add Asterisk",
+    "searchPlaceholder": "Search name or domain...",
+    "speakerCount": "{count} speakers",
+    "deleteBlocked": "Cannot delete — {count} speakers still use this Asterisk",
+    "deleteConfirm": "Delete \"{name}\"?",
+    "table": {
+      "name": "Name",
+      "domain": "Domain",
+      "speakers": "Speakers using",
+      "status": "Status",
       "actions": "Actions",
-      "empty": "No users found",
-      "vendor": "— vendor —",
-      "speakerCount": "{count} speakers"
+      "empty": "No Asterisks yet"
+    },
+    "modal": {
+      "title": "New Asterisk",
+      "editTitle": "Edit Asterisk",
+      "subtitle": "Used to register speakers with the PBX",
+      "name": "Display name",
+      "namePlaceholder": "e.g. Primary Asterisk",
+      "domain": "SIP domain",
+      "domainHint": "e.g. sip.tpk-pa.local — must be unique",
+      "active": "Active",
+      "submit": "Create Asterisk"
+    },
+    "errors": {
+      "nameRequired": "Asterisk name is required",
+      "domainRequired": "SIP domain is required",
+      "domainTaken": "That domain is already taken"
     }
   },
   "controlPanel": {
