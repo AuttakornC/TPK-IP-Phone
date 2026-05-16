@@ -72,19 +72,7 @@ export default function GeneralHomeClient({ data }: { data: GeneralHomeData }) {
         </section>
 
         <button
-          onClick={() => {
-            if (mySpeakers.length === 0) {
-              askConfirm({ title: t('confirm.noSpeakerTitle'), detail: t('confirm.noSpeakerDetail'), icon: '⚠️', target: null });
-              return;
-            }
-            const onlineSpeakers = mySpeakers.filter(s => s.online);
-            askConfirm({
-              title: t('confirm.allTitle'),
-              detail: t('confirm.allDetail', { count: onlineSpeakers.length }),
-              icon: '📢',
-              target: { kind: 'group', speakers: onlineSpeakers },
-            });
-          }}
+          onClick={() => {}}
           className="btn-elder-primary mb-6"
         >
           <span style={{ fontSize: 34 }}>📢</span>

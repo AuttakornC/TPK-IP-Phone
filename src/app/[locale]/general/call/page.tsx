@@ -6,6 +6,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import { SipClient, SipError, type SipCallHandle } from '@/lib/sip';
 import { getSipConfig } from '@/server/actions/sip';
+import { claimSpeakerForCall, markMySpeakerIdle } from '@/server/actions/general';
 
 interface CallPayload {
   kind: 'single' | 'group';
@@ -24,6 +25,7 @@ export default function GeneralCallPage() {
   const clientRef = useRef<SipClient | null>(null);
   const callsRef = useRef<SipCallHandle[]>([]);
   const startedRef = useRef(false);
+  const busySpeakerIdRef = useRef<string | null>(null);
 
   function teardown() {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -31,6 +33,11 @@ export default function GeneralCallPage() {
     clientRef.current?.disconnect();
     clientRef.current = null;
     callsRef.current = [];
+    if (busySpeakerIdRef.current) {
+      const id = busySpeakerIdRef.current;
+      busySpeakerIdRef.current = null;
+      void markMySpeakerIdle(id);
+    }
   }
 
   function finish() {
@@ -89,6 +96,14 @@ export default function GeneralCallPage() {
         return;
       }
 
+      const target = parsed.speakers[0];
+      const claim = await claimSpeakerForCall(target.id);
+      if (!claim.ok) {
+        setErrorMsg(t(`errors.${claim.error === 'busy' ? 'speakerBusy' : 'unknown'}`));
+        return;
+      }
+      busySpeakerIdRef.current = target.id;
+
       const client = new SipClient(configResult.config, {
         onCallStateChange: handle => {
           callsRef.current = clientRef.current?.activeCalls() ?? [];
@@ -97,6 +112,11 @@ export default function GeneralCallPage() {
             setStatus(t('speaking'));
             timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
           }
+          if ((handle.state === 'ended' || handle.state === 'failed') && busySpeakerIdRef.current) {
+            const id = busySpeakerIdRef.current;
+            busySpeakerIdRef.current = null;
+            void markMySpeakerIdle(id);
+          }
         },
         onError: err => fail(err),
       });
@@ -104,9 +124,7 @@ export default function GeneralCallPage() {
 
       try {
         await client.connect();
-        await client.call(
-          parsed.speakers.map(s => ({ id: s.id, ext: s.ext, name: s.name })),
-        );
+        await client.call({ id: target.id, ext: target.ext, name: target.name });
       } catch (err) {
         fail(err);
       }

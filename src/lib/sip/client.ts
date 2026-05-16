@@ -23,19 +23,17 @@ interface TrackedSession {
 }
 
 /**
- * Thin wrapper around `JsSIP.UA` that exposes a small, broadcast-shaped API:
+ * Thin wrapper around `JsSIP.UA` that exposes a small, single-call API:
  *   1. `connect()` to register with the user's assigned Asterisk.
- *   2. `call([targets])` to dial one or more speaker extensions in parallel,
- *      sharing a single microphone capture so the user broadcasts to all
- *      selected speakers at once.
+ *   2. `call(target)` to dial a single speaker extension with the user's mic.
  *   3. `hangupAll()` and `disconnect()` to tear it all down.
  *
- * Designed for one-way "user-to-speakers" announcement, not full-duplex
- * conversations — incoming INVITEs are auto-rejected.
+ * Designed for one-way "user-to-speaker" announcement, not full-duplex
+ * conversations — incoming INVITEs are auto-rejected. Multi-speaker
+ * broadcast is delegated to the Asterisk PBX, not this client.
  */
 export class SipClient {
   private ua: JsSIP.UA | null = null;
-  private localStream: MediaStream | null = null;
   private sessions = new Map<string, TrackedSession>();
   private connected = false;
 
@@ -102,46 +100,22 @@ export class SipClient {
     });
   }
 
-  /** Capture the user's mic once, then INVITE every target in parallel. */
-  async call(targets: SipCallTarget[]): Promise<SipCallHandle[]> {
+  /** Capture the user's mic, then INVITE the single target. */
+  async call(target: SipCallTarget): Promise<SipCallHandle> {
     if (!this.ua || !this.connected) {
       throw new SipError(
         "not_connected",
         "connect() must complete before calling",
       );
     }
-    if (targets.length === 0) return [];
 
-    if (!this.localStream) {
-      try {
-        this.localStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-      } catch (err) {
-        const code =
-          (err as DOMException)?.name === "NotAllowedError"
-            ? "mic_denied"
-            : "mic_unavailable";
-        throw new SipError(
-          code,
-          "Microphone access was denied or unavailable",
-          err,
-        );
-      }
-    }
-
-    return targets.map((target) => this.dial(target, this.localStream!));
+    return this.dial(target);
   }
 
-  private dial(target: SipCallTarget, stream: MediaStream): SipCallHandle {
+  private dial(target: SipCallTarget): SipCallHandle {
     const targetUri = `sip:${target.ext}@${this.config.realm}`;
     const session = this.ua!.call(targetUri, {
       mediaConstraints: { audio: true, video: false },
-      mediaStream: stream,
-      rtcOfferConstraints: {
-        offerToReceiveAudio: false,
-        offerToReceiveVideo: false,
-      },
       pcConfig: {
         iceServers: STUN_SERVERS,
       },
@@ -196,10 +170,7 @@ export class SipClient {
   /** Tear down everything: sessions, mic capture, UA, socket. */
   disconnect(): void {
     this.hangupAll();
-    if (this.localStream) {
-      for (const t of this.localStream.getTracks()) t.stop();
-      this.localStream = null;
-    }
+
     if (this.ua) {
       try {
         this.ua.stop();

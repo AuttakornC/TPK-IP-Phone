@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { requireGeneralUser } from '@/server/auth';
 
@@ -95,4 +96,68 @@ export async function listMyBroadcastHistory(): Promise<GeneralHistoryRow[]> {
     occurredAt: r.occurredAt.toISOString(),
     hasRecording: r.recordingPath !== null,
   }));
+}
+
+export type MarkSpeakerStatusResult =
+  | { ok: true }
+  | { ok: false; error: 'not_authorized' | 'not_assigned' };
+
+export type ClaimSpeakerResult =
+  | { ok: true }
+  | { ok: false; error: 'not_authorized' | 'not_assigned' | 'busy' };
+
+async function authorizeMyAssignedSpeaker(
+  speakerId: string,
+): Promise<{ ok: true } | { ok: false; error: 'not_authorized' | 'not_assigned' }> {
+  const session = await requireGeneralUser();
+  const username = session?.user?.username ?? '';
+  if (!username) return { ok: false, error: 'not_authorized' };
+
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+  if (!user) return { ok: false, error: 'not_authorized' };
+
+  const assignment = await prisma.speakerAssignment.findFirst({
+    where: { userId: user.id, speakerId },
+    select: { speakerId: true },
+  });
+  if (!assignment) return { ok: false, error: 'not_assigned' };
+
+  return { ok: true };
+}
+
+// Atomic IDLE→BUSY transition; updateMany with a status guard prevents two callers from both winning the claim.
+export async function claimSpeakerForCall(
+  speakerId: string,
+): Promise<ClaimSpeakerResult> {
+  const authz = await authorizeMyAssignedSpeaker(speakerId);
+  if (!authz.ok) return authz;
+
+  const result = await prisma.speaker.updateMany({
+    where: { id: speakerId, status: 'IDLE' },
+    data: { status: 'BUSY' },
+  });
+  if (result.count === 0) return { ok: false, error: 'busy' };
+
+  revalidatePath('/[locale]/admin/projects/[id]', 'page');
+  revalidatePath('/[locale]/admin/status', 'page');
+  return { ok: true };
+}
+
+export async function markMySpeakerIdle(
+  speakerId: string,
+): Promise<MarkSpeakerStatusResult> {
+  const authz = await authorizeMyAssignedSpeaker(speakerId);
+  if (!authz.ok) return authz;
+
+  await prisma.speaker.update({
+    where: { id: speakerId },
+    data: { status: 'IDLE' },
+  });
+
+  revalidatePath('/[locale]/admin/projects/[id]', 'page');
+  revalidatePath('/[locale]/admin/status', 'page');
+  return { ok: true };
 }

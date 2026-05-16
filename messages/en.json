@@ -750,6 +750,7 @@
         "registration": "SIP registration failed — credentials may be wrong",
         "micDenied": "Microphone access denied — enable it in browser settings",
         "micUnavailable": "No microphone available on this device",
+        "speakerBusy": "This speaker is currently in use — please try again later",
         "unknown": "Something went wrong — please try again"
       }
     },
