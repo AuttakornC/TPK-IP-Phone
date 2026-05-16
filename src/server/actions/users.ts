@@ -1,9 +1,12 @@
 'use server';
 
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/server/auth';
+import { MP3_DIR } from '@/lib/uploads';
 import type { RoleId } from '@/lib/mock';
 
 const DB_ROLE = {
@@ -25,7 +28,7 @@ export interface ProjectUserRow {
   role: Exclude<RoleId, 'admin'>;
   active: boolean;
   assignedSpeakerIds: string[];
-  credentials: { asteriskId: string; ext: string; password: string } | null;
+  credentials: { ext: string; password: string } | null;
 }
 
 export async function listProjectUsers(projectId: string): Promise<ProjectUserRow[]> {
@@ -34,7 +37,6 @@ export async function listProjectUsers(projectId: string): Promise<ProjectUserRo
     where: { projectId },
     orderBy: { createdAt: 'asc' },
     include: {
-      asterisk: true,
       assignedSpeakers: { select: { speakerId: true } },
     },
   });
@@ -45,8 +47,8 @@ export async function listProjectUsers(projectId: string): Promise<ProjectUserRo
     role: ROLE_FROM_DB[u.role],
     active: u.active,
     assignedSpeakerIds: u.assignedSpeakers.map(a => a.speakerId),
-    credentials: u.asterisk
-      ? { asteriskId: u.asterisk.asteriskId, ext: u.asterisk.ext, password: u.asterisk.password }
+    credentials: u.sipExt && u.sipPassword
+      ? { ext: u.sipExt, password: u.sipPassword }
       : null,
   }));
 }
@@ -61,16 +63,14 @@ export type CreateUserResult =
         | 'username_taken'
         | 'ext_format'
         | 'ext_taken'
-        | 'login_password_short'
-        | 'asterisk_missing';
+        | 'login_password_short';
     };
 
-export async function createUserWithAsterisk(input: {
+export async function createUserWithSipCredentials(input: {
   projectId: string;
   name: string;
   username: string;
   role: Exclude<RoleId, 'admin'>;
-  asteriskId: string;
   ext: string;
   password: string;
   loginPassword: string;
@@ -83,21 +83,19 @@ export async function createUserWithAsterisk(input: {
   const password = input.password.trim();
   const loginPassword = input.loginPassword.trim();
 
-  if (!name || !username || !input.asteriskId || !ext || !password || !loginPassword) {
+  if (!name || !username || !ext || !password || !loginPassword) {
     return { ok: false, error: 'required' };
   }
   if (!/^[a-z0-9_.-]{3,}$/.test(username)) return { ok: false, error: 'username_format' };
   if (!/^\d{3,6}$/.test(ext)) return { ok: false, error: 'ext_format' };
   if (loginPassword.length < 6) return { ok: false, error: 'login_password_short' };
 
-  const [usernameDup, extDup, asteriskExists] = await Promise.all([
+  const [usernameDup, extDup] = await Promise.all([
     prisma.user.findUnique({ where: { username }, select: { id: true } }),
-    prisma.userAsterisk.findUnique({ where: { ext }, select: { id: true } }),
-    prisma.asterisk.findUnique({ where: { id: input.asteriskId }, select: { id: true } }),
+    prisma.user.findUnique({ where: { sipExt: ext }, select: { id: true } }),
   ]);
   if (usernameDup) return { ok: false, error: 'username_taken' };
   if (extDup) return { ok: false, error: 'ext_taken' };
-  if (!asteriskExists) return { ok: false, error: 'asterisk_missing' };
 
   const loginHash = await bcrypt.hash(loginPassword, 10);
 
@@ -110,14 +108,8 @@ export async function createUserWithAsterisk(input: {
         role: DB_ROLE[input.role],
         active: true,
         projectId: input.projectId,
-      },
-    });
-    await tx.userAsterisk.create({
-      data: {
-        userId: user.id,
-        asteriskId: input.asteriskId,
-        ext,
-        password,
+        sipExt: ext,
+        sipPassword: password,
       },
     });
     if (input.role === 'general' && input.assignedSpeakerIds.length > 0) {
@@ -147,15 +139,13 @@ export type UpdateUserResult =
         | 'not_found'
         | 'ext_format'
         | 'ext_taken'
-        | 'login_password_short'
-        | 'asterisk_missing';
+        | 'login_password_short';
     };
 
 export async function updateUser(input: {
   id: string;
   name: string;
   role: Exclude<RoleId, 'admin'>;
-  asteriskId: string;
   ext: string;
   password: string;
   loginPassword: string;
@@ -167,7 +157,7 @@ export async function updateUser(input: {
   const password = input.password.trim();
   const loginPassword = input.loginPassword;
 
-  if (!name || !input.asteriskId || !ext || !password) {
+  if (!name || !ext || !password) {
     return { ok: false, error: 'required' };
   }
   if (!/^\d{3,6}$/.test(ext)) return { ok: false, error: 'ext_format' };
@@ -177,19 +167,15 @@ export async function updateUser(input: {
 
   const existing = await prisma.user.findUnique({
     where: { id: input.id },
-    select: { id: true, asterisk: { select: { id: true } } },
+    select: { id: true },
   });
   if (!existing) return { ok: false, error: 'not_found' };
 
-  const [extDup, asteriskExists] = await Promise.all([
-    prisma.userAsterisk.findFirst({
-      where: { ext, NOT: { userId: input.id } },
-      select: { id: true },
-    }),
-    prisma.asterisk.findUnique({ where: { id: input.asteriskId }, select: { id: true } }),
-  ]);
+  const extDup = await prisma.user.findFirst({
+    where: { sipExt: ext, NOT: { id: input.id } },
+    select: { id: true },
+  });
   if (extDup) return { ok: false, error: 'ext_taken' };
-  if (!asteriskExists) return { ok: false, error: 'asterisk_missing' };
 
   const newLoginHash = loginPassword ? await bcrypt.hash(loginPassword.trim(), 10) : null;
 
@@ -199,19 +185,11 @@ export async function updateUser(input: {
       data: {
         name,
         role: DB_ROLE[input.role],
+        sipExt: ext,
+        sipPassword: password,
         ...(newLoginHash ? { passwordHash: newLoginHash } : {}),
       },
     });
-    if (existing.asterisk) {
-      await tx.userAsterisk.update({
-        where: { userId: input.id },
-        data: { asteriskId: input.asteriskId, ext, password },
-      });
-    } else {
-      await tx.userAsterisk.create({
-        data: { userId: input.id, asteriskId: input.asteriskId, ext, password },
-      });
-    }
     await tx.speakerAssignment.deleteMany({ where: { userId: input.id } });
     if (input.role === 'general' && input.assignedSpeakerIds.length > 0) {
       await tx.speakerAssignment.createMany({
@@ -234,7 +212,13 @@ export async function deleteUser(id: string): Promise<DeleteUserResult> {
   const existing = await prisma.user.findUnique({ where: { id }, select: { id: true } });
   if (!existing) return { ok: false, error: 'not_found' };
 
+  // DB rows cascade via Mp3File.userId; sweep the user's MP3 directory off disk too.
   await prisma.user.delete({ where: { id } });
+  try {
+    await fs.rm(path.join(MP3_DIR, id), { recursive: true, force: true });
+  } catch {
+    /* orphan files are tolerable — user row is already gone */
+  }
 
   revalidatePath('/[locale]/admin/projects/[id]', 'page');
   revalidatePath('/[locale]/admin/projects', 'page');
@@ -244,7 +228,10 @@ export async function deleteUser(id: string): Promise<DeleteUserResult> {
 
 export async function suggestNextExt(): Promise<string> {
   await requireAdmin();
-  const taken = new Set((await prisma.userAsterisk.findMany({ select: { ext: true } })).map(r => r.ext));
+  const taken = new Set(
+    (await prisma.user.findMany({ where: { sipExt: { not: null } }, select: { sipExt: true } }))
+      .map(r => r.sipExt!)
+  );
   for (let n = 9001; n < 9999; n++) {
     const candidate = String(n);
     if (!taken.has(candidate)) return candidate;

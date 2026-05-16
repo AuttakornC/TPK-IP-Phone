@@ -5,12 +5,15 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import { SipClient, SipError, type SipCallHandle } from '@/lib/sip';
+import { OutgoingMixer, type PlayMode } from '@/lib/audio/outgoingMixer';
 import { getSipConfig } from '@/server/actions/sip';
 import { claimSpeakerForCall, markMySpeakerIdle } from '@/server/actions/general';
 
 interface CallPayload {
   kind: 'single' | 'group';
   speakers: Array<{ id: string; name: string; area: string; ext: string }>;
+  mp3Url?: string;
+  playMode?: PlayMode;
 }
 
 export default function GeneralCallPage() {
@@ -26,6 +29,7 @@ export default function GeneralCallPage() {
   const callsRef = useRef<SipCallHandle[]>([]);
   const startedRef = useRef(false);
   const busySpeakerIdRef = useRef<string | null>(null);
+  const mixerRef = useRef<OutgoingMixer | null>(null);
 
   function teardown() {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -33,6 +37,8 @@ export default function GeneralCallPage() {
     clientRef.current?.disconnect();
     clientRef.current = null;
     callsRef.current = [];
+    mixerRef.current?.dispose();
+    mixerRef.current = null;
     if (busySpeakerIdRef.current) {
       const id = busySpeakerIdRef.current;
       busySpeakerIdRef.current = null;
@@ -92,7 +98,7 @@ export default function GeneralCallPage() {
     (async () => {
       const configResult = await getSipConfig();
       if (!configResult.ok) {
-        setErrorMsg(t(`errors.${configResult.error === 'asterisk_inactive' ? 'asteriskInactive' : 'noCredentials'}`));
+        setErrorMsg(t(`errors.${configResult.error === 'sip_server_inactive' ? 'sipServerInactive' : 'noCredentials'}`));
         return;
       }
 
@@ -104,13 +110,45 @@ export default function GeneralCallPage() {
       }
       busySpeakerIdRef.current = target.id;
 
+      let outgoingStream: MediaStream | undefined;
+      const useMixer = !!(parsed.mp3Url && parsed.playMode && parsed.playMode !== 'mic');
+      if (useMixer) {
+        const mixer = new OutgoingMixer();
+        mixerRef.current = mixer;
+        outgoingStream = mixer.stream;
+      }
+      let mixerStarted = false;
+
       const client = new SipClient(configResult.config, {
         onCallStateChange: handle => {
           callsRef.current = clientRef.current?.activeCalls() ?? [];
-          // Once any call is answered, mark the broadcast as live and start the timer.
-          if (handle.state === 'answered' && !timerRef.current) {
-            setStatus(t('speaking'));
-            timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
+          // Once the speaker actually picks up, start the live timer and (if we
+          // have a mixer) start MP3 playback. Deferring start() to 'answered'
+          // avoids playing the MP3 into dead air during ring.
+          if (handle.state === 'answered') {
+            if (!timerRef.current) {
+              timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
+              if (!useMixer) setStatus(t('speaking'));
+            }
+            const mixer = mixerRef.current;
+            if (mixer && !mixerStarted && parsed.mp3Url && parsed.playMode && parsed.playMode !== 'mic') {
+              mixerStarted = true;
+              mixer.start({
+                mp3Url: parsed.mp3Url,
+                playMode: parsed.playMode,
+                onPhase: phase => {
+                  setStatus(t(phase === 'mp3' ? 'playingMp3' : 'speaking'));
+                },
+              }).catch(err => {
+                  const name = (err as DOMException)?.name;
+                  const code = name === 'NotAllowedError'
+                    ? 'mic_denied'
+                    : name === 'NotFoundError'
+                      ? 'mic_unavailable'
+                      : 'unknown';
+                  fail(new SipError(code, 'audio mixer failed to start', err));
+                });
+            }
           }
           if ((handle.state === 'ended' || handle.state === 'failed') && busySpeakerIdRef.current) {
             const id = busySpeakerIdRef.current;
@@ -124,7 +162,10 @@ export default function GeneralCallPage() {
 
       try {
         await client.connect();
-        await client.call({ id: target.id, ext: target.ext, name: target.name });
+        await client.call(
+          { id: target.id, ext: target.ext, name: target.name },
+          outgoingStream ? { stream: outgoingStream } : undefined,
+        );
       } catch (err) {
         fail(err);
       }

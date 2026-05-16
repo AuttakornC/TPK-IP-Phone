@@ -5,15 +5,9 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import Modal from '@/components/ui/Modal';
 import type { RoleId } from '@/lib/mock';
-import { createUserWithAsterisk, type CreateUserResult } from '@/server/actions/users';
+import { createUserWithSipCredentials, type CreateUserResult } from '@/server/actions/users';
 
 type AddableRole = Exclude<RoleId, 'admin'>;
-
-interface AsteriskOption {
-  id: string;
-  name: string;
-  domain: string;
-}
 
 interface SpeakerOption {
   id: string;
@@ -24,7 +18,6 @@ interface SpeakerOption {
 interface Props {
   open: boolean;
   projectId: string;
-  asterisks: AsteriskOption[];
   speakers: SpeakerOption[];
   suggestedExt: string;
   onClose: () => void;
@@ -37,7 +30,6 @@ const ERROR_KEY: Record<Extract<CreateUserResult, { ok: false }>['error'], strin
   ext_format: 'extFormat',
   ext_taken: 'extTaken',
   login_password_short: 'loginPasswordShort',
-  asterisk_missing: 'asteriskMissing',
 };
 
 function generateSipPassword(): string {
@@ -54,7 +46,7 @@ function generateLoginPassword(): string {
   return out;
 }
 
-export default function AddUserModal({ open, projectId, asterisks, speakers, suggestedExt, onClose }: Props) {
+export default function AddUserModal({ open, projectId, speakers, suggestedExt, onClose }: Props) {
   const t = useTranslations('addUserModal');
   const tRoles = useTranslations('roles');
   const tCommon = useTranslations('common');
@@ -64,7 +56,6 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [role, setRole] = useState<AddableRole>('officer');
-  const [asteriskId, setAsteriskId] = useState('');
   const [ext, setExt] = useState('');
   const [password, setPassword] = useState('');
   const [revealPassword, setRevealPassword] = useState(false);
@@ -79,7 +70,6 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
     setName('');
     setUsername('');
     setRole('officer');
-    setAsteriskId(asterisks[0]?.id ?? '');
     setExt(suggestedExt);
     setPassword(generateSipPassword());
     setRevealPassword(false);
@@ -87,7 +77,7 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
     setRevealLoginPassword(false);
     setAssignedSpeakers([]);
     setError(null);
-  }, [open, asterisks, suggestedExt]);
+  }, [open, suggestedExt]);
 
   function regeneratePassword() {
     setPassword(generateSipPassword());
@@ -115,12 +105,11 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
     const cleanLoginPassword = loginPassword.trim();
 
     startTransition(async () => {
-      const result = await createUserWithAsterisk({
+      const result = await createUserWithSipCredentials({
         projectId,
         name: cleanName,
         username: cleanUsername,
         role,
-        asteriskId,
         ext: cleanExt,
         password: cleanPassword,
         loginPassword: cleanLoginPassword,
@@ -226,20 +215,6 @@ export default function AddUserModal({ open, projectId, asterisks, speakers, sug
           <fieldset className="space-y-3 border-t border-slate-200 pt-4">
             <legend className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('section.sip')}</legend>
             <p className="text-xs text-slate-500">{t('section.sipHint')}</p>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">{t('fields.asterisk')}</label>
-              <select
-                value={asteriskId}
-                onChange={e => setAsteriskId(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                required
-              >
-                <option value="" disabled>{t('fields.asteriskPlaceholder')}</option>
-                {asterisks.map(a => (
-                  <option key={a.id} value={a.id}>{a.name} — {a.domain}</option>
-                ))}
-              </select>
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">{t('fields.ext')}</label>

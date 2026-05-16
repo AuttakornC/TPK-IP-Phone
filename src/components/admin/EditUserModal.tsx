@@ -9,12 +9,6 @@ import { updateUser, type ProjectUserRow, type UpdateUserResult } from '@/server
 
 type EditableRole = Exclude<RoleId, 'admin'>;
 
-interface AsteriskOption {
-  id: string;
-  name: string;
-  domain: string;
-}
-
 interface SpeakerOption {
   id: string;
   name: string;
@@ -24,7 +18,6 @@ interface SpeakerOption {
 interface Props {
   open: boolean;
   user: ProjectUserRow | null;
-  asterisks: AsteriskOption[];
   speakers: SpeakerOption[];
   onClose: () => void;
 }
@@ -35,7 +28,6 @@ const ERROR_KEY: Record<Extract<UpdateUserResult, { ok: false }>['error'], strin
   ext_format: 'extFormat',
   ext_taken: 'extTaken',
   login_password_short: 'loginPasswordShort',
-  asterisk_missing: 'asteriskMissing',
 };
 
 function generateLoginPassword(): string {
@@ -52,7 +44,7 @@ function generateSipPassword(): string {
   return out;
 }
 
-export default function EditUserModal({ open, user, asterisks, speakers, onClose }: Props) {
+export default function EditUserModal({ open, user, speakers, onClose }: Props) {
   const t = useTranslations('editUserModal');
   const tAdd = useTranslations('addUserModal');
   const tRoles = useTranslations('roles');
@@ -62,7 +54,6 @@ export default function EditUserModal({ open, user, asterisks, speakers, onClose
 
   const [name, setName] = useState('');
   const [role, setRole] = useState<EditableRole>('officer');
-  const [asteriskId, setAsteriskId] = useState('');
   const [ext, setExt] = useState('');
   const [password, setPassword] = useState('');
   const [revealPassword, setRevealPassword] = useState(false);
@@ -82,13 +73,7 @@ export default function EditUserModal({ open, user, asterisks, speakers, onClose
     setRevealLoginPassword(false);
     setAssignedSpeakers(user.assignedSpeakerIds);
     setError(null);
-
-    if (user.credentials?.asteriskId) {
-      setAsteriskId(user.credentials.asteriskId);
-    } else {
-      setAsteriskId(asterisks[0]?.id ?? '');
-    }
-  }, [open, user, asterisks]);
+  }, [open, user]);
 
   function regeneratePassword() {
     setPassword(generateSipPassword());
@@ -119,7 +104,6 @@ export default function EditUserModal({ open, user, asterisks, speakers, onClose
         id: user.id,
         name: cleanName,
         role,
-        asteriskId,
         ext: cleanExt,
         password: cleanPassword,
         loginPassword,
@@ -220,20 +204,6 @@ export default function EditUserModal({ open, user, asterisks, speakers, onClose
           <fieldset className="space-y-3 border-t border-slate-200 pt-4">
             <legend className="text-xs font-semibold uppercase tracking-wider text-slate-500">{tAdd('section.sip')}</legend>
             <p className="text-xs text-slate-500">{tAdd('section.sipHint')}</p>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">{tAdd('fields.asterisk')}</label>
-              <select
-                value={asteriskId}
-                onChange={e => setAsteriskId(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                required
-              >
-                <option value="" disabled>{tAdd('fields.asteriskPlaceholder')}</option>
-                {asterisks.map(a => (
-                  <option key={a.id} value={a.id}>{a.name} — {a.domain}</option>
-                ))}
-              </select>
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">{tAdd('fields.ext')}</label>

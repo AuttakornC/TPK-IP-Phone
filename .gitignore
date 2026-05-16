@@ -20,6 +20,9 @@
 # production
 /build
 
+# user-uploaded MP3 audio (private, served via authed API route)
+/uploads
+
 # misc
 .DS_Store
 *.pem

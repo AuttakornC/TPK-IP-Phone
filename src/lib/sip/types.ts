@@ -37,6 +37,11 @@ export interface SipCallHandle {
   hangup(): void;
 }
 
+export interface SipCallOptions {
+  /** Override the outbound audio — bypasses internal mic capture. */
+  stream?: MediaStream;
+}
+
 export interface SipEvents {
   /** Called whenever any tracked call transitions to a new state. */
   onCallStateChange?(handle: SipCallHandle): void;

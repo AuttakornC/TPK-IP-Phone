@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
 import {
-  ASTERISKS,
+  SIP_SERVERS,
   EMERGENCIES,
   LOG_ENTRIES,
   MP3_FILES,
@@ -12,7 +12,7 @@ import {
   SPEAKERS,
   TEMPLATES,
   USERS,
-  USER_ASTERISKS,
+  USER_SIP_CREDENTIALS,
   type LogType,
   type ProjectStatus,
   type RoleId,
@@ -71,12 +71,11 @@ async function main() {
   await prisma.schedule.deleteMany();
   await prisma.mp3File.deleteMany();
   await prisma.speakerAssignment.deleteMany();
-  await prisma.userAsterisk.deleteMany();
   await prisma.speaker.deleteMany();
-  await prisma.asterisk.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.admin.deleteMany();
   await prisma.project.deleteMany();
+  await prisma.sipServer.deleteMany();
+  await prisma.admin.deleteMany();
   await prisma.template.deleteMany();
   await prisma.emergencyPreset.deleteMany();
 
@@ -102,6 +101,20 @@ async function main() {
   });
   console.log(`  ✓ ${EMERGENCIES.length} emergency presets, ${TEMPLATES.length} templates`);
 
+  // ----- SIP servers (must precede projects — FK target) -----
+  for (const a of SIP_SERVERS) {
+    await prisma.sipServer.create({
+      data: {
+        id: a.id,
+        name: a.name,
+        domain: a.domain,
+        port: a.port,
+        active: a.active,
+      },
+    });
+  }
+  console.log(`  ✓ ${SIP_SERVERS.length} SIP servers`);
+
   // ----- Projects (preserving mock IDs so FKs are easy to follow) -----
   for (const p of PROJECTS) {
     await prisma.project.create({
@@ -109,6 +122,8 @@ async function main() {
         id: p.id,
         name: p.name,
         status: PROJECT_STATUS_MAP[p.status],
+        sipServerId: p.sipServerId,
+        broadcastPrefix: p.broadcastPrefix,
       },
     });
   }
@@ -132,8 +147,10 @@ async function main() {
   }
 
   // ----- Users (project-scoped) -----
+  const sipByUser = new Map(USER_SIP_CREDENTIALS.map(s => [s.userId, s]));
   const projectUsers = USERS.filter(u => u.role !== 'admin' && u.projectId);
   for (const u of projectUsers) {
+    const sip = sipByUser.get(u.username);
     await prisma.user.create({
       data: {
         id: u.username,
@@ -144,32 +161,19 @@ async function main() {
         active: u.active,
         lastLoginAt: new Date(u.last),
         projectId: u.projectId!,
+        sipExt: sip?.ext ?? null,
+        sipPassword: sip?.password ?? null,
       },
     });
   }
   console.log(`  ✓ 1 admin + ${projectUsers.length} users`);
 
-  // ----- Asterisks (must precede speakers + user_asterisks — FK target) -----
-  for (const a of ASTERISKS) {
-    await prisma.asterisk.create({
-      data: {
-        id: a.id,
-        name: a.name,
-        domain: a.domain,
-        port: a.port,
-        active: a.active,
-      },
-    });
-  }
-  console.log(`  ✓ ${ASTERISKS.length} asterisks`);
-
-  // ----- Speakers -----
+  // ----- Speakers (SIP server is inherited from the project) -----
   for (const s of SPEAKERS) {
     await prisma.speaker.create({
       data: {
         id: s.id,
         projectId: s.projectId,
-        asteriskId: s.asteriskId,
         name: s.name,
         ext: s.ext,
         area: s.area,
@@ -180,19 +184,6 @@ async function main() {
     });
   }
   console.log(`  ✓ ${SPEAKERS.length} speakers`);
-
-  // ----- User asterisks (SIP credentials, 1–1 with project users) -----
-  for (const ua of USER_ASTERISKS) {
-    await prisma.userAsterisk.create({
-      data: {
-        userId: ua.userId,
-        asteriskId: ua.asteriskId,
-        ext: ua.ext,
-        password: ua.password,
-      },
-    });
-  }
-  console.log(`  ✓ ${USER_ASTERISKS.length} user asterisks (SIP credentials)`);
 
   // ----- Speaker assignments (general user ↔ speakers) -----
   let assignmentCount = 0;
@@ -206,22 +197,38 @@ async function main() {
   }
   console.log(`  ✓ ${assignmentCount} speaker assignments`);
 
-  // ----- MP3 files (and remember IDs by name+project for schedules) -----
+  // ----- MP3 files (owned by users — pick first general user per project) -----
+  const mp3OwnerByProject = new Map<string, string>();
+  for (const u of projectUsers) {
+    if (u.role === 'general' && !mp3OwnerByProject.has(u.projectId!)) {
+      mp3OwnerByProject.set(u.projectId!, u.username);
+    }
+  }
+  for (const u of projectUsers) {
+    if (!mp3OwnerByProject.has(u.projectId!)) {
+      mp3OwnerByProject.set(u.projectId!, u.username);
+    }
+  }
+
   const mp3IdByKey = new Map<string, string>(); // key = `${projectId}:${name}`
+  let mp3Count = 0;
   for (const f of MP3_FILES) {
+    const ownerId = mp3OwnerByProject.get(f.projectId);
+    if (!ownerId) continue;
     const created = await prisma.mp3File.create({
       data: {
-        projectId: f.projectId,
+        userId: ownerId,
         name: f.name,
         sizeBytes: parseSizeBytes(f.size),
         durationSec: parseDurationSec(f.duration),
-        storagePath: `/data/projects/${f.projectId}/mp3/${f.name}`,
+        storagePath: `seed/${ownerId}/${f.name}`,
         uploadedAt: new Date(f.uploaded),
       },
     });
     mp3IdByKey.set(`${f.projectId}:${f.name}`, created.id);
+    mp3Count++;
   }
-  console.log(`  ✓ ${MP3_FILES.length} mp3 files`);
+  console.log(`  ✓ ${mp3Count} mp3 files`);
 
   // ----- Schedules -----
   for (const s of SCHEDULES) {

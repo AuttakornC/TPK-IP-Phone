@@ -5,6 +5,7 @@ import type { RTCSession, EndEvent } from "jssip/lib/RTCSession";
 import type { IncomingRTCSessionEvent, UnRegisteredEvent } from "jssip/lib/UA";
 import {
   type SipCallHandle,
+  type SipCallOptions,
   type SipCallState,
   type SipCallTarget,
   type SipConfig,
@@ -24,13 +25,15 @@ interface TrackedSession {
 
 /**
  * Thin wrapper around `JsSIP.UA` that exposes a small, single-call API:
- *   1. `connect()` to register with the user's assigned Asterisk.
- *   2. `call(target)` to dial a single speaker extension with the user's mic.
+ *   1. `connect()` to register with the user's assigned SIP server.
+ *   2. `call(target, opts?)` to dial a single speaker. Defaults to
+ *      JsSIP-managed mic capture; pass `opts.stream` to override with a
+ *      pre-built MediaStream (e.g. mic+MP3 from OutgoingMixer).
  *   3. `hangupAll()` and `disconnect()` to tear it all down.
  *
  * Designed for one-way "user-to-speaker" announcement, not full-duplex
  * conversations — incoming INVITEs are auto-rejected. Multi-speaker
- * broadcast is delegated to the Asterisk PBX, not this client.
+ * broadcast is delegated to the SIP server (PBX), not this client.
  */
 export class SipClient {
   private ua: JsSIP.UA | null = null;
@@ -100,8 +103,11 @@ export class SipClient {
     });
   }
 
-  /** Capture the user's mic, then INVITE the single target. */
-  async call(target: SipCallTarget): Promise<SipCallHandle> {
+  /** INVITE the target. Uses `opts.stream` if provided, else JsSIP-managed mic. */
+  async call(
+    target: SipCallTarget,
+    opts: SipCallOptions = {},
+  ): Promise<SipCallHandle> {
     if (!this.ua || !this.connected) {
       throw new SipError(
         "not_connected",
@@ -109,13 +115,15 @@ export class SipClient {
       );
     }
 
-    return this.dial(target);
+    return this.dial(target, opts);
   }
 
-  private dial(target: SipCallTarget): SipCallHandle {
+  private dial(target: SipCallTarget, opts: SipCallOptions): SipCallHandle {
     const targetUri = `sip:${target.ext}@${this.config.realm}`;
     const session = this.ua!.call(targetUri, {
-      mediaConstraints: { audio: true, video: false },
+      ...(opts.stream
+        ? { mediaStream: opts.stream }
+        : { mediaConstraints: { audio: true, video: false } }),
       pcConfig: {
         iceServers: STUN_SERVERS,
       },

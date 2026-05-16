@@ -53,25 +53,28 @@ enum SpeakerStatus {
 // ============================================================
 
 model Project {
-  id        String        @id @default(cuid())
-  name      String
-  status    ProjectStatus @default(ACTIVE)
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
+  id              String        @id @default(cuid())
+  name            String
+  status          ProjectStatus @default(ACTIVE)
+  sipServerId     String        @map("sip_server_id")
+  broadcastPrefix String        @default("") @map("broadcast_prefix")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
+  sipServer SipServer  @relation(fields: [sipServerId], references: [id], onDelete: Restrict)
   users     User[]
   speakers  Speaker[]
   logs      LogEntry[]
-  mp3Files  Mp3File[]
   schedules Schedule[]
 
   @@index([status])
+  @@index([sipServerId])
   @@map("projects")
 }
 
-// Vendor-managed Asterisk PBX (SIP domain). Global — shared across projects.
-// Every speaker registers to exactly one Asterisk (admin-assigned).
-model Asterisk {
+// Vendor-managed SIP server (PBX domain). Global — shared across projects.
+// Every project's speakers + users register against exactly one server.
+model SipServer {
   id        String   @id @default(cuid())
   name      String
   domain    String   @unique
@@ -80,10 +83,9 @@ model Asterisk {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  speakers      Speaker[]
-  userAsterisks UserAsterisk[]
+  projects Project[]
 
-  @@map("asterisks")
+  @@map("sip_servers")
 }
 
 // ============================================================
@@ -106,6 +108,9 @@ model Admin {
 }
 
 // Project-scoped user — exactly one project per user (no shared accounts).
+// `sipExt` + `sipPassword` are the user's SIP credentials on their project's
+// SIP server — admin-managed plaintext (CLAUDE.md), used by the browser to
+// register before broadcasting.
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -115,36 +120,19 @@ model User {
   active       Boolean   @default(true)
   lastLoginAt  DateTime? @map("last_login_at")
   projectId    String    @map("project_id")
+  sipExt       String?   @unique @map("sip_ext")
+  sipPassword  String?   @map("sip_password")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
   project          Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assignedSpeakers SpeakerAssignment[]
   logs             LogEntry[]
-  asterisk         UserAsterisk?
+  mp3Files         Mp3File[]
 
   @@index([projectId])
   @@index([role])
   @@map("users")
-}
-
-// SIP credentials for a project user (1–1 with User). Admin-managed; admin is
-// the only role that can read or edit the password — it's auto-used when the
-// user broadcasts through their assigned Asterisk.
-model UserAsterisk {
-  id         String   @id @default(cuid())
-  userId     String   @unique @map("user_id")
-  asteriskId String   @map("asterisk_id")
-  ext        String   @unique
-  password   String
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  asterisk Asterisk @relation(fields: [asteriskId], references: [id], onDelete: Restrict)
-
-  @@index([asteriskId])
-  @@map("user_asterisks")
 }
 
 // General-user ↔ speaker assignments (many-to-many).
@@ -166,25 +154,22 @@ model SpeakerAssignment {
 // ============================================================
 
 model Speaker {
-  id         String        @id @default(cuid())
-  projectId  String        @map("project_id")
-  asteriskId String        @map("asterisk_id")
-  name       String
-  ext        String
-  area       String
-  online     Boolean       @default(false)
-  status     SpeakerStatus @default(IDLE)
-  volume     Int           @default(80)
-  createdAt  DateTime      @default(now()) @map("created_at")
-  updatedAt  DateTime      @updatedAt @map("updated_at")
+  id        String        @id @default(cuid())
+  projectId String        @map("project_id")
+  name      String
+  ext       String
+  area      String
+  online    Boolean       @default(false)
+  status    SpeakerStatus @default(IDLE)
+  volume    Int           @default(80)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
 
   project    Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  asterisk   Asterisk            @relation(fields: [asteriskId], references: [id], onDelete: Restrict)
   assignedTo SpeakerAssignment[]
 
   @@unique([projectId, ext])
   @@index([projectId])
-  @@index([asteriskId])
   @@map("speakers")
 }
 
@@ -194,17 +179,17 @@ model Speaker {
 
 model Mp3File {
   id          String   @id @default(cuid())
-  projectId   String   @map("project_id")
+  userId      String   @map("user_id")
   name        String
   sizeBytes   BigInt   @map("size_bytes")
   durationSec Int      @map("duration_sec")
   storagePath String   @map("storage_path")
   uploadedAt  DateTime @default(now()) @map("uploaded_at")
 
-  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   schedules Schedule[]
 
-  @@index([projectId])
+  @@index([userId])
   @@map("mp3_files")
 }
 

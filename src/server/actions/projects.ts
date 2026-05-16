@@ -21,6 +21,8 @@ export interface ProjectRow {
   id: string;
   name: string;
   status: MockProjectStatus;
+  sipServerId: string;
+  broadcastPrefix: string;
   userCount: number;
   speakerCount: number;
 }
@@ -37,6 +39,8 @@ export async function listProjects(): Promise<ProjectRow[]> {
     id: p.id,
     name: p.name,
     status: STATUS_FROM_DB[p.status],
+    sipServerId: p.sipServerId,
+    broadcastPrefix: p.broadcastPrefix,
     userCount: p._count.users,
     speakerCount: p._count.speakers,
   }));
@@ -55,6 +59,8 @@ export async function getProject(id: string): Promise<ProjectRow | null> {
     id: p.id,
     name: p.name,
     status: STATUS_FROM_DB[p.status],
+    sipServerId: p.sipServerId,
+    broadcastPrefix: p.broadcastPrefix,
     userCount: p._count.users,
     speakerCount: p._count.speakers,
   };
@@ -71,25 +77,38 @@ export async function nextProjectId(): Promise<string> {
 
 export type CreateProjectResult =
   | { ok: true; id: string }
-  | { ok: false; error: 'name_required' | 'name_taken' };
+  | { ok: false; error: 'name_required' | 'name_taken' | 'sip_server_required' | 'sip_server_missing' };
 
 export async function createProject(input: {
   name: string;
   status: MockProjectStatus;
+  sipServerId: string;
+  broadcastPrefix?: string;
 }): Promise<CreateProjectResult> {
   await requireAdmin();
   const name = input.name.trim();
   if (!name) return { ok: false, error: 'name_required' };
+  if (!input.sipServerId) return { ok: false, error: 'sip_server_required' };
 
-  const dup = await prisma.project.findFirst({
-    where: { name: { equals: name, mode: 'insensitive' } },
-    select: { id: true },
-  });
+  const [dup, sipServer] = await Promise.all([
+    prisma.project.findFirst({
+      where: { name: { equals: name, mode: 'insensitive' } },
+      select: { id: true },
+    }),
+    prisma.sipServer.findUnique({ where: { id: input.sipServerId }, select: { id: true } }),
+  ]);
   if (dup) return { ok: false, error: 'name_taken' };
+  if (!sipServer) return { ok: false, error: 'sip_server_missing' };
 
   const id = await nextProjectId();
   await prisma.project.create({
-    data: { id, name, status: STATUS_TO_DB[input.status] },
+    data: {
+      id,
+      name,
+      status: STATUS_TO_DB[input.status],
+      sipServerId: input.sipServerId,
+      broadcastPrefix: (input.broadcastPrefix ?? '').trim(),
+    },
   });
 
   revalidatePath('/[locale]/admin/projects', 'page');
@@ -99,29 +118,41 @@ export async function createProject(input: {
 
 export type UpdateProjectResult =
   | { ok: true }
-  | { ok: false; error: 'name_required' | 'name_taken' | 'not_found' };
+  | { ok: false; error: 'name_required' | 'name_taken' | 'not_found' | 'sip_server_required' | 'sip_server_missing' };
 
 export async function updateProject(input: {
   id: string;
   name: string;
   status: MockProjectStatus;
+  sipServerId: string;
+  broadcastPrefix?: string;
 }): Promise<UpdateProjectResult> {
   await requireAdmin();
   const name = input.name.trim();
   if (!name) return { ok: false, error: 'name_required' };
+  if (!input.sipServerId) return { ok: false, error: 'sip_server_required' };
 
   const existing = await prisma.project.findUnique({ where: { id: input.id }, select: { id: true } });
   if (!existing) return { ok: false, error: 'not_found' };
 
-  const dup = await prisma.project.findFirst({
-    where: { name: { equals: name, mode: 'insensitive' }, NOT: { id: input.id } },
-    select: { id: true },
-  });
+  const [dup, sipServer] = await Promise.all([
+    prisma.project.findFirst({
+      where: { name: { equals: name, mode: 'insensitive' }, NOT: { id: input.id } },
+      select: { id: true },
+    }),
+    prisma.sipServer.findUnique({ where: { id: input.sipServerId }, select: { id: true } }),
+  ]);
   if (dup) return { ok: false, error: 'name_taken' };
+  if (!sipServer) return { ok: false, error: 'sip_server_missing' };
 
   await prisma.project.update({
     where: { id: input.id },
-    data: { name, status: STATUS_TO_DB[input.status] },
+    data: {
+      name,
+      status: STATUS_TO_DB[input.status],
+      sipServerId: input.sipServerId,
+      broadcastPrefix: (input.broadcastPrefix ?? '').trim(),
+    },
   });
 
   revalidatePath('/[locale]/admin/projects', 'page');

@@ -13,7 +13,6 @@ export interface SpeakerRow {
   area: string;
   online: boolean;
   status: SpeakerCallStatus;
-  asteriskId: string;
 }
 
 const STATUS_FROM_DB = {
@@ -34,7 +33,6 @@ export async function listProjectSpeakers(projectId: string): Promise<SpeakerRow
     area: s.area,
     online: s.online,
     status: STATUS_FROM_DB[s.status],
-    asteriskId: s.asteriskId,
   }));
 }
 
@@ -42,7 +40,7 @@ export type CreateSpeakerResult =
   | { ok: true; id: string }
   | {
       ok: false;
-      error: 'required' | 'ext_format' | 'ext_taken' | 'asterisk_missing' | 'project_missing';
+      error: 'required' | 'ext_format' | 'ext_taken' | 'project_missing';
     };
 
 export async function createSpeaker(input: {
@@ -50,7 +48,6 @@ export async function createSpeaker(input: {
   name: string;
   ext: string;
   area: string;
-  asteriskId: string;
   volume?: number;
 }): Promise<CreateSpeakerResult> {
   await requireAdmin();
@@ -58,28 +55,25 @@ export async function createSpeaker(input: {
   const ext = input.ext.trim();
   const area = input.area.trim();
 
-  if (!name || !ext || !area || !input.asteriskId || !input.projectId) {
+  if (!name || !ext || !area || !input.projectId) {
     return { ok: false, error: 'required' };
   }
   if (!/^\d{3,6}$/.test(ext)) return { ok: false, error: 'ext_format' };
 
-  const [project, asterisk, dup] = await Promise.all([
+  const [project, dup] = await Promise.all([
     prisma.project.findUnique({ where: { id: input.projectId }, select: { id: true } }),
-    prisma.asterisk.findUnique({ where: { id: input.asteriskId }, select: { id: true } }),
     prisma.speaker.findUnique({
       where: { projectId_ext: { projectId: input.projectId, ext } },
       select: { id: true },
     }),
   ]);
   if (!project) return { ok: false, error: 'project_missing' };
-  if (!asterisk) return { ok: false, error: 'asterisk_missing' };
   if (dup) return { ok: false, error: 'ext_taken' };
 
   const volume = Math.min(100, Math.max(0, input.volume ?? 80));
   const created = await prisma.speaker.create({
     data: {
       projectId: input.projectId,
-      asteriskId: input.asteriskId,
       name,
       ext,
       area,
@@ -97,7 +91,7 @@ export type UpdateSpeakerResult =
   | { ok: true }
   | {
       ok: false;
-      error: 'required' | 'ext_format' | 'ext_taken' | 'asterisk_missing' | 'not_found';
+      error: 'required' | 'ext_format' | 'ext_taken' | 'not_found';
     };
 
 export async function updateSpeaker(input: {
@@ -105,14 +99,13 @@ export async function updateSpeaker(input: {
   name: string;
   ext: string;
   area: string;
-  asteriskId: string;
 }): Promise<UpdateSpeakerResult> {
   await requireAdmin();
   const name = input.name.trim();
   const ext = input.ext.trim();
   const area = input.area.trim();
 
-  if (!name || !ext || !area || !input.asteriskId) {
+  if (!name || !ext || !area) {
     return { ok: false, error: 'required' };
   }
   if (!/^\d{3,6}$/.test(ext)) return { ok: false, error: 'ext_format' };
@@ -123,19 +116,15 @@ export async function updateSpeaker(input: {
   });
   if (!existing) return { ok: false, error: 'not_found' };
 
-  const [asterisk, dup] = await Promise.all([
-    prisma.asterisk.findUnique({ where: { id: input.asteriskId }, select: { id: true } }),
-    prisma.speaker.findUnique({
-      where: { projectId_ext: { projectId: existing.projectId, ext } },
-      select: { id: true },
-    }),
-  ]);
-  if (!asterisk) return { ok: false, error: 'asterisk_missing' };
+  const dup = await prisma.speaker.findUnique({
+    where: { projectId_ext: { projectId: existing.projectId, ext } },
+    select: { id: true },
+  });
   if (dup && dup.id !== input.id) return { ok: false, error: 'ext_taken' };
 
   await prisma.speaker.update({
     where: { id: input.id },
-    data: { name, ext, area, asteriskId: input.asteriskId },
+    data: { name, ext, area },
   });
 
   revalidatePath('/[locale]/admin/projects', 'page');

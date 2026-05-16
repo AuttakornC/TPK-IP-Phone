@@ -12,7 +12,7 @@ import SpeakerStatusPill from '@/components/ui/SpeakerStatusPill';
 import StatCard from '@/components/ui/StatCard';
 import StatusPill from '@/components/ui/StatusPill';
 import type { ProjectStatus } from '@/lib/mock';
-import { deleteProject, updateProject, type DeleteProjectResult, type ProjectRow, type UpdateProjectResult } from '@/server/actions/projects';
+import { deleteProject, updateProject, type ProjectRow, type UpdateProjectResult } from '@/server/actions/projects';
 import { createSpeaker, updateSpeaker, deleteSpeaker, setSpeakerOnline, type CreateSpeakerResult, type UpdateSpeakerResult } from '@/server/actions/speakers';
 import { deleteUser, type ProjectUserRow } from '@/server/actions/users';
 import type { SpeakerRow } from '@/server/actions/speakers';
@@ -29,13 +29,14 @@ const UPDATE_ERROR_KEY: Record<Extract<UpdateProjectResult, { ok: false }>['erro
   name_required: 'nameRequired',
   name_taken: 'nameTaken',
   not_found: 'notFound',
+  sip_server_required: 'sipServerRequired',
+  sip_server_missing: 'sipServerMissing',
 };
 
 const SPEAKER_ERROR_KEY: Record<Extract<CreateSpeakerResult, { ok: false }>['error'], string> = {
   required: 'required',
   ext_format: 'extFormat',
   ext_taken: 'extTaken',
-  asterisk_missing: 'asteriskMissing',
   project_missing: 'projectMissing',
 };
 
@@ -43,13 +44,12 @@ const UPDATE_SPEAKER_ERROR_KEY: Record<Extract<UpdateSpeakerResult, { ok: false 
   required: 'required',
   ext_format: 'extFormat',
   ext_taken: 'extTaken',
-  asterisk_missing: 'asteriskMissing',
   not_found: 'notFound',
 };
 
 type Tab = 'accounts' | 'speakers' | 'usage';
 
-interface AsteriskOption {
+interface SipServerOption {
   id: string;
   name: string;
   domain: string;
@@ -59,11 +59,11 @@ interface Props {
   project: ProjectRow;
   users: ProjectUserRow[];
   speakers: SpeakerRow[];
-  asterisks: AsteriskOption[];
+  sipServers: SipServerOption[];
   suggestedExt: string;
 }
 
-export default function ProjectDetailClient({ project, users, speakers, asterisks, suggestedExt }: Props) {
+export default function ProjectDetailClient({ project, users, speakers, sipServers, suggestedExt }: Props) {
   const t = useTranslations('adminProjectDetail');
   const tProjects = useTranslations('adminProjects');
   const tStatus = useTranslations('projectStatus');
@@ -87,6 +87,8 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
   const [showEdit, setShowEdit] = useState(false);
   const [editName, setEditName] = useState(project.name);
   const [editStatus, setEditStatus] = useState<ProjectStatus>(project.status);
+  const [editSipServerId, setEditSipServerId] = useState<string>(project.sipServerId);
+  const [editBroadcastPrefix, setEditBroadcastPrefix] = useState<string>(project.broadcastPrefix);
   const [editError, setEditError] = useState<string | null>(null);
 
   // Add speaker modal state
@@ -94,7 +96,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
   const [speakerName, setSpeakerName] = useState('');
   const [speakerExt, setSpeakerExt] = useState('');
   const [speakerArea, setSpeakerArea] = useState('');
-  const [speakerAsteriskId, setSpeakerAsteriskId] = useState('');
   const [speakerError, setSpeakerError] = useState<string | null>(null);
 
   // Edit speaker modal state
@@ -102,7 +103,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
   const [editSpeakerName, setEditSpeakerName] = useState('');
   const [editSpeakerExt, setEditSpeakerExt] = useState('');
   const [editSpeakerArea, setEditSpeakerArea] = useState('');
-  const [editSpeakerAsteriskId, setEditSpeakerAsteriskId] = useState('');
   const [editSpeakerError, setEditSpeakerError] = useState<string | null>(null);
 
   // Delete speaker dialog state
@@ -121,6 +121,8 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
   function openEdit() {
     setEditName(project.name);
     setEditStatus(project.status);
+    setEditSipServerId(project.sipServerId);
+    setEditBroadcastPrefix(project.broadcastPrefix);
     setEditError(null);
     setShowEdit(true);
   }
@@ -130,7 +132,13 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
     setEditError(null);
     const trimmed = editName.trim();
     startTransition(async () => {
-      const result = await updateProject({ id: project.id, name: trimmed, status: editStatus });
+      const result = await updateProject({
+        id: project.id,
+        name: trimmed,
+        status: editStatus,
+        sipServerId: editSipServerId,
+        broadcastPrefix: editBroadcastPrefix.trim(),
+      });
       if (!result.ok) {
         setEditError(tProjects(`errors.${UPDATE_ERROR_KEY[result.error]}`, { name: trimmed }));
         return;
@@ -151,7 +159,13 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
     const nextStatus: ProjectStatus = isSuspended ? 'active' : 'expired';
     setSuspendError(null);
     startTransition(async () => {
-      const result = await updateProject({ id: project.id, name: project.name, status: nextStatus });
+      const result = await updateProject({
+        id: project.id,
+        name: project.name,
+        status: nextStatus,
+        sipServerId: project.sipServerId,
+        broadcastPrefix: project.broadcastPrefix,
+      });
       if (!result.ok) {
         setSuspendError(tProjects(`errors.${UPDATE_ERROR_KEY[result.error]}`, { name: project.name }));
         return;
@@ -205,7 +219,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
     setSpeakerName('');
     setSpeakerExt('');
     setSpeakerArea('');
-    setSpeakerAsteriskId(asterisks[0]?.id ?? '');
     setSpeakerError(null);
     setShowAddSpeaker(true);
   }
@@ -219,7 +232,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
         name: speakerName,
         ext: speakerExt,
         area: speakerArea,
-        asteriskId: speakerAsteriskId,
       });
       if (!result.ok) {
         const params: Record<string, string> = {};
@@ -237,7 +249,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
     setEditSpeakerName(s.name);
     setEditSpeakerExt(s.ext);
     setEditSpeakerArea(s.area);
-    setEditSpeakerAsteriskId(s.asteriskId);
     setEditSpeakerError(null);
   }
 
@@ -251,7 +262,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
         name: editSpeakerName,
         ext: editSpeakerExt,
         area: editSpeakerArea,
-        asteriskId: editSpeakerAsteriskId,
       });
       if (!result.ok) {
         const params: Record<string, string> = {};
@@ -433,9 +443,7 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
             <h2 className="text-lg font-bold">{t('speakersTab.title')}</h2>
             <button
               onClick={openAddSpeaker}
-              disabled={asterisks.length === 0}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium disabled:opacity-60"
-              title={asterisks.length === 0 ? t('speakersTab.noAsteriskHint') : undefined}
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
             >
               {t('speakersTab.addSpeaker')}
             </button>
@@ -525,7 +533,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
       <AddUserModal
         open={showAddUser}
         projectId={project.id}
-        asterisks={asterisks}
         speakers={speakers}
         suggestedExt={suggestedExt}
         onClose={() => setShowAddUser(false)}
@@ -534,7 +541,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
       <EditUserModal
         open={editingUser !== null}
         user={editingUser}
-        asterisks={asterisks}
         speakers={speakers}
         onClose={() => setEditingUser(null)}
       />
@@ -631,6 +637,33 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                 {STATUSES.map(s => <option key={s} value={s}>{tStatus(s)}</option>)}
               </select>
             </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('editModal.sipServer')}</label>
+              <select
+                value={editSipServerId}
+                onChange={e => setEditSipServerId(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                required
+              >
+                <option value="" disabled>{t('editModal.sipServerPlaceholder')}</option>
+                {sipServers.map(a => (
+                  <option key={a.id} value={a.id}>{a.name} — {a.domain}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500 mt-1">{t('editModal.sipServerHint')}</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('editModal.broadcastPrefix')}</label>
+              <input
+                type="text"
+                value={editBroadcastPrefix}
+                onChange={e => setEditBroadcastPrefix(e.target.value)}
+                placeholder="99"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+                maxLength={20}
+              />
+              <p className="text-xs text-slate-500 mt-1">{t('editModal.broadcastPrefixHint')}</p>
+            </div>
             {editError && (
               <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{editError}</div>
             )}
@@ -700,21 +733,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                   required
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">{t('addSpeakerModal.asterisk')}</label>
-              <select
-                value={speakerAsteriskId}
-                onChange={e => setSpeakerAsteriskId(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                required
-              >
-                <option value="" disabled>{t('addSpeakerModal.asteriskPlaceholder')}</option>
-                {asterisks.map(a => (
-                  <option key={a.id} value={a.id}>{a.name} — {a.domain}</option>
-                ))}
-              </select>
-              <p className="text-xs text-slate-500 mt-1">{t('addSpeakerModal.asteriskHint')}</p>
             </div>
             {speakerError && (
               <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{speakerError}</div>
@@ -787,21 +805,6 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                   required
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">{t('addSpeakerModal.asterisk')}</label>
-              <select
-                value={editSpeakerAsteriskId}
-                onChange={e => setEditSpeakerAsteriskId(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                required
-              >
-                <option value="" disabled>{t('addSpeakerModal.asteriskPlaceholder')}</option>
-                {asterisks.map(a => (
-                  <option key={a.id} value={a.id}>{a.name} — {a.domain}</option>
-                ))}
-              </select>
-              <p className="text-xs text-slate-500 mt-1">{t('addSpeakerModal.asteriskHint')}</p>
             </div>
             {editSpeakerError && (
               <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{editSpeakerError}</div>

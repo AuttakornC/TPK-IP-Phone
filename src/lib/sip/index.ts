@@ -15,6 +15,7 @@ export {
   type SipCallTarget,
   type SipCallState,
   type SipCallHandle,
+  type SipCallOptions,
   type SipEvents,
   type SipErrorCode,
 } from './types';

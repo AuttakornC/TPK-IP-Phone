@@ -20,9 +20,9 @@ export default function StatusContent({ projectId = null }: Props = {}) {
   const tSpeakers = useTranslations('speakers');
 
   const services = [
-    { key: 'asterisk', name: t('serviceNames.asterisk'), status: SYSTEM_STATUS.asterisk.status, uptime: tUptime('asterisk'), cpu: SYSTEM_STATUS.asterisk.cpu, mem: SYSTEM_STATUS.asterisk.mem },
+    { key: 'sipServer', name: t('serviceNames.sipServer'), status: SYSTEM_STATUS.sipServer.status, uptime: tUptime('sipServer'), cpu: SYSTEM_STATUS.sipServer.cpu, mem: SYSTEM_STATUS.sipServer.mem },
     { key: 'webApp', name: t('serviceNames.webApp'), status: SYSTEM_STATUS.webApp.status, uptime: tUptime('webApp'), cpu: SYSTEM_STATUS.webApp.cpu, mem: SYSTEM_STATUS.webApp.mem },
-    { key: 'database', name: t('serviceNames.database'), status: SYSTEM_STATUS.database.status, uptime: tUptime('asterisk'), cpu: 3, mem: 8 },
+    { key: 'database', name: t('serviceNames.database'), status: SYSTEM_STATUS.database.status, uptime: tUptime('sipServer'), cpu: 3, mem: 8 },
     { key: 'nginx', name: t('serviceNames.nginx'), status: 'ok' as const, uptime: t('uptimeNginx'), cpu: 1, mem: 4 },
   ];
 
@@ -52,7 +52,7 @@ export default function StatusContent({ projectId = null }: Props = {}) {
       </div>
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label={t('asteriskCard')} value={t('asteriskValue')} hint={t('uptimeHint', { uptime: tUptime('asterisk') })} accent="text-green-600" />
+        <StatCard label={t('sipServerCard')} value={t('sipServerValue')} hint={t('uptimeHint', { uptime: tUptime('sipServer') })} accent="text-green-600" />
         <StatCard label={t('speakersOnline')} value={`${visibleOnline}/${visibleSpeakers.length}`} hint={t('lastCheck', { time: tSpeakers('lastCheckHint') })} />
         <StatCard label={t('storage')} value={`${SYSTEM_STATUS.storage.used} ${SYSTEM_STATUS.storage.unit}`} hint={t('storageHint', { total: SYSTEM_STATUS.storage.total, unit: SYSTEM_STATUS.storage.unit })} />
         <StatCard label={t('lastBackup')} value={t('backupSuccess')} hint={SYSTEM_STATUS.backup.last} accent="text-green-600" />
@@ -182,8 +182,8 @@ export default function StatusContent({ projectId = null }: Props = {}) {
           <div className="mt-3"><span className="inline-flex px-2 py-0.5 text-xs rounded-full font-medium bg-green-100 text-green-700">{t('wssOnline')}</span></div>
         </div>
         <div className="bg-white border border-slate-200 rounded-2xl p-5">
-          <div className="text-xs text-slate-500">{t('asteriskVersionTitle')}</div>
-          <div className="font-bold text-slate-900 mt-1">{SYSTEM_STATUS.asterisk.version}</div>
+          <div className="text-xs text-slate-500">{t('sipServerVersionTitle')}</div>
+          <div className="font-bold text-slate-900 mt-1">{SYSTEM_STATUS.sipServer.version}</div>
           <div className="text-xs text-slate-500 mt-1">{t('webAppVersion', { version: SYSTEM_STATUS.webApp.version })}</div>
           <div className="mt-3"><span className="inline-flex px-2 py-0.5 text-xs rounded-full font-medium bg-blue-100 text-blue-700">{t('latest')}</span></div>
         </div>

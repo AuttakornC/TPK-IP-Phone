@@ -6,10 +6,10 @@ import { Link, usePathname } from '@/i18n/navigation';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
-const NAV: { href: string; key: 'dashboard' | 'projects' | 'asterisks' | 'status'; match: string }[] = [
+const NAV: { href: string; key: 'dashboard' | 'projects' | 'sipServers' | 'status'; match: string }[] = [
   { href: '/admin/dashboard', key: 'dashboard', match: '/admin/dashboard' },
   { href: '/admin/projects', key: 'projects', match: '/admin/projects' },
-  { href: '/admin/asterisks', key: 'asterisks', match: '/admin/asterisks' },
+  { href: '/admin/sip-servers', key: 'sipServers', match: '/admin/sip-servers' },
   { href: '/admin/status', key: 'status', match: '/admin/status' },
 ];
 

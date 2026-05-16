@@ -6,13 +6,13 @@ import type { SipConfig } from "@/lib/sip";
 
 export type SipConfigResult =
   | { ok: true; config: SipConfig }
-  | { ok: false; error: "no_credentials" | "asterisk_inactive" };
+  | { ok: false; error: "no_credentials" | "sip_server_inactive" };
 
 /**
- * Builds the SIP config for the signed-in general user from their `UserAsterisk`
- * row + linked `Asterisk`. The plaintext password is intentionally returned —
- * see CLAUDE.md note on `UserAsterisk.password` being admin-managed and used
- * directly by the user's browser to register with Asterisk.
+ * Builds the SIP config for the signed-in general user from `User.sipExt` /
+ * `User.sipPassword` + their project's `SipServer`. The plaintext password is
+ * intentionally returned — admin-managed and used directly by the user's
+ * browser to register (see CLAUDE.md).
  */
 export async function getSipConfig(): Promise<SipConfigResult> {
   const session = await requireGeneralUser();
@@ -21,20 +21,25 @@ export async function getSipConfig(): Promise<SipConfigResult> {
 
   const user = await prisma.user.findUnique({
     where: { username },
-    include: { asterisk: { include: { asterisk: true } } },
+    include: {
+      project: { include: { sipServer: true } },
+    },
   });
-  if (!user?.asterisk) return { ok: false, error: "no_credentials" };
-  if (!user.asterisk.asterisk.active)
-    return { ok: false, error: "asterisk_inactive" };
+  if (!user?.sipExt || !user.sipPassword) {
+    return { ok: false, error: "no_credentials" };
+  }
+  if (!user.project?.sipServer) return { ok: false, error: "no_credentials" };
+  if (!user.project.sipServer.active)
+    return { ok: false, error: "sip_server_inactive" };
 
-  const domain = user.asterisk.asterisk.domain;
-  const port = user.asterisk.asterisk.port;
+  const domain = user.project.sipServer.domain;
+  const port = user.project.sipServer.port;
   return {
     ok: true,
     config: {
       wssUrl: `wss://${domain}:${port}/ws`,
-      uri: `sip:${user.asterisk.ext}@${domain}`,
-      password: user.asterisk.password,
+      uri: `sip:${user.sipExt}@${domain}`,
+      password: user.sipPassword,
       realm: domain,
     },
   };

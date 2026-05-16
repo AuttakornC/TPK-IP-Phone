@@ -13,14 +13,24 @@ const STATUSES: ProjectStatus[] = ['active', 'expiring', 'expired'];
 const ERROR_KEY = {
   name_required: 'nameRequired',
   name_taken: 'nameTaken',
+  sip_server_required: 'sipServerRequired',
+  sip_server_missing: 'sipServerMissing',
 } as const;
+
+interface SipServerOption {
+  id: string;
+  name: string;
+  domain: string;
+  active: boolean;
+}
 
 interface Props {
   projects: ProjectRow[];
   predictedNextId: string;
+  sipServers: SipServerOption[];
 }
 
-export default function ProjectsClient({ projects, predictedNextId }: Props) {
+export default function ProjectsClient({ projects, predictedNextId, sipServers }: Props) {
   const t = useTranslations('adminProjects');
   const tStatus = useTranslations('projectStatus');
   const tCommon = useTranslations('common');
@@ -32,11 +42,15 @@ export default function ProjectsClient({ projects, predictedNextId }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState('');
   const [status, setStatus] = useState<ProjectStatus>('active');
+  const [sipServerId, setSipServerId] = useState<string>(sipServers[0]?.id ?? '');
+  const [broadcastPrefix, setBroadcastPrefix] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   function openCreate() {
     setName('');
     setStatus('active');
+    setSipServerId(sipServers[0]?.id ?? '');
+    setBroadcastPrefix('');
     setError(null);
     setShowModal(true);
   }
@@ -48,8 +62,17 @@ export default function ProjectsClient({ projects, predictedNextId }: Props) {
       setError(t('errors.nameRequired'));
       return;
     }
+    if (!sipServerId) {
+      setError(t('errors.sipServerRequired'));
+      return;
+    }
     startTransition(async () => {
-      const result = await createProject({ name: trimmed, status });
+      const result = await createProject({
+        name: trimmed,
+        status,
+        sipServerId,
+        broadcastPrefix: broadcastPrefix.trim(),
+      });
       if (!result.ok) {
         const key = ERROR_KEY[result.error];
         setError(t(`errors.${key}`, { name: trimmed }));
@@ -157,6 +180,35 @@ export default function ProjectsClient({ projects, predictedNextId }: Props) {
               >
                 {STATUSES.map(s => <option key={s} value={s}>{tStatus(s)}</option>)}
               </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.sipServer')}</label>
+              <select
+                value={sipServerId}
+                onChange={e => setSipServerId(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                required
+              >
+                <option value="" disabled>{t('modal.sipServerPlaceholder')}</option>
+                {sipServers.map(a => (
+                  <option key={a.id} value={a.id} disabled={!a.active}>
+                    {a.name} — {a.domain}{!a.active ? ` (${tCommon('suspended')})` : ''}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500 mt-1">{t('modal.sipServerHint')}</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.broadcastPrefix')}</label>
+              <input
+                type="text"
+                value={broadcastPrefix}
+                onChange={e => setBroadcastPrefix(e.target.value)}
+                placeholder="99"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+                maxLength={20}
+              />
+              <p className="text-xs text-slate-500 mt-1">{t('modal.broadcastPrefixHint')}</p>
             </div>
             <div className="text-xs text-slate-500">
               {t('modal.idPreview', { id: predictedNextId })}

@@ -102,7 +102,7 @@
     "nav": {
       "dashboard": "📊 Dashboard",
       "projects": "📁 โครงการ",
-      "asterisks": "📡 Asterisk",
+      "sipServers": "📡 SIP Server",
       "status": "⚙️ สถานะระบบ"
     }
   },
@@ -151,13 +151,20 @@
       "name": "ชื่อโครงการ",
       "namePlaceholder": "เทศบาล... / อบต. ...",
       "status": "สถานะ",
+      "sipServer": "SIP Server ของโครงการ",
+      "sipServerPlaceholder": "— เลือก SIP Server —",
+      "sipServerHint": "ผู้ใช้และลำโพงทุกตัวในโครงการนี้จะใช้ SIP Server เดียวกัน",
+      "broadcastPrefix": "Prefix สำหรับ Broadcast All",
+      "broadcastPrefixHint": "เลขหมายในระบบ SIP Server ที่จะ paging ลำโพงทุกตัวพร้อมกัน (ว่างได้ถ้ายังไม่กำหนด)",
       "idPreview": "Project ID จะถูกตั้งเป็น {id}",
       "submit": "สร้างโครงการ"
     },
     "errors": {
       "nameRequired": "กรุณาระบุชื่อโครงการ",
       "nameTaken": "ชื่อ \"{name}\" ถูกใช้แล้ว",
-      "notFound": "ไม่พบโครงการนี้ — กรุณารีเฟรชหน้าและลองใหม่"
+      "notFound": "ไม่พบโครงการนี้ — กรุณารีเฟรชหน้าและลองใหม่",
+      "sipServerRequired": "กรุณาเลือก SIP Server",
+      "sipServerMissing": "ไม่พบ SIP Server ที่เลือก — กรุณาลองใหม่"
     }
   },
   "adminProjectDetail": {
@@ -227,7 +234,7 @@
       "deleteSpeaker": "ลบจุดประกาศ",
       "notAssigned": "ยังไม่ได้ assign ให้ผู้ใช้ทั่วไป",
       "assignedTo": "→ {names}",
-      "noAsteriskHint": "ต้องมี Asterisk อย่างน้อยหนึ่งตัวก่อนเพิ่มจุดประกาศ",
+      "noSipServerHint": "ต้องมี SIP Server อย่างน้อยหนึ่งตัวก่อนเพิ่มจุดประกาศ",
       "toggleOnline": {
         "label": "สลับสถานะออนไลน์",
         "goOnline": "ตั้งเป็นออนไลน์",
@@ -253,38 +260,43 @@
     },
     "editModal": {
       "title": "แก้ไขโครงการ",
-      "subtitle": "เปลี่ยนชื่อหรือสถานะของโครงการ",
+      "subtitle": "เปลี่ยนชื่อ สถานะ SIP Server หรือ prefix ของโครงการ",
       "name": "ชื่อโครงการ",
-      "status": "สถานะ"
+      "status": "สถานะ",
+      "sipServer": "SIP Server ของโครงการ",
+      "sipServerPlaceholder": "— เลือก SIP Server —",
+      "sipServerHint": "ผู้ใช้และลำโพงทุกตัวในโครงการนี้จะใช้ SIP Server เดียวกัน",
+      "broadcastPrefix": "Prefix สำหรับ Broadcast All",
+      "broadcastPrefixHint": "เลขหมายในระบบ SIP Server ที่จะ paging ลำโพงทุกตัวพร้อมกัน (ว่างได้ถ้ายังไม่กำหนด)"
     },
     "addSpeakerModal": {
       "title": "เพิ่มจุดประกาศใหม่",
-      "subtitle": "ผูกกับ Asterisk และระบุ ext (unique ภายในโครงการ)",
+      "subtitle": "ผูกกับ SIP Server และระบุ ext (unique ภายในโครงการ)",
       "name": "ชื่อจุด",
       "namePlaceholder": "เช่น ศาลาประชาคม",
       "ext": "Extension",
       "area": "พื้นที่",
       "areaPlaceholder": "เช่น หมู่ 1",
-      "asterisk": "Asterisk PBX",
-      "asteriskPlaceholder": "— เลือก Asterisk —",
-      "asteriskHint": "ลำโพงจะ register กับ SIP domain นี้",
+      "sipServer": "SIP Server",
+      "sipServerPlaceholder": "— เลือก SIP Server —",
+      "sipServerHint": "ลำโพงจะ register กับ SIP domain นี้",
       "submit": "สร้างจุดประกาศ",
       "errors": {
         "required": "กรุณากรอกข้อมูลให้ครบทุกช่อง",
         "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
         "extTaken": "Ext {ext} ถูกใช้แล้วในโครงการนี้",
-        "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้า",
+        "sipServerMissing": "ไม่พบ SIP Server ที่เลือก — กรุณารีเฟรชหน้า",
         "projectMissing": "ไม่พบโครงการนี้ — กรุณารีเฟรชหน้า"
       }
     },
     "editSpeakerModal": {
       "title": "แก้ไขจุดประกาศ",
-      "subtitle": "{name} — แก้ไขชื่อ ext พื้นที่ หรือ Asterisk",
+      "subtitle": "{name} — แก้ไขชื่อ ext พื้นที่ หรือ SIP Server",
       "errors": {
         "required": "กรุณากรอกข้อมูลให้ครบทุกช่อง",
         "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
         "extTaken": "Ext {ext} ถูกใช้แล้วในโครงการนี้",
-        "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้า",
+        "sipServerMissing": "ไม่พบ SIP Server ที่เลือก — กรุณารีเฟรชหน้า",
         "notFound": "ไม่พบจุดประกาศ — กรุณารีเฟรชหน้า"
       }
     }
@@ -303,12 +315,12 @@
       "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
       "extTaken": "Ext {ext} ถูกใช้แล้ว",
       "loginPasswordShort": "รหัสผ่านเข้าสู่ระบบต้องมีอย่างน้อย 6 ตัวอักษร",
-      "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้า"
+      "sipServerMissing": "ไม่พบ SIP Server ที่เลือก — กรุณารีเฟรชหน้า"
     }
   },
   "addUserModal": {
     "title": "เพิ่มผู้ใช้ใหม่",
-    "subtitle": "ผู้ใช้ทุกคนต้องมี SIP credentials เพื่อใช้งาน Asterisk",
+    "subtitle": "ผู้ใช้ทุกคนต้องมี SIP credentials เพื่อใช้งาน SIP Server",
     "submit": "สร้างผู้ใช้",
     "section": {
       "user": "ข้อมูลผู้ใช้",
@@ -322,8 +334,8 @@
       "namePlaceholder": "เช่น นายสมชาย วงศ์สวัสดิ์",
       "username": "Username",
       "role": "บทบาท",
-      "asterisk": "Asterisk PBX",
-      "asteriskPlaceholder": "— เลือก Asterisk —",
+      "sipServer": "SIP Server",
+      "sipServerPlaceholder": "— เลือก SIP Server —",
       "ext": "SIP extension (unique ทั้งระบบ)",
       "extSuggest": "หาเลขถัดไปอัตโนมัติ",
       "password": "SIP password",
@@ -341,41 +353,41 @@
       "extFormat": "Ext ต้องเป็นตัวเลข 3-6 หลัก",
       "extTaken": "Ext {ext} ถูกใช้แล้ว",
       "loginPasswordShort": "รหัสผ่านเข้าสู่ระบบต้องมีอย่างน้อย 6 ตัวอักษร",
-      "asteriskMissing": "ไม่พบ Asterisk ที่เลือก — กรุณารีเฟรชหน้าและลองใหม่"
+      "sipServerMissing": "ไม่พบ SIP Server ที่เลือก — กรุณารีเฟรชหน้าและลองใหม่"
     }
   },
-  "adminAsterisks": {
-    "title": "Asterisk PBX",
-    "subtitle": "จัดการ SIP domain ของระบบ — ลำโพงทุกจุดต้องผูกกับ Asterisk หนึ่งตัว",
-    "addAsterisk": "+ เพิ่ม Asterisk",
+  "adminSipServers": {
+    "title": "SIP Server",
+    "subtitle": "จัดการ SIP domain ของระบบ — โครงการแต่ละโครงการจะผูกกับ SIP Server หนึ่งตัว",
+    "addSipServer": "+ เพิ่ม SIP Server",
     "searchPlaceholder": "ค้นหาชื่อหรือ domain...",
-    "speakerCount": "{count} จุด",
-    "deleteBlocked": "ไม่สามารถลบได้ — ยังมี {count} จุดประกาศใช้งานอยู่",
+    "projectCount": "{count} โครงการ",
+    "deleteBlocked": "ไม่สามารถลบได้ — ยังมี {count} โครงการใช้งานอยู่",
     "deleteConfirm": "ลบ \"{name}\" ใช่หรือไม่?",
     "table": {
       "name": "ชื่อ",
       "domain": "Domain",
       "port": "พอร์ต",
-      "speakers": "จุดประกาศที่ใช้",
+      "projects": "โครงการที่ใช้",
       "status": "สถานะ",
       "actions": "ดำเนินการ",
-      "empty": "ยังไม่มี Asterisk"
+      "empty": "ยังไม่มี SIP Server"
     },
     "modal": {
-      "title": "เพิ่ม Asterisk ใหม่",
-      "editTitle": "แก้ไข Asterisk",
+      "title": "เพิ่ม SIP Server ใหม่",
+      "editTitle": "แก้ไข SIP Server",
       "subtitle": "ใช้สำหรับ register ลำโพงเข้า PBX",
       "name": "ชื่อเรียก",
-      "namePlaceholder": "เช่น Asterisk หลัก",
+      "namePlaceholder": "เช่น SIP Server หลัก",
       "domain": "SIP domain",
       "domainHint": "เช่น sip.tpk-pa.local — ต้อง unique",
       "port": "พอร์ต",
       "portHint": "ค่าเริ่มต้น 5060",
       "active": "เปิดใช้งาน",
-      "submit": "สร้าง Asterisk"
+      "submit": "สร้าง SIP Server"
     },
     "errors": {
-      "nameRequired": "กรุณาระบุชื่อ Asterisk",
+      "nameRequired": "กรุณาระบุชื่อ SIP Server",
       "domainRequired": "กรุณาระบุ SIP domain",
       "domainTaken": "Domain นี้ถูกใช้แล้ว",
       "portInvalid": "พอร์ตต้องเป็นตัวเลขระหว่าง 1–65535"
@@ -565,8 +577,8 @@
   "statusPage": {
     "title": "สถานะระบบ",
     "subtitle": "ตรวจสุขภาพระบบทั้งหมด · รีเฟรชอัตโนมัติทุก 30 วินาที",
-    "asteriskCard": "Asterisk PBX",
-    "asteriskValue": "ปกติ",
+    "sipServerCard": "SIP Server",
+    "sipServerValue": "ปกติ",
     "uptimeHint": "Uptime {uptime}",
     "speakersOnline": "ลำโพงออนไลน์",
     "lastCheck": "ตรวจล่าสุด {time}",
@@ -594,11 +606,11 @@
     "networkTitle": "เครือข่าย",
     "packetLoss": "Packet loss: {pct}%",
     "wssOnline": "WSS Online",
-    "asteriskVersionTitle": "Asterisk Version",
+    "sipServerVersionTitle": "SIP Server Version",
     "webAppVersion": "Web App: {version}",
     "latest": "เป็นเวอร์ชันล่าสุด",
     "serviceNames": {
-      "asterisk": "Asterisk PBX",
+      "sipServer": "SIP Server",
       "webApp": "Web Application",
       "database": "Database (Postgres)",
       "nginx": "Nginx Reverse Proxy"
@@ -611,7 +623,7 @@
     "uptimeNginx": "14 วัน 3 ชม."
   },
   "systemUptime": {
-    "asterisk": "14 วัน 3 ชม.",
+    "sipServer": "14 วัน 3 ชม.",
     "webApp": "2 วัน 8 ชม."
   },
   "speakers": {
@@ -730,11 +742,29 @@
       "singleTitle": "ประกาศไปยัง {name}?",
       "singleDetail": "เสียงของคุณจะออกลำโพงจุดนี้ทันที",
       "yes": "ใช่ เริ่มประกาศ",
-      "no": "ไม่ ยกเลิก"
+      "no": "ไม่ ยกเลิก",
+      "mp3Heading": "เลือกเสียง MP3 ที่จะเล่นก่อนพูด",
+      "mp3None": "ไม่มี — พูดสดเท่านั้น"
+    },
+    "library": {
+      "title": "เพลง MP3 ของฉัน",
+      "count": "{used}/{max} ไฟล์",
+      "upload": "เพิ่มไฟล์ MP3",
+      "uploading": "กำลังอัปโหลด...",
+      "empty": "ยังไม่มีไฟล์ — กดปุ่มเพิ่มเพื่ออัปโหลด",
+      "size": "ขนาด {size}",
+      "errors": {
+        "notAuthorized": "หมดเวลาเข้าใช้งาน — โปรดเข้าสู่ระบบใหม่",
+        "noFile": "ไม่พบไฟล์ที่เลือก",
+        "invalidType": "รองรับเฉพาะไฟล์ MP3",
+        "tooLarge": "ไฟล์ใหญ่เกินไป (สูงสุด 10 MB)",
+        "quotaFull": "ครบโควต้า 5 ไฟล์แล้ว — โปรดลบไฟล์เก่าก่อน"
+      }
     },
     "call": {
       "connecting": "กำลังเชื่อมต่อ...",
-      "speaking": "● กำลังพูด...",
+      "speaking": "🎤 กำลังพูด...",
+      "playingMp3": "🎵 กำลังเล่นเสียง MP3...",
       "successTitle": "ประกาศสำเร็จ",
       "successMulti": "ประกาศไปยัง {count} จุด เป็นเวลา {min}:{sec} นาที",
       "successSingle": "ประกาศเป็นเวลา {min}:{sec} นาที",
@@ -745,8 +775,8 @@
       "errors": {
         "title": "ประกาศไม่สำเร็จ",
         "noCredentials": "ไม่พบข้อมูล SIP ของบัญชีนี้ — โปรดติดต่อผู้ดูแลระบบ",
-        "asteriskInactive": "Asterisk ที่กำหนดไว้ถูกปิดใช้งาน — โปรดติดต่อผู้ดูแลระบบ",
-        "transport": "เชื่อมต่อ Asterisk ไม่ได้ — ตรวจสอบเครือข่าย",
+        "sipServerInactive": "SIP Server ที่กำหนดไว้ถูกปิดใช้งาน — โปรดติดต่อผู้ดูแลระบบ",
+        "transport": "เชื่อมต่อ SIP Server ไม่ได้ — ตรวจสอบเครือข่าย",
         "registration": "ลงทะเบียน SIP ไม่สำเร็จ — รหัสผ่านอาจไม่ถูกต้อง",
         "micDenied": "ไม่อนุญาตให้ใช้ไมโครโฟน — เปิดสิทธิ์ในการตั้งค่าเบราว์เซอร์",
         "micUnavailable": "ไม่พบไมโครโฟนบนอุปกรณ์นี้",

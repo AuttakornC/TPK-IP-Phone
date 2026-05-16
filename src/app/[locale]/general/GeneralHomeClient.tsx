@@ -1,11 +1,22 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, useTransition, type ChangeEvent } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import type { GeneralHomeData, GeneralSpeakerRow } from '@/server/actions/general';
+import type { GeneralHomeData, GeneralSpeakerRow, Mp3LibraryRow } from '@/server/actions/general';
+import { deleteMyMp3, listMyMp3Library, uploadMyMp3 } from '@/server/actions/general';
+
+const MAX_MP3_PER_USER = 5;
+
+const UPLOAD_ERROR_KEY: Record<string, string> = {
+  not_authorized: 'notAuthorized',
+  no_file: 'noFile',
+  invalid_type: 'invalidType',
+  too_large: 'tooLarge',
+  quota_full: 'quotaFull',
+};
 
 interface PendingTarget {
   kind: 'single' | 'group';
@@ -19,10 +30,27 @@ interface ConfirmDialog {
   target: PendingTarget | null;
 }
 
-export default function GeneralHomeClient({ data }: { data: GeneralHomeData }) {
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+export default function GeneralHomeClient({
+  data,
+  initialMp3Library,
+}: {
+  data: GeneralHomeData;
+  initialMp3Library: Mp3LibraryRow[];
+}) {
   const router = useRouter();
   const t = useTranslations('general');
   const [confirm, setConfirm] = useState<ConfirmDialog | null>(null);
+  const [library, setLibrary] = useState<Mp3LibraryRow[]>(initialMp3Library);
+  const [selectedMp3Id, setSelectedMp3Id] = useState<string | null>(null);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const mySpeakers = data.speakers;
 
@@ -38,7 +66,38 @@ export default function GeneralHomeClient({ data }: { data: GeneralHomeData }) {
     });
   }, [t]);
 
-  function askConfirm(opts: ConfirmDialog) { setConfirm(opts); }
+  function onFilePicked(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setLibraryError(null);
+    const form = new FormData();
+    form.set('file', file);
+    startTransition(async () => {
+      const res = await uploadMyMp3(form);
+      if (!res.ok) {
+        setLibraryError(t(`library.errors.${UPLOAD_ERROR_KEY[res.error] ?? 'noFile'}`));
+        return;
+      }
+      const rows = await listMyMp3Library();
+      setLibrary(rows);
+    });
+  }
+
+  function onDeleteMp3(id: string) {
+    setLibraryError(null);
+    startTransition(async () => {
+      await deleteMyMp3(id);
+      const rows = await listMyMp3Library();
+      setLibrary(rows);
+      if (selectedMp3Id === id) setSelectedMp3Id(null);
+    });
+  }
+
+  function askConfirm(opts: ConfirmDialog) {
+    setSelectedMp3Id(null);
+    setConfirm(opts);
+  }
 
   function handleConfirmYes() {
     if (!confirm || !confirm.target) {
@@ -46,12 +105,24 @@ export default function GeneralHomeClient({ data }: { data: GeneralHomeData }) {
       return;
     }
     const target = confirm.target;
-    sessionStorage.setItem('generalCall', JSON.stringify({
+    const payload: {
+      kind: 'single' | 'group';
+      speakers: Array<{ id: string; name: string; area: string; ext: string }>;
+      mp3Url?: string;
+      playMode?: 'mp3-then-mic';
+    } = {
       kind: target.kind,
       speakers: target.speakers.map(s => ({ id: s.id, name: s.name, area: s.area, ext: s.ext })),
-    }));
+    };
+    if (selectedMp3Id) {
+      payload.mp3Url = `/api/mp3/${selectedMp3Id}`;
+      payload.playMode = 'mp3-then-mic';
+    }
+    sessionStorage.setItem('generalCall', JSON.stringify(payload));
     router.push('/general/call');
   }
+
+  const quotaFull = library.length >= MAX_MP3_PER_USER;
 
   return (
     <div className="elder-body">
@@ -78,6 +149,72 @@ export default function GeneralHomeClient({ data }: { data: GeneralHomeData }) {
           <span style={{ fontSize: 34 }}>📢</span>
           <span>{t('broadcastAll')}</span>
         </button>
+
+        <section className="bg-white border-2 border-slate-200 rounded-3xl p-5 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="m-0" style={{ fontSize: 22, fontWeight: 800 }}>
+              🎵 {t('library.title')}
+            </h2>
+            <div style={{ fontSize: 16, color: '#64748b' }}>
+              {t('library.count', { used: library.length, max: MAX_MP3_PER_USER })}
+            </div>
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/mpeg,.mp3"
+            onChange={onFilePicked}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={pending || quotaFull}
+            className={
+              pending || quotaFull
+                ? 'w-full bg-slate-200 text-slate-400 font-bold rounded-2xl flex items-center justify-center gap-2 mb-3'
+                : 'w-full bg-emerald-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 mb-3'
+            }
+            style={{ minHeight: 60, fontSize: 18 }}
+          >
+            <span style={{ fontSize: 24 }}>⬆️</span>
+            <span>{pending ? t('library.uploading') : t('library.upload')}</span>
+          </button>
+
+          {libraryError && (
+            <div className="mb-3 rounded-2xl bg-red-50 border-2 border-red-200 text-red-700 p-3" style={{ fontSize: 16 }}>
+              ⚠️ {libraryError}
+            </div>
+          )}
+
+          {library.length === 0 ? (
+            <div className="text-center text-slate-500 py-2" style={{ fontSize: 16 }}>
+              {t('library.empty')}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {library.map(m => (
+                <div key={m.id} className="flex items-center gap-3 border-2 border-slate-100 rounded-2xl p-3">
+                  <div style={{ fontSize: 28 }}>🎵</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-slate-900 truncate" style={{ fontSize: 18 }}>{m.name}</div>
+                    <div style={{ fontSize: 14, color: '#64748b' }}>
+                      {t('library.size', { size: formatBytes(m.sizeBytes) })}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onDeleteMp3(m.id)}
+                    disabled={pending}
+                    className="bg-red-100 text-red-700 font-bold rounded-2xl px-4"
+                    style={{ minHeight: 48, fontSize: 16 }}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <h2 className="mb-3">{t('mySpeakers')}</h2>
         <div className="space-y-3 mb-7">
@@ -122,7 +259,36 @@ export default function GeneralHomeClient({ data }: { data: GeneralHomeData }) {
           <div className="elder-confirm-card">
             <div className="text-5xl mb-3">{confirm.icon}</div>
             <h2>{confirm.title}</h2>
-            <p className="mb-5">{confirm.detail}</p>
+            <p className="mb-4">{confirm.detail}</p>
+
+            {library.length > 0 && (
+              <div className="text-left mb-4 border-2 border-slate-200 rounded-2xl p-3">
+                <div className="font-bold text-slate-700 mb-2" style={{ fontSize: 16 }}>
+                  {t('confirm.mp3Heading')}
+                </div>
+                <label className="flex items-center gap-2 py-2">
+                  <input
+                    type="radio"
+                    name="mp3-pick"
+                    checked={selectedMp3Id === null}
+                    onChange={() => setSelectedMp3Id(null)}
+                  />
+                  <span style={{ fontSize: 16 }}>{t('confirm.mp3None')}</span>
+                </label>
+                {library.map(m => (
+                  <label key={m.id} className="flex items-center gap-2 py-2">
+                    <input
+                      type="radio"
+                      name="mp3-pick"
+                      checked={selectedMp3Id === m.id}
+                      onChange={() => setSelectedMp3Id(m.id)}
+                    />
+                    <span style={{ fontSize: 16 }} className="truncate">🎵 {m.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
             <div className="space-y-3">
               <button onClick={handleConfirmYes} className="btn-elder-primary">
                 <span style={{ fontSize: 30 }}>✓</span>

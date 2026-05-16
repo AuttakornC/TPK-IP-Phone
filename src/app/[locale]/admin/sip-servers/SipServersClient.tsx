@@ -5,14 +5,14 @@ import { useState, useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import Modal from '@/components/ui/Modal';
 import {
-  createAsterisk,
-  deleteAsterisk,
-  updateAsterisk,
-  type AsteriskRow,
-  type SaveAsteriskResult,
-} from '@/server/actions/asterisks';
+  createSipServer,
+  deleteSipServer,
+  updateSipServer,
+  type SipServerRow,
+  type SaveSipServerResult,
+} from '@/server/actions/sipServers';
 
-const SAVE_ERROR_KEY: Record<Extract<SaveAsteriskResult, { ok: false }>['error'], string> = {
+const SAVE_ERROR_KEY: Record<Extract<SaveSipServerResult, { ok: false }>['error'], string> = {
   name_required: 'nameRequired',
   domain_required: 'domainRequired',
   domain_taken: 'domainTaken',
@@ -22,18 +22,18 @@ const SAVE_ERROR_KEY: Record<Extract<SaveAsteriskResult, { ok: false }>['error']
 const DEFAULT_PORT = 5060;
 
 interface Props {
-  asterisks: AsteriskRow[];
+  sipServers: SipServerRow[];
 }
 
-export default function AsterisksClient({ asterisks }: Props) {
-  const t = useTranslations('adminAsterisks');
+export default function SipServersClient({ sipServers }: Props) {
+  const t = useTranslations('adminSipServers');
   const tCommon = useTranslations('common');
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<AsteriskRow | null>(null);
+  const [editing, setEditing] = useState<SipServerRow | null>(null);
   const [name, setName] = useState('');
   const [domain, setDomain] = useState('');
   const [port, setPort] = useState<string>(String(DEFAULT_PORT));
@@ -50,7 +50,7 @@ export default function AsterisksClient({ asterisks }: Props) {
     setShowModal(true);
   }
 
-  function openEdit(a: AsteriskRow) {
+  function openEdit(a: SipServerRow) {
     setEditing(a);
     setName(a.name);
     setDomain(a.domain);
@@ -70,8 +70,8 @@ export default function AsterisksClient({ asterisks }: Props) {
     }
     startTransition(async () => {
       const result = editing
-        ? await updateAsterisk({ id: editing.id, name, domain, port: portNum, active })
-        : await createAsterisk({ name, domain, port: portNum, active });
+        ? await updateSipServer({ id: editing.id, name, domain, port: portNum, active })
+        : await createSipServer({ name, domain, port: portNum, active });
       if (!result.ok) {
         setError(t(`errors.${SAVE_ERROR_KEY[result.error]}`));
         return;
@@ -81,24 +81,23 @@ export default function AsterisksClient({ asterisks }: Props) {
     });
   }
 
-  function handleDelete(a: AsteriskRow) {
-    const total = a.speakerCount + a.userAsteriskCount;
-    if (total > 0) {
-      alert(t('deleteBlocked', { count: total }));
+  function handleDelete(a: SipServerRow) {
+    if (a.projectCount > 0) {
+      alert(t('deleteBlocked', { count: a.projectCount }));
       return;
     }
     if (!confirm(t('deleteConfirm', { name: a.name }))) return;
     startTransition(async () => {
-      const result = await deleteAsterisk(a.id);
+      const result = await deleteSipServer(a.id);
       if (!result.ok) {
-        alert(t('deleteBlocked', { count: result.speakerCount + result.userCount }));
+        alert(t('deleteBlocked', { count: result.projectCount }));
         return;
       }
       router.refresh();
     });
   }
 
-  const filtered = asterisks.filter(a => {
+  const filtered = sipServers.filter(a => {
     if (!search) return true;
     const q = search.toLowerCase();
     return a.name.toLowerCase().includes(q) || a.domain.toLowerCase().includes(q);
@@ -115,7 +114,7 @@ export default function AsterisksClient({ asterisks }: Props) {
           onClick={openCreate}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
         >
-          {t('addAsterisk')}
+          {t('addSipServer')}
         </button>
       </div>
 
@@ -135,7 +134,7 @@ export default function AsterisksClient({ asterisks }: Props) {
               <th className="px-3 py-2 font-semibold">{t('table.name')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.domain')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.port')}</th>
-              <th className="px-3 py-2 font-semibold">{t('table.speakers')}</th>
+              <th className="px-3 py-2 font-semibold">{t('table.projects')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.status')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.actions')}</th>
             </tr>
@@ -146,13 +145,12 @@ export default function AsterisksClient({ asterisks }: Props) {
                 <td colSpan={6} className="px-3 py-6 text-center text-slate-400">{t('table.empty')}</td>
               </tr>
             ) : filtered.map(a => {
-              const inUse = a.speakerCount + a.userAsteriskCount;
               return (
                 <tr key={a.id} className="border-t border-white/5 hover:bg-white/5">
                   <td className="px-3 py-3 font-medium text-white">{a.name}</td>
                   <td className="px-3 py-3 font-mono text-slate-300">{a.domain}</td>
                   <td className="px-3 py-3 font-mono text-slate-300">{a.port}</td>
-                  <td className="px-3 py-3 text-slate-300">{t('speakerCount', { count: inUse })}</td>
+                  <td className="px-3 py-3 text-slate-300">{t('projectCount', { count: a.projectCount })}</td>
                   <td className="px-3 py-3">
                     {a.active ? (
                       <span className="px-2 py-0.5 text-xs rounded bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30">{tCommon('active')}</span>
