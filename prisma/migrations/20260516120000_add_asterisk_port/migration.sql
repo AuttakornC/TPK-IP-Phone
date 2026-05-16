@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "asterisks" ADD COLUMN "port" INTEGER NOT NULL DEFAULT 5060;

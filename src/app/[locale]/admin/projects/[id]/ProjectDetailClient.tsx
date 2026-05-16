@@ -13,7 +13,7 @@ import StatCard from '@/components/ui/StatCard';
 import StatusPill from '@/components/ui/StatusPill';
 import type { ProjectStatus } from '@/lib/mock';
 import { deleteProject, updateProject, type DeleteProjectResult, type ProjectRow, type UpdateProjectResult } from '@/server/actions/projects';
-import { createSpeaker, updateSpeaker, deleteSpeaker, type CreateSpeakerResult, type UpdateSpeakerResult } from '@/server/actions/speakers';
+import { createSpeaker, updateSpeaker, deleteSpeaker, setSpeakerOnline, type CreateSpeakerResult, type UpdateSpeakerResult } from '@/server/actions/speakers';
 import { deleteUser, type ProjectUserRow } from '@/server/actions/users';
 import type { SpeakerRow } from '@/server/actions/speakers';
 
@@ -284,6 +284,13 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
     });
   }
 
+  function handleToggleOnline(s: SpeakerRow) {
+    startTransition(async () => {
+      await setSpeakerOnline(s.id, !s.online);
+      router.refresh();
+    });
+  }
+
   const generalUsers = users.filter(u => u.role === 'general').length;
 
   const infoCards = [
@@ -445,6 +452,24 @@ export default function ProjectDetailClient({ project, users, speakers, asterisk
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <SpeakerStatusPill status={s.status} />
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={s.online}
+                        onClick={() => handleToggleOnline(s)}
+                        disabled={pending}
+                        title={s.online ? t('speakersTab.toggleOnline.goOffline') : t('speakersTab.toggleOnline.goOnline')}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:opacity-60 ${
+                          s.online ? 'bg-emerald-500' : 'bg-slate-600'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                            s.online ? 'translate-x-4' : 'translate-x-1'
+                          }`}
+                        />
+                        <span className="sr-only">{t('speakersTab.toggleOnline.label')}</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => openEditSpeaker(s)}

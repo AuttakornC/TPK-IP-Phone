@@ -16,7 +16,10 @@ const SAVE_ERROR_KEY: Record<Extract<SaveAsteriskResult, { ok: false }>['error']
   name_required: 'nameRequired',
   domain_required: 'domainRequired',
   domain_taken: 'domainTaken',
+  port_invalid: 'portInvalid',
 };
+
+const DEFAULT_PORT = 5060;
 
 interface Props {
   asterisks: AsteriskRow[];
@@ -33,6 +36,7 @@ export default function AsterisksClient({ asterisks }: Props) {
   const [editing, setEditing] = useState<AsteriskRow | null>(null);
   const [name, setName] = useState('');
   const [domain, setDomain] = useState('');
+  const [port, setPort] = useState<string>(String(DEFAULT_PORT));
   const [active, setActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +44,7 @@ export default function AsterisksClient({ asterisks }: Props) {
     setEditing(null);
     setName('');
     setDomain('');
+    setPort(String(DEFAULT_PORT));
     setActive(true);
     setError(null);
     setShowModal(true);
@@ -49,6 +54,7 @@ export default function AsterisksClient({ asterisks }: Props) {
     setEditing(a);
     setName(a.name);
     setDomain(a.domain);
+    setPort(String(a.port));
     setActive(a.active);
     setError(null);
     setShowModal(true);
@@ -57,10 +63,15 @@ export default function AsterisksClient({ asterisks }: Props) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const portNum = Number(port);
+    if (!Number.isFinite(portNum) || portNum < 1 || portNum > 65535) {
+      setError(t('errors.portInvalid'));
+      return;
+    }
     startTransition(async () => {
       const result = editing
-        ? await updateAsterisk({ id: editing.id, name, domain, active })
-        : await createAsterisk({ name, domain, active });
+        ? await updateAsterisk({ id: editing.id, name, domain, port: portNum, active })
+        : await createAsterisk({ name, domain, port: portNum, active });
       if (!result.ok) {
         setError(t(`errors.${SAVE_ERROR_KEY[result.error]}`));
         return;
@@ -123,6 +134,7 @@ export default function AsterisksClient({ asterisks }: Props) {
             <tr className="text-left">
               <th className="px-3 py-2 font-semibold">{t('table.name')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.domain')}</th>
+              <th className="px-3 py-2 font-semibold">{t('table.port')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.speakers')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.status')}</th>
               <th className="px-3 py-2 font-semibold">{t('table.actions')}</th>
@@ -131,7 +143,7 @@ export default function AsterisksClient({ asterisks }: Props) {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-slate-400">{t('table.empty')}</td>
+                <td colSpan={6} className="px-3 py-6 text-center text-slate-400">{t('table.empty')}</td>
               </tr>
             ) : filtered.map(a => {
               const inUse = a.speakerCount + a.userAsteriskCount;
@@ -139,6 +151,7 @@ export default function AsterisksClient({ asterisks }: Props) {
                 <tr key={a.id} className="border-t border-white/5 hover:bg-white/5">
                   <td className="px-3 py-3 font-medium text-white">{a.name}</td>
                   <td className="px-3 py-3 font-mono text-slate-300">{a.domain}</td>
+                  <td className="px-3 py-3 font-mono text-slate-300">{a.port}</td>
                   <td className="px-3 py-3 text-slate-300">{t('speakerCount', { count: inUse })}</td>
                   <td className="px-3 py-3">
                     {a.active ? (
@@ -181,17 +194,34 @@ export default function AsterisksClient({ asterisks }: Props) {
                 required
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.domain')}</label>
-              <input
-                type="text"
-                value={domain}
-                onChange={e => setDomain(e.target.value)}
-                placeholder="sip.example.com"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
-                required
-              />
-              <p className="text-xs text-slate-500 mt-1">{t('modal.domainHint')}</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.domain')}</label>
+                <input
+                  type="text"
+                  value={domain}
+                  onChange={e => setDomain(e.target.value)}
+                  placeholder="sip.example.com"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+                  required
+                />
+                <p className="text-xs text-slate-500 mt-1">{t('modal.domainHint')}</p>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">{t('modal.port')}</label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={65535}
+                  value={port}
+                  onChange={e => setPort(e.target.value)}
+                  placeholder="5060"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+                  required
+                />
+                <p className="text-xs text-slate-500 mt-1">{t('modal.portHint')}</p>
+              </div>
             </div>
             <label className="flex items-center gap-2 text-sm text-slate-700">
               <input type="checkbox" checked={active} onChange={e => setActive(e.target.checked)} />

@@ -156,6 +156,7 @@ async function main() {
         id: a.id,
         name: a.name,
         domain: a.domain,
+        port: a.port,
         active: a.active,
       },
     });

@@ -228,6 +228,11 @@
       "notAssigned": "ยังไม่ได้ assign ให้ผู้ใช้ทั่วไป",
       "assignedTo": "→ {names}",
       "noAsteriskHint": "ต้องมี Asterisk อย่างน้อยหนึ่งตัวก่อนเพิ่มจุดประกาศ",
+      "toggleOnline": {
+        "label": "สลับสถานะออนไลน์",
+        "goOnline": "ตั้งเป็นออนไลน์",
+        "goOffline": "ตั้งเป็นออฟไลน์"
+      },
       "deleteModal": {
         "title": "ลบจุดประกาศ?",
         "warning": "การลบจะลบ assign ผู้ใช้ทั่วไปที่ผูกกับจุดนี้ด้วย และไม่สามารถย้อนกลับได้",
@@ -350,6 +355,7 @@
     "table": {
       "name": "ชื่อ",
       "domain": "Domain",
+      "port": "พอร์ต",
       "speakers": "จุดประกาศที่ใช้",
       "status": "สถานะ",
       "actions": "ดำเนินการ",
@@ -363,13 +369,16 @@
       "namePlaceholder": "เช่น Asterisk หลัก",
       "domain": "SIP domain",
       "domainHint": "เช่น sip.tpk-pa.local — ต้อง unique",
+      "port": "พอร์ต",
+      "portHint": "ค่าเริ่มต้น 5060",
       "active": "เปิดใช้งาน",
       "submit": "สร้าง Asterisk"
     },
     "errors": {
       "nameRequired": "กรุณาระบุชื่อ Asterisk",
       "domainRequired": "กรุณาระบุ SIP domain",
-      "domainTaken": "Domain นี้ถูกใช้แล้ว"
+      "domainTaken": "Domain นี้ถูกใช้แล้ว",
+      "portInvalid": "พอร์ตต้องเป็นตัวเลขระหว่าง 1–65535"
     }
   },
   "controlPanel": {
@@ -705,14 +714,11 @@
       "ธันวาคม"
     ],
     "broadcastAll": "ประกาศไปยังลำโพงทุกจุด",
-    "emergency": "แจ้งเหตุฉุกเฉิน",
     "mySpeakers": "ลำโพงของคุณ",
     "noSpeakers": "ยังไม่มีลำโพงที่กำหนดให้คุณ — โปรดติดต่อผู้ดูแลระบบ",
     "speakerOnline": "ออนไลน์ พร้อมประกาศ",
     "speakerOffline": "ออฟไลน์ ไม่สามารถประกาศได้",
     "speakerBroadcast": "📢 ประกาศ",
-    "templateTitle": "ข้อความสำเร็จรูป",
-    "templateSubtitle": "กดเพื่อประกาศข้อความสำเร็จรูปได้ทันที",
     "navHome": "หน้าหลัก",
     "navHistory": "ประวัติ",
     "navExit": "ออก",
@@ -723,33 +729,29 @@
       "allDetail": "เสียงของคุณจะออกลำโพงทั้ง {count} จุดพร้อมกัน",
       "singleTitle": "ประกาศไปยัง {name}?",
       "singleDetail": "เสียงของคุณจะออกลำโพงจุดนี้ทันที",
-      "templateTitle": "เล่นข้อความ \"{name}\"?",
-      "templateDetail": "ระบบจะเล่นไฟล์เสียงผ่านลำโพงทุกจุดที่คุณรับผิดชอบ",
-      "emergencyTitle": "ยืนยันประกาศเหตุ \"{name}\"?",
-      "emergencyDetail": "ระบบจะเล่นเสียงเตือนภัยทันทีบนลำโพงทุกจุดที่คุณรับผิดชอบ",
       "yes": "ใช่ เริ่มประกาศ",
       "no": "ไม่ ยกเลิก"
     },
-    "emergencyPicker": {
-      "title": "เลือกประเภทเหตุฉุกเฉิน",
-      "subtitle": "ระบบจะเล่นเสียงเตือนภัยเฉพาะประเภท",
-      "ext": "เบอร์ {ext}",
-      "close": "ปิด"
-    },
     "call": {
       "connecting": "กำลังเชื่อมต่อ...",
-      "speakingSiren": "● กำลังประกาศไซเรน",
       "speaking": "● กำลังพูด...",
       "successTitle": "ประกาศสำเร็จ",
       "successMulti": "ประกาศไปยัง {count} จุด เป็นเวลา {min}:{sec} นาที",
       "successSingle": "ประกาศเป็นเวลา {min}:{sec} นาที",
       "backHome": "กลับหน้าหลัก",
       "stop": "หยุดประกาศ",
-      "emergencyTitle": "🚨 {name}",
-      "emergencySub": "เตือนภัยทุกจุด · เบอร์ {ext}",
-      "templateSub": "เล่นไฟล์เสียง · {count} ลำโพง · {duration}",
       "groupTitle": "ประกาศไปยัง {count} จุด",
-      "fallbackTarget": "ลำโพง"
+      "fallbackTarget": "ลำโพง",
+      "errors": {
+        "title": "ประกาศไม่สำเร็จ",
+        "noCredentials": "ไม่พบข้อมูล SIP ของบัญชีนี้ — โปรดติดต่อผู้ดูแลระบบ",
+        "asteriskInactive": "Asterisk ที่กำหนดไว้ถูกปิดใช้งาน — โปรดติดต่อผู้ดูแลระบบ",
+        "transport": "เชื่อมต่อ Asterisk ไม่ได้ — ตรวจสอบเครือข่าย",
+        "registration": "ลงทะเบียน SIP ไม่สำเร็จ — รหัสผ่านอาจไม่ถูกต้อง",
+        "micDenied": "ไม่อนุญาตให้ใช้ไมโครโฟน — เปิดสิทธิ์ในการตั้งค่าเบราว์เซอร์",
+        "micUnavailable": "ไม่พบไมโครโฟนบนอุปกรณ์นี้",
+        "unknown": "เกิดข้อผิดพลาด — กรุณาลองใหม่อีกครั้ง"
+      }
     },
     "history": {
       "title": "ประวัติการประกาศของฉัน",

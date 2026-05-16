@@ -8,6 +8,7 @@ export interface AsteriskRow {
   id: string;
   name: string;
   domain: string;
+  port: number;
   active: boolean;
   speakerCount: number;
   userAsteriskCount: number;
@@ -25,6 +26,7 @@ export async function listAsterisks(): Promise<AsteriskRow[]> {
     id: a.id,
     name: a.name,
     domain: a.domain,
+    port: a.port,
     active: a.active,
     speakerCount: a._count.speakers,
     userAsteriskCount: a._count.userAsterisks,
@@ -33,24 +35,27 @@ export async function listAsterisks(): Promise<AsteriskRow[]> {
 
 export type SaveAsteriskResult =
   | { ok: true; id: string }
-  | { ok: false; error: 'name_required' | 'domain_required' | 'domain_taken' };
+  | { ok: false; error: 'name_required' | 'domain_required' | 'domain_taken' | 'port_invalid' };
 
 export async function createAsterisk(input: {
   name: string;
   domain: string;
+  port: number;
   active: boolean;
 }): Promise<SaveAsteriskResult> {
   await requireAdmin();
   const name = input.name.trim();
   const domain = input.domain.trim().toLowerCase();
+  const port = Math.trunc(input.port);
   if (!name) return { ok: false, error: 'name_required' };
   if (!domain) return { ok: false, error: 'domain_required' };
+  if (!Number.isFinite(port) || port < 1 || port > 65535) return { ok: false, error: 'port_invalid' };
 
   const dup = await prisma.asterisk.findUnique({ where: { domain } });
   if (dup) return { ok: false, error: 'domain_taken' };
 
   const created = await prisma.asterisk.create({
-    data: { name, domain, active: input.active },
+    data: { name, domain, port, active: input.active },
   });
 
   revalidatePath('/[locale]/admin/asterisks', 'page');
@@ -61,13 +66,16 @@ export async function updateAsterisk(input: {
   id: string;
   name: string;
   domain: string;
+  port: number;
   active: boolean;
 }): Promise<SaveAsteriskResult> {
   await requireAdmin();
   const name = input.name.trim();
   const domain = input.domain.trim().toLowerCase();
+  const port = Math.trunc(input.port);
   if (!name) return { ok: false, error: 'name_required' };
   if (!domain) return { ok: false, error: 'domain_required' };
+  if (!Number.isFinite(port) || port < 1 || port > 65535) return { ok: false, error: 'port_invalid' };
 
   const dup = await prisma.asterisk.findFirst({
     where: { domain, NOT: { id: input.id } },
@@ -77,7 +85,7 @@ export async function updateAsterisk(input: {
 
   await prisma.asterisk.update({
     where: { id: input.id },
-    data: { name, domain, active: input.active },
+    data: { name, domain, port, active: input.active },
   });
 
   revalidatePath('/[locale]/admin/asterisks', 'page');

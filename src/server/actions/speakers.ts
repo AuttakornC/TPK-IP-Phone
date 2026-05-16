@@ -144,6 +144,24 @@ export async function updateSpeaker(input: {
   return { ok: true };
 }
 
+export type SetSpeakerOnlineResult = { ok: true; online: boolean } | { ok: false; error: 'not_found' };
+
+export async function setSpeakerOnline(id: string, online: boolean): Promise<SetSpeakerOnlineResult> {
+  await requireAdmin();
+  const existing = await prisma.speaker.findUnique({ where: { id }, select: { id: true } });
+  if (!existing) return { ok: false, error: 'not_found' };
+
+  const updated = await prisma.speaker.update({
+    where: { id },
+    data: { online },
+    select: { online: true },
+  });
+
+  revalidatePath('/[locale]/admin/projects/[id]', 'page');
+  revalidatePath('/[locale]/admin/status', 'page');
+  return { ok: true, online: updated.online };
+}
+
 export type DeleteSpeakerResult = { ok: true } | { ok: false; error: 'not_found' };
 
 export async function deleteSpeaker(id: string): Promise<DeleteSpeakerResult> {

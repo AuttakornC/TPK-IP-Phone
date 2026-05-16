@@ -75,6 +75,7 @@ model Asterisk {
   id        String   @id @default(cuid())
   name      String
   domain    String   @unique
+  port      Int      @default(5060)
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

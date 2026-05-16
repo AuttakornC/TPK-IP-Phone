@@ -22,3 +22,16 @@ export async function requireAdmin() {
   }
   return session;
 }
+
+/**
+ * Server-side gate for the head-village ("general") UI. Redirects callers who
+ * are not signed in as a general-role project user back to the landing page.
+ */
+export async function requireGeneralUser() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== 'general') {
+    const locale = await getLocale();
+    redirect({ href: '/', locale });
+  }
+  return session;
+}

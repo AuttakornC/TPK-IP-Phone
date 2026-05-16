@@ -29,6 +29,7 @@ export interface Asterisk {
   id: string;
   name: string;
   domain: string;
+  port: number;
   active: boolean;
 }
 
@@ -125,8 +126,8 @@ export const PROJECTS: Project[] = [
 // ============= ASTERISKS =============
 // Vendor-managed PBX domains. Global — every speaker registers to one.
 export const ASTERISKS: Asterisk[] = [
-  { id: 'as1', name: 'Asterisk หลัก', domain: 'sip.tpk-pa.local', active: true },
-  { id: 'as2', name: 'Asterisk สำรอง', domain: 'sip-backup.tpk-pa.local', active: true },
+  { id: 'as1', name: 'Asterisk หลัก', domain: 'sip.tpk-pa.local', port: 5060, active: true },
+  { id: 'as2', name: 'Asterisk สำรอง', domain: 'sip-backup.tpk-pa.local', port: 5060, active: true },
 ];
 
 // ============= SPEAKERS =============

@@ -228,6 +228,11 @@
       "notAssigned": "Not yet assigned to a general user",
       "assignedTo": "→ {names}",
       "noAsteriskHint": "Create an Asterisk before adding speakers",
+      "toggleOnline": {
+        "label": "Toggle online state",
+        "goOnline": "Set online",
+        "goOffline": "Set offline"
+      },
       "deleteModal": {
         "title": "Delete this speaker?",
         "warning": "This also removes any general-user assignments tied to this speaker. This cannot be undone.",
@@ -350,6 +355,7 @@
     "table": {
       "name": "Name",
       "domain": "Domain",
+      "port": "Port",
       "speakers": "Speakers using",
       "status": "Status",
       "actions": "Actions",
@@ -363,13 +369,16 @@
       "namePlaceholder": "e.g. Primary Asterisk",
       "domain": "SIP domain",
       "domainHint": "e.g. sip.tpk-pa.local — must be unique",
+      "port": "Port",
+      "portHint": "Default 5060",
       "active": "Active",
       "submit": "Create Asterisk"
     },
     "errors": {
       "nameRequired": "Asterisk name is required",
       "domainRequired": "SIP domain is required",
-      "domainTaken": "That domain is already taken"
+      "domainTaken": "That domain is already taken",
+      "portInvalid": "Port must be a number between 1 and 65535"
     }
   },
   "controlPanel": {
@@ -705,14 +714,11 @@
       "December"
     ],
     "broadcastAll": "Broadcast to all speakers",
-    "emergency": "Emergency alert",
     "mySpeakers": "Your speakers",
     "noSpeakers": "No speakers assigned to you yet — please contact the administrator",
     "speakerOnline": "Online — ready to broadcast",
     "speakerOffline": "Offline — cannot broadcast",
     "speakerBroadcast": "📢 Broadcast",
-    "templateTitle": "Pre-recorded announcements",
-    "templateSubtitle": "Tap to play a pre-recorded message instantly",
     "navHome": "Home",
     "navHistory": "History",
     "navExit": "Exit",
@@ -723,33 +729,29 @@
       "allDetail": "Your voice will play on all {count} speakers at once",
       "singleTitle": "Broadcast to {name}?",
       "singleDetail": "Your voice will play on this speaker immediately",
-      "templateTitle": "Play \"{name}\"?",
-      "templateDetail": "The system will play the audio file on every assigned speaker",
-      "emergencyTitle": "Confirm \"{name}\" alert?",
-      "emergencyDetail": "The system will play the alert on every assigned speaker immediately",
       "yes": "Yes, start broadcasting",
       "no": "No, cancel"
     },
-    "emergencyPicker": {
-      "title": "Pick the emergency type",
-      "subtitle": "The system will play the matching alert tone",
-      "ext": "Ext. {ext}",
-      "close": "Close"
-    },
     "call": {
       "connecting": "Connecting...",
-      "speakingSiren": "● Sounding siren",
       "speaking": "● Speaking...",
       "successTitle": "Broadcast complete",
       "successMulti": "Broadcast to {count} speakers for {min}:{sec}",
       "successSingle": "Broadcast for {min}:{sec}",
       "backHome": "Back to home",
       "stop": "Stop broadcast",
-      "emergencyTitle": "🚨 {name}",
-      "emergencySub": "Alert all speakers · Ext. {ext}",
-      "templateSub": "Audio file · {count} speakers · {duration}",
       "groupTitle": "Broadcasting to {count} speakers",
-      "fallbackTarget": "Speaker"
+      "fallbackTarget": "Speaker",
+      "errors": {
+        "title": "Broadcast failed",
+        "noCredentials": "No SIP credentials configured for this account — contact your administrator",
+        "asteriskInactive": "Your assigned Asterisk server is disabled — contact your administrator",
+        "transport": "Cannot reach the Asterisk server — check your network",
+        "registration": "SIP registration failed — credentials may be wrong",
+        "micDenied": "Microphone access denied — enable it in browser settings",
+        "micUnavailable": "No microphone available on this device",
+        "unknown": "Something went wrong — please try again"
+      }
     },
     "history": {
       "title": "My broadcast history",
