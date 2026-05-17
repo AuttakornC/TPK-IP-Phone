@@ -47,7 +47,6 @@ export default function GeneralHomeClient({
   const t = useTranslations('general');
   const [confirm, setConfirm] = useState<ConfirmDialog | null>(null);
   const [library, setLibrary] = useState<Mp3LibraryRow[]>(initialMp3Library);
-  const [selectedMp3Id, setSelectedMp3Id] = useState<string | null>(null);
   const [libraryError, setLibraryError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -90,12 +89,10 @@ export default function GeneralHomeClient({
       await deleteMyMp3(id);
       const rows = await listMyMp3Library();
       setLibrary(rows);
-      if (selectedMp3Id === id) setSelectedMp3Id(null);
     });
   }
 
   function askConfirm(opts: ConfirmDialog) {
-    setSelectedMp3Id(null);
     setConfirm(opts);
   }
 
@@ -105,20 +102,10 @@ export default function GeneralHomeClient({
       return;
     }
     const target = confirm.target;
-    const payload: {
-      kind: 'single' | 'group';
-      speakers: Array<{ id: string; name: string; area: string; ext: string }>;
-      mp3Url?: string;
-      playMode?: 'mp3-then-mic';
-    } = {
+    sessionStorage.setItem('generalCall', JSON.stringify({
       kind: target.kind,
       speakers: target.speakers.map(s => ({ id: s.id, name: s.name, area: s.area, ext: s.ext })),
-    };
-    if (selectedMp3Id) {
-      payload.mp3Url = `/api/mp3/${selectedMp3Id}`;
-      payload.playMode = 'mp3-then-mic';
-    }
-    sessionStorage.setItem('generalCall', JSON.stringify(payload));
+    }));
     router.push('/general/call');
   }
 
@@ -259,35 +246,7 @@ export default function GeneralHomeClient({
           <div className="elder-confirm-card">
             <div className="text-5xl mb-3">{confirm.icon}</div>
             <h2>{confirm.title}</h2>
-            <p className="mb-4">{confirm.detail}</p>
-
-            {library.length > 0 && (
-              <div className="text-left mb-4 border-2 border-slate-200 rounded-2xl p-3">
-                <div className="font-bold text-slate-700 mb-2" style={{ fontSize: 16 }}>
-                  {t('confirm.mp3Heading')}
-                </div>
-                <label className="flex items-center gap-2 py-2">
-                  <input
-                    type="radio"
-                    name="mp3-pick"
-                    checked={selectedMp3Id === null}
-                    onChange={() => setSelectedMp3Id(null)}
-                  />
-                  <span style={{ fontSize: 16 }}>{t('confirm.mp3None')}</span>
-                </label>
-                {library.map(m => (
-                  <label key={m.id} className="flex items-center gap-2 py-2">
-                    <input
-                      type="radio"
-                      name="mp3-pick"
-                      checked={selectedMp3Id === m.id}
-                      onChange={() => setSelectedMp3Id(m.id)}
-                    />
-                    <span style={{ fontSize: 16 }} className="truncate">🎵 {m.name}</span>
-                  </label>
-                ))}
-              </div>
-            )}
+            <p className="mb-5">{confirm.detail}</p>
 
             <div className="space-y-3">
               <button onClick={handleConfirmYes} className="btn-elder-primary">

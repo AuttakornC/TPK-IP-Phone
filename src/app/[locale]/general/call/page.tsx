@@ -5,15 +5,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import DemoRibbon from '@/components/ui/DemoRibbon';
 import { SipClient, SipError, type SipCallHandle } from '@/lib/sip';
-import { OutgoingMixer, type PlayMode } from '@/lib/audio/outgoingMixer';
+import { OutgoingMixer, DEFAULT_MP3_GAIN, type MixerMp3State } from '@/lib/audio/outgoingMixer';
 import { getSipConfig } from '@/server/actions/sip';
-import { claimSpeakerForCall, markMySpeakerIdle } from '@/server/actions/general';
+import { claimSpeakerForCall, listMyMp3Library, markMySpeakerIdle, type Mp3LibraryRow } from '@/server/actions/general';
 
 interface CallPayload {
   kind: 'single' | 'group';
   speakers: Array<{ id: string; name: string; area: string; ext: string }>;
-  mp3Url?: string;
-  playMode?: PlayMode;
 }
 
 export default function GeneralCallPage() {
@@ -24,6 +22,13 @@ export default function GeneralCallPage() {
   const [status, setStatus] = useState(t('connecting'));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [callAnswered, setCallAnswered] = useState(false);
+  const [library, setLibrary] = useState<Mp3LibraryRow[]>([]);
+  const [selectedMp3Id, setSelectedMp3Id] = useState<string | null>(null);
+  const [mp3State, setMp3State] = useState<MixerMp3State>('idle');
+  const [mp3Volume, setMp3Volume] = useState<number>(DEFAULT_MP3_GAIN);
+  const [micMuted, setMicMuted] = useState(false);
+
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const clientRef = useRef<SipClient | null>(null);
   const callsRef = useRef<SipCallHandle[]>([]);
@@ -95,6 +100,8 @@ export default function GeneralCallPage() {
     }
     setData(parsed);
 
+    void listMyMp3Library().then(setLibrary).catch(() => {});
+
     (async () => {
       const configResult = await getSipConfig();
       if (!configResult.ok) {
@@ -110,45 +117,29 @@ export default function GeneralCallPage() {
       }
       busySpeakerIdRef.current = target.id;
 
-      let outgoingStream: MediaStream | undefined;
-      const useMixer = !!(parsed.mp3Url && parsed.playMode && parsed.playMode !== 'mic');
-      if (useMixer) {
-        const mixer = new OutgoingMixer();
-        mixerRef.current = mixer;
-        outgoingStream = mixer.stream;
-      }
-      let mixerStarted = false;
+      const mixer = new OutgoingMixer({
+        onMp3StateChange: setMp3State,
+      });
+      mixerRef.current = mixer;
 
       const client = new SipClient(configResult.config, {
         onCallStateChange: handle => {
           callsRef.current = clientRef.current?.activeCalls() ?? [];
-          // Once the speaker actually picks up, start the live timer and (if we
-          // have a mixer) start MP3 playback. Deferring start() to 'answered'
-          // avoids playing the MP3 into dead air during ring.
-          if (handle.state === 'answered') {
+          if (handle.state === 'answered' && !callAnswered) {
+            setCallAnswered(true);
             if (!timerRef.current) {
               timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
-              if (!useMixer) setStatus(t('speaking'));
             }
-            const mixer = mixerRef.current;
-            if (mixer && !mixerStarted && parsed.mp3Url && parsed.playMode && parsed.playMode !== 'mic') {
-              mixerStarted = true;
-              mixer.start({
-                mp3Url: parsed.mp3Url,
-                playMode: parsed.playMode,
-                onPhase: phase => {
-                  setStatus(t(phase === 'mp3' ? 'playingMp3' : 'speaking'));
-                },
-              }).catch(err => {
-                  const name = (err as DOMException)?.name;
-                  const code = name === 'NotAllowedError'
-                    ? 'mic_denied'
-                    : name === 'NotFoundError'
-                      ? 'mic_unavailable'
-                      : 'unknown';
-                  fail(new SipError(code, 'audio mixer failed to start', err));
-                });
-            }
+            setStatus(t('speaking'));
+            mixerRef.current?.attachMic().catch(err => {
+              const name = (err as DOMException)?.name;
+              const code = name === 'NotAllowedError'
+                ? 'mic_denied'
+                : name === 'NotFoundError'
+                  ? 'mic_unavailable'
+                  : 'unknown';
+              fail(new SipError(code, 'mic capture failed', err));
+            });
           }
           if ((handle.state === 'ended' || handle.state === 'failed') && busySpeakerIdRef.current) {
             const id = busySpeakerIdRef.current;
@@ -164,7 +155,7 @@ export default function GeneralCallPage() {
         await client.connect();
         await client.call(
           { id: target.id, ext: target.ext, name: target.name },
-          outgoingStream ? { stream: outgoingStream } : undefined,
+          { stream: mixer.stream },
         );
       } catch (err) {
         fail(err);
@@ -179,6 +170,38 @@ export default function GeneralCallPage() {
 
   function hangup() {
     finish();
+  }
+
+  function selectMp3(row: Mp3LibraryRow) {
+    if (!mixerRef.current) return;
+    mixerRef.current.loadMp3(`/api/mp3/${row.id}`, DEFAULT_MP3_GAIN);
+    setSelectedMp3Id(row.id);
+    setMp3Volume(DEFAULT_MP3_GAIN);
+    setMp3State('idle');
+  }
+
+  function togglePlayPause() {
+    if (!mixerRef.current || !selectedMp3Id) return;
+    if (mp3State === 'playing') {
+      mixerRef.current.pauseMp3();
+    } else {
+      void mixerRef.current.playMp3();
+    }
+  }
+
+  function resetMp3() {
+    mixerRef.current?.resetMp3();
+  }
+
+  function changeVolume(value: number) {
+    setMp3Volume(value);
+    mixerRef.current?.setMp3Gain(value);
+  }
+
+  function toggleMicMute() {
+    const next = !micMuted;
+    setMicMuted(next);
+    mixerRef.current?.setMicMuted(next);
   }
 
   if (!data) return null;
@@ -207,7 +230,7 @@ export default function GeneralCallPage() {
   const speakers = data.speakers;
   let title: string;
   let sub: string;
-  const micGlyph = '📢';
+  const micGlyph = micMuted ? '🔇' : '📢';
 
   if (data.kind === 'group') {
     title = t('groupTitle', { count: speakers.length });
@@ -245,19 +268,144 @@ export default function GeneralCallPage() {
     );
   }
 
+  const isPlaying = mp3State === 'playing';
+  const canControl = callAnswered && selectedMp3Id !== null;
+  const volumePct = Math.round(mp3Volume * 100);
+
   return (
     <div className="elder-body">
       <DemoRibbon />
-      <div className="elder-fullscreen">
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center" style={{ paddingBottom: 24 }}>
-          <div style={{ fontSize: 22, opacity: 0.85, marginBottom: 18 }}>{status}</div>
-          <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.3, marginBottom: 6 }}>{title}</div>
-          <div style={{ fontSize: 18, opacity: 0.85, marginBottom: 36 }}>{sub}</div>
+      <div className="elder-fullscreen" style={{ overflowY: 'auto' }}>
+        <div className="flex flex-col items-center px-6 text-center" style={{ paddingTop: 32, paddingBottom: 16 }}>
+          <div style={{ fontSize: 22, opacity: 0.85, marginBottom: 14 }}>{status}</div>
+          <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.3, marginBottom: 4 }}>{title}</div>
+          <div style={{ fontSize: 16, opacity: 0.85, marginBottom: 20 }}>{sub}</div>
           <div className="elder-mic">{micGlyph}</div>
-          <div style={{ fontSize: 56, fontWeight: 800, fontFamily: 'monospace', marginTop: 32, letterSpacing: '0.04em' }}>
+          <div style={{ fontSize: 44, fontWeight: 800, fontFamily: 'monospace', marginTop: 18, letterSpacing: '0.04em' }}>
             {m}:{s}
           </div>
         </div>
+
+        <div style={{ padding: '0 16px 12px' }}>
+          <button
+            onClick={toggleMicMute}
+            disabled={!callAnswered}
+            className={
+              !callAnswered
+                ? 'w-full bg-slate-200 text-slate-400 font-bold rounded-2xl flex items-center justify-center gap-2'
+                : micMuted
+                  ? 'w-full bg-red-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2'
+                  : 'w-full bg-white text-slate-900 border-2 border-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2'
+            }
+            style={{ minHeight: 64, fontSize: 20 }}
+          >
+            <span style={{ fontSize: 30 }}>{micMuted ? '🔇' : '🎤'}</span>
+            <span>{t(micMuted ? 'micUnmute' : 'micMute')}</span>
+          </button>
+        </div>
+
+        <div style={{ padding: '0 16px 12px' }}>
+          <section className="bg-white text-slate-900 rounded-3xl border-2 border-slate-200 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="m-0" style={{ fontSize: 18, fontWeight: 800 }}>🎵 {t('player.title')}</h3>
+              <div style={{ fontSize: 14, color: '#64748b' }}>{t('player.count', { count: library.length })}</div>
+            </div>
+
+            {library.length === 0 ? (
+              <div className="text-center text-slate-500 py-3" style={{ fontSize: 15 }}>
+                {t('player.empty')}
+              </div>
+            ) : (
+              <div className="mb-3">
+                <label htmlFor="mp3-picker" className="block font-semibold text-slate-700 mb-1" style={{ fontSize: 14 }}>
+                  {t('player.choose')}
+                </label>
+                <select
+                  id="mp3-picker"
+                  value={selectedMp3Id ?? ''}
+                  onChange={e => {
+                    const id = e.target.value;
+                    if (!id) return;
+                    const row = library.find(m => m.id === id);
+                    if (row) selectMp3(row);
+                  }}
+                  disabled={!callAnswered}
+                  className={`w-full rounded-2xl border-2 px-3 font-semibold appearance-none ${
+                    callAnswered ? 'border-slate-300 bg-white text-slate-900' : 'border-slate-100 bg-slate-50 text-slate-400'
+                  }`}
+                  style={{
+                    minHeight: 56,
+                    fontSize: 17,
+                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 12px center',
+                    backgroundSize: '24px 24px',
+                    paddingRight: 44,
+                  }}
+                >
+                  <option value="" disabled>{t('player.choosePlaceholder')}</option>
+                  {library.map(m => (
+                    <option key={m.id} value={m.id}>🎵 {m.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {selectedMp3Id && (
+              <div className="space-y-3 pt-2 border-t-2 border-slate-100">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={togglePlayPause}
+                    disabled={!canControl}
+                    className={
+                      canControl
+                        ? (isPlaying
+                            ? 'bg-amber-500 text-white font-bold rounded-2xl flex items-center justify-center gap-2'
+                            : 'bg-emerald-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2')
+                        : 'bg-slate-200 text-slate-400 font-bold rounded-2xl flex items-center justify-center gap-2'
+                    }
+                    style={{ minHeight: 64, fontSize: 18 }}
+                  >
+                    <span style={{ fontSize: 26 }}>{isPlaying ? '⏸' : '▶️'}</span>
+                    <span>{t(isPlaying ? 'player.pause' : 'player.play')}</span>
+                  </button>
+                  <button
+                    onClick={resetMp3}
+                    disabled={!canControl}
+                    className={
+                      canControl
+                        ? 'bg-slate-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2'
+                        : 'bg-slate-200 text-slate-400 font-bold rounded-2xl flex items-center justify-center gap-2'
+                    }
+                    style={{ minHeight: 64, fontSize: 18 }}
+                  >
+                    <span style={{ fontSize: 26 }}>🔄</span>
+                    <span>{t('player.reset')}</span>
+                  </button>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span style={{ fontSize: 14, color: '#64748b' }}>{t('player.volume')}</span>
+                    <span className="font-mono" style={{ fontSize: 14, color: '#475569' }}>{volumePct}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={mp3Volume}
+                    onChange={e => changeVolume(Number(e.target.value))}
+                    disabled={!canControl}
+                    className="w-full"
+                    style={{ height: 32 }}
+                  />
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+
         <div style={{ padding: '0 20px 28px' }}>
           <button onClick={hangup} className="btn-elder-hangup">
             <span style={{ fontSize: 38 }}>✕</span>
